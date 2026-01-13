@@ -8,3 +8,7 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return view('layouts.dashboard');
 });
+// ->middleware('auth');
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login');
