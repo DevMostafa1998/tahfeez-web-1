@@ -9,14 +9,14 @@
         <nav class="mt-2">
             <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation">
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="{{ route('dashboard') }}" class="nav-link">
                         <i class="nav-icon bi bi-speedometer"></i>
                         <p>لوحة التحكم</p>
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a href="/dashboard/hfaz" class="nav-link">
+                    <a href="{{ route('user') }}" class="nav-link">
                         <i class="nav-icon bi bi-palette"></i>
                         <p>المستخدمين</p>
                     </a>
