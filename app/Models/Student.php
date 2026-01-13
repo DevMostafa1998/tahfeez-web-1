@@ -1,0 +1,20 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class Student extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'full_name', 'id_number', 'date_of_birth',
+        'phone_number', 'address', 'is_displaced'
+    ];
+    protected $casts = [
+        'date_of_birth' => 'date',
+        'is_displaced' => 'boolean',
+    ];
+}
