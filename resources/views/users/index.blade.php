@@ -1,130 +1,97 @@
-@extends('layouts.app') {{-- استدعاء القالب الأساسي الذي يحتوي على الهيدر والسايدبار --}}
+@extends('layouts.app')
 
-@section('title', 'إضافة مستخدم جديد')
+@section('title', 'إدارة المستخدمين')
+
+@push('css')
+    <link rel="stylesheet" href="{{ asset('assets/css/user_table.css') }}" />
+@endpush
 
 @section('content')
-    <div class="app-content-header">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-sm-6">
-                    <h3 class="mb-0 fw-bold">إضافة مستخدم جديد</h3>
+    <div class="container-fluid p-4">
+
+        <div class="page-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <div class="bg-white p-2 rounded-4 shadow-sm">
+                    <i class="bi bi-people-fill fs-3 text-primary"></i>
                 </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-end">
-                        <li class="breadcrumb-item"><a href="#">الرئيسية</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">إضافة مستخدم</li>
-                    </ol>
+                <div>
+                    <h1 class="page-title m-0 h3">إدارة المستخدمين</h1>
                 </div>
             </div>
+
+            <a href="{{ route('user.create') }}" class="btn btn-primary d-flex align-items-center gap-2 px-4 py-2 rounded-3">
+                <i class="bi bi-plus-lg"></i>
+                <span>مستخدم جديد</span>
+            </a>
         </div>
-    </div>
 
-    <div class="app-content">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-12">
-                    <div class="card card-outline card-primary shadow-sm"
-                        style="border-radius: 15px; border-top: 4px solid #007bff;">
-                        <div class="card-header bg-white py-3">
-                            <h5 class="card-title fw-bold text-secondary mb-0">بيانات المستخدم الأساسية</h5>
-                        </div>
-
-                        <div class="card-body p-4">
-                            <form action="#" method="POST">
-                                @csrf
-                                <div class="row g-4">
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-bold small text-muted">الاسم الكامل</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-light"><i
-                                                    class="bi bi-person text-primary"></i></span>
-                                            <input type="text" name="FullName" class="form-control"
-                                                placeholder="أدخل الاسم رباعي" required>
-                                        </div>
+        <div class="card card-table">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>اسم المستخدم</th>
+                                <th>رقم الهوية</th>
+                                <th>رقم الجوال</th>
+                                <th>تاريخ الميلاد</th>
+                                <th>العنوان</th>
+                                <th>التصنيف</th>
+                                <th>النوع</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{-- صف المستخدم الأول --}}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="avatar-circle bg-primary text-white d-flex align-items-center justify-content-center rounded-circle"
+                                            style="width: 40px; height: 40px;">ي</div>
+                                        <span class="fw-bold">يوسف محمد أحمد</span>
                                     </div>
+                                </td>
+                                <td>407474748</td>
+                                <td>0592200300</td>
+                                <td class="text-secondary">1992-03-12</td>
+                                <td>غزة، حي النصر</td>
+                                <td>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3">
+                                        <i class="bi bi-shield-check"></i> مسؤول
+                                    </span>
+                                </td>
+                                <td><span class="badge bg-dark">إدارة عليا</span></td>
+                            </tr>
 
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-bold small text-muted">رقم الهوية</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-light"><i
-                                                    class="bi bi-card-heading text-primary"></i></span>
-                                            <input type="text" name="IdNumber" class="form-control"
-                                                placeholder="أدخل رقم الهوية" inputmode="numeric"
-                                                oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
-                                        </div>
+                            {{-- صف المستخدم الثاني --}}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="avatar-circle bg-success text-white d-flex align-items-center justify-content-center rounded-circle"
+                                            style="width: 40px; height: 40px;">خ</div>
+                                        <span class="fw-bold">خالد عبد الله</span>
                                     </div>
-
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-bold small text-muted">تاريخ الميلاد</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-light"><i
-                                                    class="bi bi-calendar3 text-primary"></i></span>
-                                            <input type="date" name="DateOfBirth" class="form-control" required>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-bold small text-muted">رقم الهاتف</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-light"><i
-                                                    class="bi bi-telephone text-primary"></i></span>
-                                            <input type="tel" name="PhoneNumber" class="form-control"
-                                                placeholder="05XXXXXXXX" inputmode="numeric"
-                                                oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-bold small text-muted">العنوان</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-light"><i
-                                                    class="bi bi-geo-alt text-primary"></i></span>
-                                            <input type="text" name="Address" class="form-control"
-                                                placeholder="المدينة، الحي" required>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <label class="form-label fw-bold small text-muted">تصنيف المستخدم</label>
-                                                <div class="input-group">
-                                                    <span class="input-group-text bg-light"><i
-                                                            class="bi bi-layers text-primary"></i></span>
-                                                    <select name="Category" class="form-select" required>
-                                                        <option value="" selected disabled>اختر التصنيف...</option>
-                                                        <option value="محفظ">محفظ</option>
-                                                        <option value="مسؤول">مسؤول</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                          <div class="col-md-6">
-                                                <label class="form-label fw-bold small text-muted">نوع التصنيف</label>
-                                                <div class="input-group">
-                                                    <span class="input-group-text bg-light"><i class="bi bi-pencil-square text-primary"></i></span>
-                                                    <input type="text" name="ClassificationType" class="form-control"
-                                                        placeholder="ادخل نوع التصنيف " required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="card-footer bg-white border-0 mt-4 p-0">
-                                    <div class="d-flex justify-content-start gap-2">
-                                        <button type="submit" class="btn btn-success px-5 fw-bold"
-                                            style="background-color: #28a745; border:none;">
-                                            <i class="bi bi-check-circle me-1"></i> حفظ البيانات
-                                        </button>
-                                        <button type="reset" class="btn btn-light px-4 border">إعادة تعيين</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+                                </td>
+                                <td>912547714</td>
+                                <td>0599100200</td>
+                                <td class="text-secondary">1988-11-05</td>
+                                <td>خانيونس، البلد</td>
+                                <td>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3">
+                                        <i class="bi bi-book"></i> محفظ
+                                    </span>
+                                </td>
+                                <td><span class="badge bg-dark">حلقات قرآنية</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        console.log("تم تحميل صفحة إدارة المستخدمين بنجاح");
+    </script>
+@endpush
