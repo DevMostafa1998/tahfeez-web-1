@@ -4,9 +4,6 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
-});
-Route::get('/dashboard', function () {
     return view('layouts.dashboard');
 })->name('dashboard');
 // ->middleware('auth');
@@ -16,3 +13,6 @@ Route::get('/login', function () {
 Route::get('/user', function () {
     return view('users.index');
 })->name('user');
+Route::get('/user/create', function () {
+    return view('users.create');
+})->name('user.create');
