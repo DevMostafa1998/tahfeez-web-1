@@ -9,6 +9,7 @@ class Category extends Model
 {
    use HasFactory;
 
+    protected $table = 'categorie';
     protected $fillable = ['name'];
 
     public function users(): HasMany
