@@ -31,18 +31,8 @@ class MainProjectSeeder extends Seeder
             'category_id'   => $adminCat->id,
         ]);
 
-        // 3. إنشاء حساب محفظ تجريبي
-        User::create([
-            'full_name'     => 'احمد المحفظ',
-            'id_number'     => '987654321', // رقم هوية المحفظ
-            'password'      => '111111',
-            'date_of_birth' => '1995-05-05',
-            'phone_number'  => '0591111111',
-            'address'       => 'خانيونس',
-            'is_admin'      => false,        // ليس مسؤولاً بل محفظ
-            'category_id'   => $teacherCat->id,
-        ]);
 
-        $this->command->info('تم إنشاء المسؤول والمحفظ بنجاح!');
+
+        $this->command->info('تم إنشاء المسؤول بنجاح!');
     }
 }
