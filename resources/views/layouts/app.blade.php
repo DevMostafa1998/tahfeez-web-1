@@ -14,7 +14,7 @@
         crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
         crossorigin="anonymous" />
-    <link rel="stylesheet" href="assets/css/adminlte.rtl.css" />
+    <link rel="stylesheet" href="{{ asset('assets/css/adminlte.rtl.css') }}" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.css"
         crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/css/jsvectormap.min.css"
@@ -43,7 +43,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" crossorigin="anonymous">
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
-    <script src="assets/js/adminlte.js"></script>
+    <script src="{{ asset('assets/js/adminlte.js') }}"></script>
 
     <script>
         const SELECTOR_SIDEBAR_WRAPPER = '.sidebar-wrapper';
