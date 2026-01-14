@@ -67,10 +67,10 @@
                             <div class="col-4 text-center"><a href="#">Friends</a></div>
                         </div>
                     </li> --}}
-                    <li class="user-footer">
-                        <a href="#" class="btn btn-default btn-flat">الملف الشخصي</a>
-                        <a href="#" class="btn btn-default btn-flat float-end">تسجيل الخروج</a>
-                    </li>
+                   <li class="user-footer">
+                    <a href="#" class="btn btn-default btn-flat">الملف الشخصي</a>
+                    <a href="{{ route('logout') }}" class="btn btn-default btn-flat float-end">تسجيل الخروج</a>
+                </li>
                 </ul>
             </li>
         </ul>
