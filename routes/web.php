@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,13 +20,17 @@ Route::middleware(['guest'])->group(function () {
 
 Route::middleware(['auth'])->group(function () {
 
-    Route::get('/dashboard', function () {return view('layouts.dashboard');})->name('dashboard');
-    Route::get('/user', function () { return view('users.index');})->name('user');
-    Route::get('/logout', function (Request $request) {Auth::logout();
+    Route::get('/dashboard', function () {
+        return view('layouts.dashboard');
+    })->name('dashboard');
 
+    Route::get('/user', [UserController::class, 'index'])->name('user');
+    Route::get('/user/create', [UserController::class, 'create'])->name('user.create');
+
+    Route::get('/logout', function (Request $request) {
+        Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
         return redirect()->route('login');
     })->name('logout');
 });
