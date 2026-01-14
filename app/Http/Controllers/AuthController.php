@@ -9,27 +9,32 @@ class AuthController extends Controller
 {
     protected $userLogic;
 
-    // نقوم بحقن كلاس الـ Logic داخل الـ Controller
     public function __construct(UserLogic $userLogic)
     {
         $this->userLogic = $userLogic;
     }
 
-    // عرض صفحة الدخول
     public function showLogin() {
         return view('auth.login');
     }
 
-    // تنفيذ عملية الدخول
     public function login(Request $request) {
+
+        $request->validate([
+            'id_number' => 'required|string',
+            'password'  => 'required',
+        ]);
+
         $id_number = $request->input('id_number');
         $password = $request->input('password');
 
-        // مناداة البرمجة التي كتبتها في BusinessLogic
         if ($this->userLogic->attemptLogin($id_number, $password)) {
-            return redirect()->intended('/dashboard');
+
+        return redirect()->route('dashboard');
         }
 
-        return back()->withErrors(['error' => 'رقم الهوية أو كلمة المرور غير صحيحة']);
+        return back()
+            ->withErrors(['error' => 'رقم الهوية أو كلمة المرور غير صحيحة'])
+            ->withInput($request->only('id_number'));
     }
 }
