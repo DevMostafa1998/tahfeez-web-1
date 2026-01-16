@@ -1,4 +1,4 @@
-@extends('layouts.app') {{-- استدعاء القالب الأساسي الذي يحتوي على الهيدر والسايدبار --}}
+@extends('layouts.app')
 
 @section('title', 'إضافة طالب جديد')
 
@@ -66,7 +66,7 @@
                                         </div>
                                     </div>
 
-                                    {{-- رقم الهاتف --}}
+                                    {{-- رقم  الهاتف --}}
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold small text-muted">رقم الهاتف</label>
                                         <div class="input-group">
