@@ -39,8 +39,12 @@ class StudentController extends Controller
             'address'       => 'required|string',
             'is_displaced'  => 'required|boolean',
         ]);
-        $validated['user_id'] = Auth::id();
-        Student::create($validated);
+        $data = array_merge($validated, [
+            'user_id'     => Auth::id(),
+            'creation_by' => Auth::user()->full_name,
+        ]);
+
+        Student::create($data);
         return redirect()->route('student.index')->with('success', 'تم إضافة الطالب بنجاح');
     }
 
@@ -55,24 +59,43 @@ class StudentController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //
+        // 1. جلب بيانات الطالب من قاعدة البيانات
+        $student = Student::findOrFail($id);
+
+        // 2. إرسال البيانات لملف العرض (تأكد من اسم المجلد student)
+        return view('students.edit', compact('student'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
-    }
+        $student = Student::findOrFail($id);
 
+        $validatedData = $request->validate([
+            'full_name' => 'required|string|max:255',
+            'id_number' => 'required|numeric|digits:9',
+            'phone_number' => 'required|numeric|digits:10',
+            'date_of_birth' => 'required|date',
+            'address' => 'required|string',
+            'is_displaced' => 'required|boolean',
+        ]);
+        $student->update(array_merge($validatedData, [
+            'updated_by' => Auth::user()->full_name,
+        ]));
+        $student->update($request->all());
+
+        return redirect()->route('student.index')->with('success', 'تم تحديث بيانات الطالب بنجاح');
+    }
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        Student::destroy($id);
+        return redirect()->route('student.index')->with('success', 'تم حذف الطالب بنجاح');
     }
 }
