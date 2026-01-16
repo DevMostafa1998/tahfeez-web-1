@@ -1,9 +1,9 @@
-w@extends('layouts.app')
+@extends('layouts.app')
 @section('title', 'إدارة المستخدمين')
 
 @section('content')
 <div class="container-fluid p-4">
-   
+
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{ session('success') }}
