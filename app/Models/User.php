@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class User extends Authenticatable
 {
+
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, SoftDeletes;
 
@@ -19,15 +20,23 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+
     protected $table = 'user';
     protected $fillable = [
-        'full_name', 'password', 'id_number',
-        'date_of_birth', 'phone_number', 'address',
-        'is_admin', 'category_id', 'creation_by',
-        'updated_by', 'deleted_by',
+        'full_name',
+        'password',
+        'id_number',
+        'date_of_birth',
+        'phone_number',
+        'address',
+        'is_admin',
+        'category_id',
+        'creation_by',
+        'updated_by',
+        'deleted_by',
 
     ];
-
+    protected $dates = ['deleted_at']; 
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -56,6 +65,6 @@ class User extends Authenticatable
     }
     public function category(): BelongsTo
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class, 'category_id');
     }
 }
