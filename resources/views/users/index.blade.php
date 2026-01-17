@@ -19,60 +19,62 @@
     </div>
 
     <div class="card shadow-sm border-0" style="border-radius: 15px;">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 text-center">
-                <thead class="bg-light text-secondary">
-                    <tr>
-                        <th>اسم المستخدم</th>
-                        <th>رقم الهوية </th>
-                        <th>رقم الجوال</th>
-                        <th>التصنيف</th>
-                        <th>الحالة</th>
-                        <th>الإجراءات</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($users as $user)
-                    <tr>
-                        <td class="text-start ps-4">
-                            <strong>{{ $user->full_name }}</strong>
-                        </td>
-                        <td>{{ $user->id_number }}</td>
-                        <td>{{ $user->phone_number }}</td>
-                        <td>
-                            @php $catName = \DB::table('categorie')->where('id', $user->category_id)->value('name'); @endphp
-                            <span class="badge bg-dark">{{ $catName }}</span>
-                        </td>
-                        <td>
-                            <span class="badge {{ $user->is_admin ? 'bg-primary' : 'bg-success' }}">
-                                {{ $user->is_admin ? 'مسؤول' : 'محفظ' }}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="btn-group gap-2">
-                                <button class="btn btn-sm btn-outline-warning rounded-circle edit-btn"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#editUserModal"
-                                        data-user="{{ json_encode($user) }}">
-                                    <i class="bi bi-pencil-square"></i>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 text-center">
+            <thead class="bg-light text-secondary">
+                <tr>
+                    <th>اسم المستخدم</th>
+                    <th>رقم الهوية</th>
+                    <th>رقم الجوال</th>
+                    <th>العنوان</th>
+                    <th>التصنيف</th>
+                    <th>الحالة</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($users as $user)
+                <tr>
+                    <td class="text-start ps-4">
+                        <strong>{{ $user->full_name }}</strong>
+                    </td>
+                    <td>{{ $user->id_number }}</td>
+                    <td>{{ $user->phone_number }}</td>
+                    <td>{{ $user->address ?? 'غير محدد' }}</td>
+
+                    <td>
+                        @php $catName = \DB::table('categorie')->where('id', $user->category_id)->value('name'); @endphp
+                        <span class="badge bg-dark">{{ $catName }}</span>
+                    </td>
+                    <td>
+                        <span class="badge {{ $user->is_admin ? 'bg-primary' : 'bg-success' }}">
+                            {{ $user->is_admin ? 'مسؤول' : 'محفظ' }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group gap-2">
+                            <button class="btn btn-sm btn-outline-warning rounded-circle edit-btn"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editUserModal"
+                                    data-user="{{ json_encode($user) }}">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+
+                            <form action="{{ route('user.destroy', $user->id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من نقل المستخدم لسلة المهملات؟')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle">
+                                    <i class="bi bi-trash3"></i>
                                 </button>
-
-
-                                <form action="{{ route('user.destroy', $user->id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من نقل المستخدم لسلة المهملات؟')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle">
-                                        <i class="bi bi-trash3"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
+</div>
 </div>
 
 <div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
