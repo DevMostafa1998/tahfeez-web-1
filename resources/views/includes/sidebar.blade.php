@@ -23,12 +23,9 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon bi bi-box-seam-fill"></i>
-                        <p>
-                            الواجهات
-                            <i class="nav-arrow bi bi-chevron-right"></i>
-                        </p>
+                    <a href="{{ route('student.index') }}" class="nav-link">
+                        <i class="nav-icon bi bi-palette"></i>
+                        <p>الطلاب</p>
                     </a>
                 </li>
             </ul>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
@@ -30,6 +31,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/user/{id}', [UserController::class, 'update'])->name('user.update');
     Route::delete('/user/{id}', [UserController::class, 'destroy'])->name('user.destroy');
 
+    Route::resource('student', StudentController::class);
     Route::get('/logout', function (Request $request) {
         Auth::logout();
         $request->session()->invalidate();
