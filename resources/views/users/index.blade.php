@@ -85,51 +85,85 @@
                     <h5 class="modal-title fw-bold">تعديل بيانات المستخدم</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body p-4" dir="rtl" style="text-align: right;">
-    <div class="row g-3">
-        <div class="col-md-6 mb-3">
-            <label class="form-label small fw-bold d-block" style="text-align: right !important; direction: rtl !important; width: 100%;">الاسم رباعي</label>
-            <input type="text" name="full_name" id="edit_full_name" class="form-control" style="direction: rtl !important; text-align: right !important;" required>
-        </div>
+               <div class="modal-body p-4" dir="rtl">
+                <div class="row g-4">
 
-        <div class="col-md-6 mb-3">
-            <label class="form-label small fw-bold d-block" style="text-align: right !important; direction: rtl !important; width: 100%;">رقم الهوية</label>
-            <input type="text" name="id_number" id="edit_id_number" class="form-control" style="direction: rtl !important; text-align: right !important;" required>
-        </div>
+                    <div class="col-md-4 text-end">
+                        <label class="form-label fw-bold small text-muted d-block" style="text-align: right;">الاسم رباعي</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-person text-primary"></i></span>
+                            <input type="text" name="full_name" id="edit_full_name" class="form-control"
+                                style="direction: rtl !important; text-align: right !important;"
+                                placeholder="أدخل الاسم رباعي" required>
+                        </div>
+                    </div>
 
-        <div class="col-md-6 mb-3">
-            <label class="form-label small fw-bold d-block" style="text-align: right !important; direction: rtl !important; width: 100%;">رقم الجوال</label>
-            <input type="text" name="phone_number" id="edit_phone_number" class="form-control" style="direction: rtl !important; text-align: right !important;" required>
-        </div>
+                    <div class="col-md-4 text-end">
+                        <label class="form-label fw-bold small text-muted d-block" style="text-align: right;">رقم الهوية</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-card-heading text-primary"></i></span>
+                            <input type="text" name="id_number" id="edit_id_number" class="form-control"
+                                style="direction: rtl !important; text-align: right !important;"
+                                placeholder="أدخل رقم الهوية" required>
+                        </div>
+                    </div>
 
-        <div class="col-md-6 mb-3">
-            <label class="form-label small fw-bold d-block" style="text-align: right !important; direction: rtl !important; width: 100%;">العنوان</label>
-            <input type="text" name="address" id="edit_address" class="form-control" style="direction: rtl !important; text-align: right !important;" required>
-        </div>
+                    <div class="col-md-4 text-end">
+                        <label class="form-label fw-bold small text-muted d-block" style="text-align: right;">رقم الجوال</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-telephone text-primary"></i></span>
+                            <input type="tel" name="phone_number" id="edit_phone_number" class="form-control"
+                                style="direction: rtl !important; text-align: right !important;"
+                                placeholder="05XXXXXXXX" required>
+                        </div>
+                    </div>
 
-        <div class="col-md-6 mb-3">
-            <label class="form-label small fw-bold d-block" style="text-align: right !important; direction: rtl !important; width: 100%;">الصلاحية</label>
-            <select name="is_admin" id="edit_is_admin" class="form-select" style="direction: rtl !important; text-align: right !important;">
-                <option value="1">مسؤول</option>
-                <option value="0">محفظ</option>
-            </select>
-        </div>
+                    <div class="col-md-4 text-end">
+                        <label class="form-label fw-bold small text-muted d-block" style="text-align: right;">العنوان</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-geo-alt text-primary"></i></span>
+                            <input type="text" name="address" id="edit_address" class="form-control"
+                                style="direction: rtl !important; text-align: right !important;"
+                                placeholder="المدينة، الحي" required>
+                        </div>
+                    </div>
 
-        <div class="col-md-6 mb-3">
-            <label class="form-label small fw-bold d-block" style="text-align: right !important; direction: rtl !important; width: 100%;">نوع التصنيف</label>
-            <select name="category_id" id="edit_category_id" class="form-select" style="direction: rtl !important; text-align: right !important;">
-                @foreach(\DB::table('categorie')->get() as $cat)
-                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                @endforeach
-            </select>
-        </div>
+                    <div class="col-md-4 text-end">
+                        <label class="form-label fw-bold small text-muted d-block" style="text-align: right;">الصلاحية</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-layers text-primary"></i></span>
+                            <select name="is_admin" id="edit_is_admin" class="form-select" style="direction: rtl !important; text-align: right !important;">
+                                <option value="1">مسؤول</option>
+                                <option value="0">محفظ</option>
+                            </select>
+                        </div>
+                    </div>
 
-        <div class="col-6 mb-3">
-            <label class="form-label small fw-bold d-block" style="text-align: right !important; direction: rtl !important; width: 100%;">كلمة المرور (اتركها فارغة إذا لم تكن تريد التغيير)</label>
-            <input type="password" name="password" class="form-control" style="direction: rtl !important; text-align: right !important;">
-        </div>
-    </div>
-</div>
+                    <div class="col-md-4 text-end">
+                        <label class="form-label fw-bold small text-muted d-block" style="text-align: right;">نوع التصنيف</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-tags text-primary"></i></span>
+                            <select name="category_id" id="edit_category_id" class="form-select" style="direction: rtl !important; text-align: right !important;">
+                                @foreach(\DB::table('categorie')->get() as $cat)
+                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 text-end">
+                        <label class="form-label fw-bold small text-muted d-block" style="text-align: right;">كلمة المرور الجديدة</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-lock text-primary"></i></span>
+                            <input type="password" name="password" id="edit_password" class="form-control"
+                                style="direction: rtl !important; text-align: right !important;"
+                                placeholder="اتركها فارغة لعدم التغيير">
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
                 <div class="modal-footer border-0 p-3">
                     <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">إلغاء</button>
                     <button type="submit" class="btn btn-warning px-5 fw-bold shadow-sm">حفظ التغييرات</button>
