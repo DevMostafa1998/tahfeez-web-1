@@ -13,7 +13,7 @@ class StudentController extends Controller
      */
     public function index()
     {
-        $students = Student::latest()->get();
+        $students = Student::whereNull('deleted_at')->latest()->get();
         return view('students.index', compact('students'));
     }
 
@@ -41,7 +41,8 @@ class StudentController extends Controller
         ]);
         $data = array_merge($validated, [
             'user_id'     => Auth::id(),
-            'creation_by' => Auth::user()->full_name,
+            'creation_by' => Auth::user()->id,
+            'created_at'  => now(),
         ]);
 
         Student::create($data);
@@ -61,10 +62,7 @@ class StudentController extends Controller
      */
     public function edit($id)
     {
-        // 1. جلب بيانات الطالب من قاعدة البيانات
         $student = Student::findOrFail($id);
-
-        // 2. إرسال البيانات لملف العرض (تأكد من اسم المجلد student)
         return view('students.edit', compact('student'));
     }
 
@@ -84,7 +82,8 @@ class StudentController extends Controller
             'is_displaced' => 'required|boolean',
         ]);
         $student->update(array_merge($validatedData, [
-            'updated_by' => Auth::user()->full_name,
+            'updated_by' => Auth::user()->id,
+            'updated_at' => now(),
         ]));
         $student->update($request->all());
 
@@ -95,7 +94,12 @@ class StudentController extends Controller
      */
     public function destroy($id)
     {
-        Student::destroy($id);
+        $student = Student::findOrFail($id);
+        $student->update([
+            'deleted_by' => Auth::user()->id,
+            'deleted_at' => now(),
+        ]);
+        $student->delete();
         return redirect()->route('student.index')->with('success', 'تم حذف الطالب بنجاح');
     }
 }

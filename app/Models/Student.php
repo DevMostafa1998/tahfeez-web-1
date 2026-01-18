@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Student extends Model
 {
+    use SoftDeletes;
     protected $table = 'student';
     protected $fillable = [
         'full_name',
@@ -17,7 +18,8 @@ class Student extends Model
         'is_displaced',
         'user_id',
         'creation_by',
-        'updated_by'
+        'updated_by',
+        'deleted_by',
     ];
     protected $casts = [
         'date_of_birth' => 'date',
