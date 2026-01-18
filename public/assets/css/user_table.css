@@ -21,7 +21,26 @@
             color: var(--text-main);
             font-size: 1.75rem;
         }
-
+          .modal-header-yellow {
+            background-color: #ffc107;
+            border: none;
+        }
+         .btn-save-yellow {
+            background-color: #ffc107;
+            border: none;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+            .btn-save-yellow:hover {
+            background-color: #efd68a;
+            border: none;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+        .swal2-confirm-danger {
+            background-color: #dc3545 !important;
+            border-radius: 8px !important;
+        }
         .btn-add-modern {
             background: var(--primary-color);
             color: white;
@@ -139,7 +158,10 @@
             align-items: center;
             gap: 6px;
         }
-
+        .badge-status {
+            border-radius: 50rem;
+            padding: 0.5em 1em;
+        }
         .badge-modern i {
             font-size: 0.7rem;
         }

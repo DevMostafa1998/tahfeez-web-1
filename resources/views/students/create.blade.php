@@ -3,42 +3,135 @@
 @section('title', 'إضافة طالب جديد')
 
 @section('content')
-    <div class="app-content p-4">
-        <div class="card card-outline card-primary shadow-sm" style="border-radius: 15px; border-top: 4px solid #007bff;">
-            <div class="card-header bg-white py-3">
-                <h5 class="card-title fw-bold text-secondary mb-0">إضافة طالب جديد</h5>
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h3 class="mb-0 fw-bold">إضافة طالب جديد</h3>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-end">
+                        <li class="breadcrumb-item"><a href="#">الرئيسية</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">إضافة طالب</li>
+                    </ol>
+                </div>
             </div>
-            <div class="card-body p-4">
-                <form action="{{ route('student.store') }}" method="POST">
-                    @csrf
-                    <div class="row g-4">
-                        <x-form-input name="full_name" label="الاسم رباعي" icon="bi-person" placeholder="أدخل الاسم رباعي"
-                            required />
+        </div>
+    </div>
 
-                        <x-form-input name="id_number" label="رقم الهوية" icon="bi-card-heading" maxlength="9"
-                            inputmode="numeric" placeholder="أدخل رقم الهوية" required />
+    <div class="app-content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-outline card-primary shadow-sm"
+                        style="border-radius: 15px; border-top: 4px solid #007bff;">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="card-title fw-bold text-secondary mb-0">بيانات الطالب الأساسية</h5>
+                        </div>
 
-                        <x-form-input name="date_of_birth" type="date" label="تاريخ الميلاد" icon="bi-calendar3"
-                            required />
+                        <div class="card-body p-4">
+                            <form action="{{ route('student.store') }}" method="POST">
+                                @csrf
 
-                        <x-form-input name="phone_number" type="tel" label="رقم الهاتف" icon="bi-telephone"
-                            placeholder="05XXXXXXXX" maxlength="10" required />
+                                @if ($errors->any())
+                                    <div class="alert alert-danger shadow-sm mb-4"
+                                        style="border-radius: 12px; border-right: 5px solid #dc3545;">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                            <strong>يرجى تصحيح الأخطاء التالية:</strong>
+                                        </div>
+                                        <ul class="mb-0">
+                                            @foreach ($errors->all() as $error)
+                                                <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
 
-                        <x-form-input name="address" label="العنوان" icon="bi-geo-alt" placeholder="المدينة، الحي، الشارع"
-                            required />
+                                <div class="row g-4">
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold small text-muted">الاسم رباعي</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i
+                                                    class="bi bi-person text-primary"></i></span>
+                                            <input type="text" name="full_name" class="form-control"
+                                                placeholder="أدخل الاسم رباعي" value="{{ old('full_name') }}" required>
+                                        </div>
+                                    </div>
 
-                        <x-form-select name="is_displaced" label="حالة السكن" icon="bi-house-door" required>
-                            <option value="" selected disabled>اختر الحالة...</option>
-                            <option value="0">مقيم</option>
-                            <option value="1">نازح</option>
-                        </x-form-select>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold small text-muted">رقم الهوية</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i
+                                                    class="bi bi-card-heading text-primary"></i></span>
+                                            <input type="text" name="id_number" class="form-control"
+                                                placeholder="أدخل رقم الهوية" maxlength="9"
+                                                oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                                value="{{ old('id_number') }}" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold small text-muted">تاريخ الميلاد</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i
+                                                    class="bi bi-calendar3 text-primary"></i></span>
+                                            <input type="date" name="date_of_birth" class="form-control"
+                                                value="{{ old('date_of_birth') }}" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold small text-muted">رقم الهاتف</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i
+                                                    class="bi bi-telephone text-primary"></i></span>
+                                            <input type="tel" name="phone_number" class="form-control"
+                                                placeholder="05XXXXXXXX" maxlength="10"
+                                                oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                                value="{{ old('phone_number') }}" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold small text-muted">العنوان</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i
+                                                    class="bi bi-geo-alt text-primary"></i></span>
+                                            <input type="text" name="address" class="form-control"
+                                                placeholder="المدينة، الحي" value="{{ old('address') }}" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold small text-muted">حالة السكن</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i
+                                                    class="bi bi-house-door text-primary"></i></span>
+                                            <select name="is_displaced" class="form-select" required>
+                                                <option value="" selected disabled>اختر الحالة...</option>
+                                                <option value="0" {{ old('is_displaced') == '0' ? 'selected' : '' }}>
+                                                    مقيم</option>
+                                                <option value="1" {{ old('is_displaced') == '1' ? 'selected' : '' }}>
+                                                    نازح</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card-footer bg-white border-0 mt-4 p-0">
+                                    <div class="d-flex justify-content-start gap-2">
+                                        <button type="submit" class="btn btn-success px-5 fw-bold"
+                                            style="background-color: #28a745; border:none;">
+                                            <i class="bi bi-check-circle me-1"></i> حفظ البيانات
+                                        </button>
+                                        <a href="{{ route('student.index') }}" class="btn btn-light px-4 border">إلغاء</a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-
-                    <div class="mt-5">
-                        <button type="submit" class="btn btn-success px-5 fw-bold">إضافة الطالب</button>
-                        <a href="{{ route('student.index') }}" class="btn btn-light px-4 border">إلغاء</a>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
