@@ -28,6 +28,12 @@
                         <p>الطلاب</p>
                     </a>
                 </li>
+               <li class="nav-item">
+                    <a href="{{ route('teachers.attendance') }}" class="nav-link {{ request()->routeIs('teachers.attendance') ? 'active' : '' }}">
+                        <i class="nav-icon bi bi-person-check"></i>
+                        <p>حضور وغياب المحفظين</p>
+                    </a>
+                </li>
             </ul>
         </nav>
     </div>
