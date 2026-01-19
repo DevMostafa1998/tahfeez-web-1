@@ -36,7 +36,7 @@ class User extends Authenticatable
         'deleted_by',
 
     ];
-    protected $dates = ['deleted_at']; 
+    protected $dates = ['deleted_at'];
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -66,5 +66,9 @@ class User extends Authenticatable
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'category_id');
+    }
+    public function groups()
+    {
+        return $this->hasMany(Group::class, 'UserId');
     }
 }

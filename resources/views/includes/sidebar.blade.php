@@ -24,8 +24,14 @@
 
                 <li class="nav-item">
                     <a href="{{ route('student.index') }}" class="nav-link">
-                        <i class="nav-icon bi bi-palette"></i>
+                        <i class="nav-icon bi bi-mortarboard"></i>
                         <p>الطلاب</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('group.index') }}" class="nav-link">
+                        <i class="nav-icon bi bi-people"></i>
+                        <p>المجموعات</p>
                     </a>
                 </li>
             </ul>

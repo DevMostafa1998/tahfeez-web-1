@@ -25,4 +25,13 @@ class Student extends Model
         'date_of_birth' => 'date',
         'is_displaced' => 'boolean',
     ];
+
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'student_group', 'student_id', 'group_id');
+    }
+    public function teacher()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
