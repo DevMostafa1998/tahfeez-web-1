@@ -21,6 +21,43 @@
         crossorigin="anonymous" />
 
     @stack('css')
+
+<style>
+    html, body {
+        font-size: 15px !important;
+    }
+
+    .app-main .form-control,
+    .app-main .form-select,
+    .app-main .input-group-text {
+        height: 38px !important;
+        font-size: 0.9rem !important;
+        padding: 6px 10px !important;
+        border-radius: 8px !important;
+    }
+
+    .app-main .btn {
+        padding: 6px 15px !important;
+        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+    }
+
+    .app-main .table td,
+    .app-main .table th {
+        padding: 10px 8px !important;
+        font-size: 0.9rem !important;
+    }
+
+    label {
+        font-size: 0.85rem !important;
+        margin-bottom: 6px !important;
+    }
+
+    .sidebar-menu .nav-link {
+        padding: 8px 12px !important;
+        font-size: 0.9rem !important;
+    }
+</style>
 </head>
 
 <body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
