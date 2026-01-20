@@ -32,10 +32,12 @@
                     <h1 class="page-title m-0 h3">إدارة المجموعات</h1>
                 </div>
             </div>
-            <button type="button" class="btn btn-primary d-flex align-items-center gap-2 px-4 py-2 rounded-3"
-                data-bs-toggle="modal" data-bs-target="#createGroupModal">
-                <i class="bi bi-plus-lg"></i><span>مجموعة جديدة</span>
-            </button>
+            @if (auth()->check() && auth()->user()->is_admin)
+                <button type="button" class="btn btn-primary d-flex align-items-center gap-2 px-4 py-2 rounded-3"
+                    data-bs-toggle="modal" data-bs-target="#createGroupModal">
+                    <i class="bi bi-plus-lg"></i><span>مجموعة جديدة</span>
+                </button>
+            @endif
         </div>
 
         {{-- جدول البيانات --}}
@@ -75,21 +77,32 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-1">
-                                            <button class="btn btn-action text-success" data-bs-toggle="modal"
-                                                data-bs-target="#manageStudents{{ $group->id }}" title="إدارة الطلاب">
-                                                <i class="bi bi-people-fill"></i>
-                                            </button>
-                                            <button class="btn btn-action text-primary" data-bs-toggle="modal"
-                                                data-bs-target="#editGroup{{ $group->id }}" title="تعديل">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </button>
-                                            <form action="{{ route('group.destroy', $group->id) }}" method="POST"
-                                                id="deleteForm{{ $group->id }}" class="d-inline">
-                                                @csrf @method('DELETE')
-                                                <button type="button" class="btn btn-action text-danger"
-                                                    onclick="confirmDelete({{ $group->id }})" title="حذف">
-                                                    <i class="bi bi-trash3"></i>
+                                            @if (auth()->check() && !auth()->user()->is_admin)
+                                                {{-- زر عرض تفاصيل المجموعة --}}
+                                                <button class="btn btn-action text-info" data-bs-toggle="modal"
+                                                    data-bs-target="#viewGroup{{ $group->id }}" title="عرض التفاصيل">
+                                                    <i class="bi bi-eye-fill"></i>
                                                 </button>
+                                            @endif
+                                            @if (auth()->check() && auth()->user()->is_admin)
+                                                <button class="btn btn-action text-success" data-bs-toggle="modal"
+                                                    data-bs-target="#manageStudents{{ $group->id }}"
+                                                    title="إدارة الطلاب">
+                                                    <i class="bi bi-people-fill"></i>
+                                                </button>
+                                                <button class="btn btn-action text-primary" data-bs-toggle="modal"
+                                                    data-bs-target="#editGroup{{ $group->id }}" title="تعديل">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </button>
+                                                <form action="{{ route('group.destroy', $group->id) }}" method="POST"
+                                                    id="deleteForm{{ $group->id }}" class="d-inline">
+                                                    @csrf @method('DELETE')
+                                                    <button type="button" class="btn btn-action text-danger"
+                                                        onclick="confirmDelete({{ $group->id }})" title="حذف">
+                                                        <i class="bi bi-trash3"></i>
+                                                    </button>
+                                            @endif
+
                                             </form>
                                         </div>
                                     </td>
@@ -98,7 +111,6 @@
                                 {{-- استدعاء مودالات التعديل وإدارة الطلاب داخل الحلقة --}}
                                 @include('groups.edit_modal')
                                 @include('groups.manage_students_modal')
-
                             @empty
                                 <tr>
                                     <td colspan="5" class="text-center py-5 text-muted">لا يوجد مجموعات حالياً.</td>
@@ -110,7 +122,50 @@
             </div>
         </div>
     </div>
+    {{-- مودال عرض تفاصيل المجموعة --}}
+    <div class="modal fade" id="viewGroup{{ $group->id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header bg-warning text-white border-0" style="border-radius: 20px 20px 0 0;">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-info-circle me-2"></i> تفاصيل المجموعة</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    {{-- معلومات المجموعة الأساسية --}}
+                    <div class="text-center mb-4">
+                        <h4 class="text-primary fw-bold mb-1">{{ $group->GroupName }}</h4>
+                        <span class="badge bg-light text-secondary border">بإشراف المحفظ:
+                            {{ $group->teacher->full_name ?? 'غير محدد' }}</span>
+                    </div>
 
+                    <hr class="text-muted opacity-25">
+
+                    {{-- قائمة الطلاب --}}
+                    <h6 class="fw-bold mb-3"><i class="bi bi-people me-2"></i> الطلاب المسجلون
+                        ({{ $group->students->count() }})</h6>
+                    <div class="list-group list-group-flush rounded-3 border overflow-auto" style="max-height: 250px;">
+                        @forelse($group->students as $index => $student)
+                            <div class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
+                                <span class="text-dark">{{ $index + 1 }}. {{ $student->full_name }}</span>
+                                @if ($student->date_of_birth)
+                                    <span class="badge bg-success-subtle text-success border-0 fw-normal">
+                                        {{ \Carbon\Carbon::parse($student->date_of_birth)->age }} سنة
+                                    </span>
+                                @endif
+                            </div>
+                        @empty
+                            <div class="list-group-item text-center text-muted small py-3">
+                                لا يوجد طلاب مسجلين في هذه المجموعة حالياً
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary px-4 rounded-3" data-bs-dismiss="modal">إغلاق</button>
+                </div>
+            </div>
+        </div>
+    </div>
     {{-- استدعاء مودال الإضافة خارج الحلقة --}}
     @include('groups.create_modal')
 

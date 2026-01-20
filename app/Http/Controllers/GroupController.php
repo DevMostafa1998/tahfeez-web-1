@@ -24,7 +24,9 @@ class GroupController extends Controller
     }
     public function index()
     {
-        $data = $this->groupLogic->getIndexData();
+        $userId = Auth::id();
+        // تمرير المعرف إلى دالة getIndexData
+        $data = $this->groupLogic->getIndexData($userId);
         return view('groups.index', $data);
     }
 

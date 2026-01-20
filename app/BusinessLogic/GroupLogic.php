@@ -15,12 +15,19 @@ class GroupLogic
      */
     public function getIndexData()
     {
+        $user = Auth::user();
+        $groupsQuery = Group::withCount('students')
+            ->whereNull('deleted_at')
+            ->orderBy('creation_at', 'desc');
+        if ($user->is_admin == 0) {
+            $groupsQuery->where('UserId', $user->id);
+        }
         return [
-            'groups' => Group::withCount('students')
-                ->whereNull('deleted_at')
-                ->orderBy('creation_at', 'desc')
-                ->get(),
-
+            // 'groups' => Group::withCount('students')
+            //     ->whereNull('deleted_at')
+            //     ->orderBy('creation_at', 'desc')
+            //     ->get(),
+            'groups' => $groupsQuery->get(),
             'teachers' => DB::table('user')
                 ->select('id', 'full_name')
                 ->where('is_admin', 0)
@@ -71,5 +78,12 @@ class GroupLogic
         ]);
 
         return $group->delete();
+    }
+    /**
+     * جلب تفاصيل مجموعة معينة مع طلابها
+     */
+    public function getGroupDetails($id)
+    {
+        return Group::with(['students', 'teacher'])->findOrFail($id);
     }
 }
