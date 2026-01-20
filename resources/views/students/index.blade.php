@@ -236,6 +236,20 @@
                 });
             });
 
+            function confirmDelete(id) {
+                Swal.fire({
+                    title: 'هل أنت متأكد؟',
+                    text: "سيتم حذف  نهائياً!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'نعم، احذف',
+                    cancelButtonText: 'تراجع',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) document.getElementById('deleteForm' + id).submit();
+                });
+            }
             // دالة لتحديث بيانات الصف دون إعادة تحميل الصفحة
             function updateRow(id, student) {
                 let row = $(`#editStudentModal${id}`).closest('tr');

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,7 +21,7 @@
 
             <div class="card-header-custom">
                 <div class="logo-wrapper">
-                    <img src="{{ asset('assets/img/quran.png') }}" alt="الشعار">
+                    <img src="{{ asset('assets/img/logo.jpeg') }}" alt="الشعار">
                 </div>
                 <h5 class="fw-bold mb-0 text-dark">تسجيل الدخول</h5>
                 <p class="text-muted small mt-1">مرحباً بك، يرجى تسجيل الدخول للمتابعة</p>
@@ -50,7 +51,7 @@
                         <div class="password-wrapper" style="position: relative;">
                             <input type="password" id="passwordField" name="password" class="form-control"
                                 placeholder="••••••••" required>
-                            </div>
+                        </div>
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center mb-4 extra-links">
@@ -77,4 +78,5 @@
 
     <script src="{{ asset('assets/js/login.js') }}"></script>
 </body>
+
 </html>

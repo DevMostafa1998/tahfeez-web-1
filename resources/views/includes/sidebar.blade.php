@@ -1,7 +1,7 @@
 <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
     <div class="sidebar-brand">
         <a href="{{ route('dashboard') }}" class="brand-link">
-            <img src="{{ asset('assets/img/quran.png') }}" alt="AdminLTE Logo" class="brand-image opacity-75 shadow" />
+            <img src="{{ asset('assets/img/logo.jpeg') }}" alt="AdminLTE Logo" class="brand-image opacity-75 shadow" />
             <span class="brand-text fw-light">التحفيظ</span>
         </a>
     </div>
@@ -32,6 +32,7 @@
                     <a href="{{ route('group.index') }}" class="nav-link">
                         <i class="nav-icon bi bi-people"></i>
                         <p>المجموعات</p>
+                    </a>
                 </li>
                 <li class="nav-item">
                     <a href="{{ route('teachers.attendance') }}"

@@ -8,32 +8,23 @@ use App\Models\Group;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\BusinessLogic\StudentgroupLogic;
 
 class StudentgroupController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+    protected $studentGroupLogic;
+
+    public function __construct(StudentgroupLogic $studentGroupLogic)
+    {
+        $this->studentGroupLogic = $studentGroupLogic;
+    }
     public function index()
     {
-        // 1. جلب المجموعات
-        $groups = Group::with('students')->withCount('students')
-            ->whereNull('deleted_at')
-            ->orderBy('creation_at', 'desc')
-            ->get();
-
-        // 2. جلب المحفظين (كما كان في كودك السابق)
-        $teachers = DB::table('user')
-            ->select('id', 'full_name')
-            ->where('is_admin', 0)
-            ->get();
-
-        // 3. جلب الطلاب غير المسجلين في أي مجموعة (هذا هو الجزء الناقص)
-        // ملاحظة: تأكد أن لديك مودل Student، وإذا كان الطلاب في جدول User قم بتغيير Student:: إلى User:: مع شرط الصلاحية
-        $availableStudents = Student::whereDoesntHave('groups')->get();
-
-        // 4. تمرير المتغير availableStudents للواجهة
-        return view('groups.index', compact('groups', 'teachers', 'availableStudents'));
+        $data = $this->studentGroupLogic->getIndexData();
+        return view('groups.index', $data);
     }
     /**
      * Show the form for creating a new resource.
@@ -48,19 +39,16 @@ class StudentgroupController extends Controller
      */
     public function store(Request $request)
     {
-        $group = Group::findOrFail($request->group_id);
-
-        // التحقق من صحة البيانات (مصفوفة من أرقام الطلاب)
         $request->validate([
+            'group_id' => 'required|exists:group,id',
             'student_ids' => 'array',
-            'student_ids.*' => 'exists:student,id', // تأكد أن الجدول students واسم العمود id صحيح
+            'student_ids.*' => 'exists:student,id',
         ]);
 
-        // دالة sync تقوم بعمل:
-        // 1. إضافة الطلاب الجدد المحددين.
-        // 2. حذف الطلاب الذين كانوا في المجموعة وتم إزالة التحديد عنهم.
-        // 3. الإبقاء على الطلاب المحددين مسبقاً.
-        $group->students()->sync($request->student_ids);
+        $this->studentGroupLogic->syncStudentsToGroup(
+            $request->group_id,
+            $request->input('student_ids', [])
+        );
 
         return redirect()->back()->with('success', 'تم تحديث قائمة الطلاب بنجاح');
     }
@@ -86,21 +74,19 @@ class StudentgroupController extends Controller
      */
     // في ملف StudentgroupController.php
 
-    public function update(Request $request, string $id) // غيرنا الاسم من store إلى update لتناسب الـ Route
+    public function update(Request $request, string $id)
     {
-        $group = Group::findOrFail($id); // الـ ID يأتي من الرابط
-
         $request->validate([
-            'student_ids' => 'nullable|array', // nullable في حال أراد حذف كل الطلاب
-            'student_ids.*' => 'exists:students,id',
+            'student_ids' => 'nullable|array',
+            'student_ids.*' => 'exists:student,id', // تأكد أن اسم الجدول student وليس students إذا كان المودل يستخدم ذلك
         ]);
 
-        // إذا كانت المصفوفة فارغة، نقوم بإرسال مصفوفة فارغة لـ sync لمسح جميع الارتباطات
-        $studentIds = $request->input('student_ids', []);
+        $this->studentGroupLogic->syncStudentsToGroup(
+            $id,
+            $request->input('student_ids', [])
+        );
 
-        $group->students()->sync($studentIds);
-
-        return redirect()->back()->with('success', 'تم تحديث قائمة طلاب مجموعة ' . $group->GroupName . ' بنجاح');
+        return redirect()->back()->with('success', 'تم تحديث قائمة الطلاب بنجاح');
     }
     /**
      * Remove the specified resource from storage.

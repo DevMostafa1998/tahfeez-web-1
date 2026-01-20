@@ -9,33 +9,23 @@ use Illuminate\Support\Facades\DB;
 // use Illuminate\Container\Attributes\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use App\BusinessLogic\GroupLogic;
 
 class GroupController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+    protected $groupLogic;
+
+    public function __construct(GroupLogic $groupLogic)
+    {
+        $this->groupLogic = $groupLogic;
+    }
     public function index()
     {
-        // 1. جلب المجموعات مع حساب عدد الطلاب لكل مجموعة
-        $groups = Group::withCount('students')
-            ->whereNull('deleted_at')
-            ->orderBy('creation_at', 'desc')
-            ->get();
-
-        // 2. جلب المحفظين (المستخدمين الذين ليسوا أدمن)
-        $teachers = DB::table('user')
-            ->select('id', 'full_name')
-            ->where('is_admin', 0)
-            ->get();
-
-        // 3. جلب الطلاب غير المسجلين في أي مجموعة لتجنب الخطأ في الـ Blade
-        // هذا هو السطر الذي ينقصك في هذا الكنترولر
-        $availableStudents = \App\Models\Student::whereDoesntHave('groups')->get();
-
-        // 4. تمرير كافة المتغيرات إلى View
-        return view('groups.index', compact('groups', 'teachers', 'availableStudents'));
+        $data = $this->groupLogic->getIndexData();
+        return view('groups.index', $data);
     }
 
     /**
@@ -51,24 +41,26 @@ class GroupController extends Controller
      */
     public function store(Request $request)
     {
-        // التحقق من البيانات
         $validated = $request->validate([
             'GroupName' => 'required|string|max:255',
             'UserId'    => 'required|exists:user,id,is_admin,0',
         ]);
 
-        $data = array_merge($validated, [
-            'GroupName'   => $request->GroupName,
-            'UserId'      => $request->UserId, // الربط مع المستخدم الحالي
-            'creation_at' => Carbon::now(),
-            'creation_by' => Auth::user()->id,
-        ]);
-
-        Group::create($data);
-
+        $group = $this->groupLogic->storeGroup($validated);
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'تم إضافة المجموعة بنجاح',
+                'group' => [
+                    'id' => $group->id,
+                    'GroupName' => $group->GroupName,
+                    'students_count' => 0, // المجموعة الجديدة تكون فارغة
+                    'created_at' => $group->creation_at->format('Y-m-d')
+                ]
+            ]);
+        }
         return redirect()->route('group.index')->with('success', 'تم إضافة المجموعة بنجاح');
     }
-
     /**
      * Display the specified resource.
      */
@@ -90,32 +82,21 @@ class GroupController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $request->validate([
+        $validated = $request->validate([
             'GroupName' => 'required|string|max:255',
             'UserId'    => 'required|exists:user,id,is_admin,0',
         ]);
 
-        DB::table('group')->where('id', $id)->update([
-            'GroupName' => $request->GroupName,
-            'UserId'    => $request->UserId,
-            'updated_at' => Carbon::now(),
-            'updated_by' => Auth::user()->id,
-        ]);
+        $this->groupLogic->updateGroup($id, $validated);
 
         return redirect()->route('group.index')->with('success', 'تم تحديث المجموعة بنجاح');
     }
-
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $group = Group::findOrFail($id);
-        $group->update([
-            'deleted_by' => Auth::user()->id,
-            'deleted_at' => now(),
-        ]);
-        $group->delete();
+        $this->groupLogic->deleteGroup($id);
         return redirect()->route('group.index')->with('success', 'تم حذف المجموعة بنجاح');
     }
 }

@@ -2,21 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\BusinessLogic\StudentLogic;
 use App\Models\Student;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class StudentController extends Controller
 {
+    protected $studentLogic;
     /**
      * Display a listing of the resource.
      */
+    public function __construct(StudentLogic $studentLogic)
+    {
+        $this->studentLogic = $studentLogic;
+    }
     public function index()
     {
-        $students = Student::whereNull('deleted_at')->latest()->get();
+        $students = $this->studentLogic->getAllStudents();
         return view('students.index', compact('students'));
     }
-
     /**
      * Show the form for creating a new resource.
      */
@@ -39,16 +43,16 @@ class StudentController extends Controller
             'address'       => 'required|string',
             'is_displaced'  => 'required|boolean',
         ]);
-        $data = array_merge($validated, [
-            'user_id'     => Auth::id(),
-            'creation_by' => Auth::user()->id,
-            'created_at'  => now(),
-        ]);
-
-        Student::create($data);
+        $student = $this->studentLogic->storeStudent($validated);
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'تم إضافة الطالب بنجاح',
+                'student' => $student
+            ]);
+        }
         return redirect()->route('student.index')->with('success', 'تم إضافة الطالب بنجاح');
     }
-
     /**
      * Display the specified resource.
      */
@@ -62,7 +66,7 @@ class StudentController extends Controller
      */
     public function edit($id)
     {
-        $student = Student::findOrFail($id);
+        $student = $this->studentLogic->getStudentById($id);
         return view('students.edit', compact('student'));
     }
 
@@ -71,20 +75,17 @@ class StudentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $student = Student::findOrFail($id);
-
         $validatedData = $request->validate([
-            'full_name' => 'required|string|max:255',
-            'id_number' => 'required|numeric|digits:9',
-            'phone_number' => 'required|numeric|digits:10',
+            'full_name'     => 'required|string|max:255',
+            'id_number'     => 'required|numeric|digits:9',
+            'phone_number'  => 'required|numeric|digits:10',
             'date_of_birth' => 'required|date',
-            'address' => 'required|string',
-            'is_displaced' => 'required|boolean',
+            'address'       => 'required|string',
+            'is_displaced'  => 'required|boolean',
         ]);
-        $student->update(array_merge($validatedData, [
-            'updated_by' => Auth::user()->id,
-            'updated_at' => now(),
-        ]));
+
+        $student = $this->studentLogic->updateStudent($id, $validatedData);
+
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,
@@ -92,7 +93,6 @@ class StudentController extends Controller
                 'student' => $student
             ]);
         }
-        // $student->update($request->all());
 
         return redirect()->route('student.index')->with('success', 'تم تحديث بيانات الطالب بنجاح');
     }
@@ -101,12 +101,7 @@ class StudentController extends Controller
      */
     public function destroy($id)
     {
-        $student = Student::findOrFail($id);
-        $student->update([
-            'deleted_by' => Auth::user()->id,
-            'deleted_at' => now(),
-        ]);
-        $student->delete();
+        $this->studentLogic->deleteStudent($id);
         return redirect()->route('student.index')->with('success', 'تم حذف الطالب بنجاح');
     }
 }
