@@ -8,7 +8,7 @@
         <div class="card-body p-3">
             <form action="{{ route('attendance.index') }}" method="GET" id="filterForm" class="row g-2 align-items-end">
 
-\                <div class="col-md-2">
+                <div class="col-md-2">
                     <label class="small fw-bold text-dark mb-2">تاريخ السجل</label>
                     <div class="input-group">
                         <input type="date" name="date" class="form-control border-primary shadow-none custom-date-picker"
@@ -46,11 +46,11 @@
                     </select>
                 </div>
 
-       <div class="col-md-2">
-    <label class="small fw-bold text-transparent d-none d-md-block mb-1">&nbsp;</label>
-    <div class="d-grid gap-1">
+       <div class="col-12 text-end">
+    {{-- <label class="small fw-bold text-transparent d-none d-md-block mb-1">&nbsp;</label> --}}
+    <div class="d-flex gap-1 justify-content-end">
         <button type="submit" class="btn btn-primary btn-sm fw-bold shadow-sm" style="border-radius: 6px; height: 32px; font-size: 0.8rem;">
-            <i class="bi bi-arrow-clockwise ms-2"></i> تحديث النتائج
+            <i class="bi bi-arrow-clockwise ms-2"></i> تحديث
         </button>
 
         <a href="{{ route('attendance.index') }}" class="btn btn-outline-secondary btn-sm fw-bold shadow-sm" style="border-radius: 6px; height: 32px; font-size: 0.8rem; display: flex; align-items: center; justify-content: center;">
