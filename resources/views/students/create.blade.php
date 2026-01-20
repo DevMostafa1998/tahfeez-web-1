@@ -30,7 +30,7 @@
                         </div>
 
                         <div class="card-body p-4">
-                            <form action="{{ route('student.store') }}" method="POST">
+                            <form action="{{ route('student.store') }}" method="POST" id="createStudentForm">
                                 @csrf
 
                                 @if ($errors->any())
@@ -136,3 +136,63 @@
         </div>
     </div>
 @endsection
+@push('js')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function() {
+            $('#createStudentForm').on('submit', function(e) {
+                e.preventDefault();
+
+                let form = $(this);
+                let submitBtn = form.find('button[type="submit"]');
+                let formData = form.serialize();
+
+                // تعطيل الزر وإظهار حالة التحميل
+                submitBtn.prop('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm"></span> جاري الحفظ...');
+
+                $.ajax({
+                    url: form.attr('action'),
+                    method: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'تمت العملية',
+                                text: response.message,
+                                confirmButtonText: 'حسناً'
+                            }).then(() => {
+                                window.location.href =
+                                    "{{ route('student.index') }}"; // التوجه لصفحة العرض
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        submitBtn.prop('disabled', false).html(
+                            '<i class="bi bi-check-circle me-1"></i> حفظ البيانات');
+
+                        if (xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            let errorHtml = '<ul class="text-start">';
+                            $.each(errors, function(key, value) {
+                                errorHtml += '<li>' + value[0] + '</li>';
+                            });
+                            errorHtml += '</ul>';
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'خطأ في البيانات',
+                                html: errorHtml,
+                            });
+                        } else {
+                            Swal.fire('خطأ!', 'حدث خطأ غير متوقع، يرجى المحاولة لاحقاً',
+                                'error');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+@endpush

@@ -32,10 +32,12 @@
                     <h1 class="page-title m-0 h3">إدارة المجموعات</h1>
                 </div>
             </div>
-            <button type="button" class="btn btn-primary d-flex align-items-center gap-2 px-4 py-2 rounded-3"
-                data-bs-toggle="modal" data-bs-target="#createGroupModal">
-                <i class="bi bi-plus-lg"></i><span>مجموعة جديدة</span>
-            </button>
+            @if (auth()->check() && auth()->user()->is_admin)
+                <button type="button" class="btn btn-primary d-flex align-items-center gap-2 px-4 py-2 rounded-3"
+                    data-bs-toggle="modal" data-bs-target="#createGroupModal">
+                    <i class="bi bi-plus-lg"></i><span>مجموعة جديدة</span>
+                </button>
+            @endif
         </div>
 
         {{-- جدول البيانات --}}
@@ -75,150 +77,40 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-1">
-                                            {{-- زر إدارة الطلاب --}}
-                                            <button class="btn btn-action text-success" data-bs-toggle="modal"
-                                                data-bs-target="#manageStudents{{ $group->id }}" title="إدارة الطلاب">
-                                                <i class="bi bi-people-fill"></i>
-                                            </button>
-                                            {{-- زر التعديل --}}
-                                            <button class="btn btn-action text-primary" data-bs-toggle="modal"
-                                                data-bs-target="#editGroup{{ $group->id }}" title="تعديل المجموعة">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </button>
-                                            {{-- زر الحذف --}}
-                                            <form action="{{ route('group.destroy', $group->id) }}" method="POST"
-                                                id="deleteForm{{ $group->id }}" class="d-inline">
-                                                @csrf @method('DELETE')
-                                                <button type="button" class="btn btn-action text-danger"
-                                                    onclick="confirmDelete({{ $group->id }})" title="حذف">
-                                                    <i class="bi bi-trash3"></i>
+                                            @if (auth()->check() && !auth()->user()->is_admin)
+                                                {{-- زر عرض تفاصيل المجموعة --}}
+                                                <button class="btn btn-action text-info" data-bs-toggle="modal"
+                                                    data-bs-target="#viewGroup{{ $group->id }}" title="عرض التفاصيل">
+                                                    <i class="bi bi-eye-fill"></i>
                                                 </button>
+                                            @endif
+                                            @if (auth()->check() && auth()->user()->is_admin)
+                                                <button class="btn btn-action text-success" data-bs-toggle="modal"
+                                                    data-bs-target="#manageStudents{{ $group->id }}"
+                                                    title="إدارة الطلاب">
+                                                    <i class="bi bi-people-fill"></i>
+                                                </button>
+                                                <button class="btn btn-action text-primary" data-bs-toggle="modal"
+                                                    data-bs-target="#editGroup{{ $group->id }}" title="تعديل">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </button>
+                                                <form action="{{ route('group.destroy', $group->id) }}" method="POST"
+                                                    id="deleteForm{{ $group->id }}" class="d-inline">
+                                                    @csrf @method('DELETE')
+                                                    <button type="button" class="btn btn-action text-danger"
+                                                        onclick="confirmDelete({{ $group->id }})" title="حذف">
+                                                        <i class="bi bi-trash3"></i>
+                                                    </button>
+                                            @endif
+
                                             </form>
                                         </div>
                                     </td>
                                 </tr>
 
-                                {{-- 1. مودال تعديل المجموعة --}}
-                                <div class="modal fade" id="editGroup{{ $group->id }}" tabindex="-1"
-                                    aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content border-0 shadow" style="border-radius: 15px;">
-                                            <div class="modal-header bg-primary text-white">
-                                                <h5 class="modal-title fw-bold">تعديل مجموعة: {{ $group->GroupName }}</h5>
-                                                <button type="button" class="btn-close btn-close-white"
-                                                    data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <form action="{{ route('group.update', $group->id) }}" method="POST">
-                                                @csrf
-                                                @method('PUT')
-                                                <div class="modal-body p-4 text-start">
-                                                    <div class="mb-3">
-                                                        <label class="form-label fw-bold small">اسم المجموعة</label>
-                                                        <input type="text" name="GroupName" class="form-control"
-                                                            value="{{ $group->GroupName }}" required>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-label fw-bold small">اسم المحفظ</label>
-                                                        <select name="UserId" class="form-select" required>
-                                                            @foreach ($teachers as $teacher)
-                                                                <option value="{{ $teacher->id }}"
-                                                                    {{ $group->UserId == $teacher->id ? 'selected' : '' }}>
-                                                                    {{ $teacher->full_name }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer border-0">
-                                                    <button type="submit" class="btn btn-primary px-4">تحديث
-                                                        البيانات</button>
-                                                    <button type="button" class="btn btn-light border px-4"
-                                                        data-bs-dismiss="modal">إلغاء</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- 2. مودال إدارة الطلاب --}}
-                                <div class="modal fade" id="manageStudents{{ $group->id }}" tabindex="-1"
-                                    aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered modal-lg">
-                                        <div class="modal-content border-0 shadow" style="border-radius: 15px;">
-                                            <div class="modal-header bg-warning text-white">
-                                                <h5 class="modal-title fw-bold">إدارة طلاب: {{ $group->GroupName }}</h5>
-                                                <button type="button" class="btn-close btn-close-white"
-                                                    data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <form action="{{ route('studentgroup.store') }}" method="POST">
-                                                @csrf
-                                                <input type="hidden" name="group_id" value="{{ $group->id }}">
-                                                <div class="modal-body p-4">
-                                                    <div class="mb-3">
-                                                        <input type="text" class="form-control"
-                                                            placeholder="بحث عن طالب..."
-                                                            onkeyup="filterStudents(this, 'list{{ $group->id }}')">
-                                                    </div>
-                                                    <div class="border rounded p-3 bg-light"
-                                                        style="max-height: 350px; overflow-y: auto;"
-                                                        id="list{{ $group->id }}">
-                                                        <div class="row g-2">
-                                                            @foreach ($group->students as $st)
-                                                                <div class="col-md-6 student-item">
-                                                                    <div
-                                                                        class="form-check card p-2 border-success border-opacity-25 shadow-sm">
-                                                                        <input class="form-check-input ms-2"
-                                                                            type="checkbox" name="student_ids[]"
-                                                                            value="{{ $st->id }}" checked
-                                                                            id="st{{ $group->id }}{{ $st->id }}">
-                                                                        <label class="form-check-label"
-                                                                            for="st{{ $group->id }}{{ $st->id }}">
-                                                                            <span
-                                                                                class="fw-bold d-block">{{ $st->full_name }}</span>
-                                                                            <small class="text-success">مسجل حالياً</small>
-                                                                            <span
-                                                                                class="badge bg-success-subtle text-success border-0 fw-normal">
-                                                                                {{ \Carbon\Carbon::parse($st->date_of_birth)->age }}
-                                                                                سنة
-                                                                            </span>
-                                                                        </label>
-
-                                                                    </div>
-                                                                </div>
-                                                            @endforeach
-                                                            @foreach ($availableStudents as $st)
-                                                                <div class="col-md-6 student-item">
-                                                                    <div class="form-check card p-2 border shadow-sm">
-                                                                        <input class="form-check-input ms-2"
-                                                                            type="checkbox" name="student_ids[]"
-                                                                            value="{{ $st->id }}"
-                                                                            id="st_av{{ $group->id }}{{ $st->id }}">
-                                                                        <label class="form-check-label"
-                                                                            for="st_av{{ $group->id }}{{ $st->id }}">
-                                                                            <span
-                                                                                class="fw-bold d-block">{{ $st->full_name }}</span>
-                                                                            <small class="text-muted">غير مسجل</small>
-                                                                            <span
-                                                                                class="badge bg-success-subtle text-success border-0 fw-normal">
-                                                                                {{ \Carbon\Carbon::parse($st->date_of_birth)->age }}
-                                                                                سنة </span>
-                                                                        </label>
-                                                                    </div>
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer border-0">
-                                                    <button type="submit" class="btn btn-warning px-4">حفظ</button>
-                                                    <button type="button" class="btn btn-light border px-4"
-                                                        data-bs-dismiss="modal">إغاء</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-
+                                {{-- استدعاء مودالات التعديل وإدارة الطلاب داخل الحلقة --}}
+                                @include('groups.edit_modal')
+                                @include('groups.manage_students_modal')
                             @empty
                                 <tr>
                                     <td colspan="5" class="text-center py-5 text-muted">لا يوجد مجموعات حالياً.</td>
@@ -230,41 +122,53 @@
             </div>
         </div>
     </div>
-
-    {{-- مودال إضافة مجموعة جديدة --}}
-    <div class="modal fade" id="createGroupModal" tabindex="-1" aria-hidden="true">
+    {{-- مودال عرض تفاصيل المجموعة --}}
+    <div class="modal fade" id="viewGroup{{ $group->id }}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow" style="border-radius: 15px;">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title fw-bold">إضافة مجموعة جديدة</h5>
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header bg-warning text-white border-0" style="border-radius: 20px 20px 0 0;">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-info-circle me-2"></i> تفاصيل المجموعة</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <form action="{{ route('group.store') }}" method="POST">
-                    @csrf
-                    <div class="modal-body p-4 text-start">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold small">اسم المجموعة</label>
-                            <input type="text" name="GroupName" class="form-control" required
-                                placeholder="مثال: مجموعة التميز">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold small">اختر المحفظ</label>
-                            <select name="UserId" class="form-select" required>
-                                <option value="" selected disabled>اختر...</option>
-                                @foreach ($teachers as $teacher)
-                                    <option value="{{ $teacher->id }}">{{ $teacher->full_name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                <div class="modal-body p-4">
+                    {{-- معلومات المجموعة الأساسية --}}
+                    <div class="text-center mb-4">
+                        <h4 class="text-primary fw-bold mb-1">{{ $group->GroupName }}</h4>
+                        <span class="badge bg-light text-secondary border">بإشراف المحفظ:
+                            {{ $group->teacher->full_name ?? 'غير محدد' }}</span>
                     </div>
-                    <div class="modal-footer border-0">
-                        <button type="submit" class="btn btn-primary px-4">حفظ</button>
-                        <button type="button" class="btn btn-light border px-4" data-bs-dismiss="modal">إلغاء</button>
+
+                    <hr class="text-muted opacity-25">
+
+                    {{-- قائمة الطلاب --}}
+                    <h6 class="fw-bold mb-3"><i class="bi bi-people me-2"></i> الطلاب المسجلون
+                        ({{ $group->students->count() }})</h6>
+                    <div class="list-group list-group-flush rounded-3 border overflow-auto" style="max-height: 250px;">
+                        @forelse($group->students as $index => $student)
+                            <div class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
+                                <span class="text-dark">{{ $index + 1 }}. {{ $student->full_name }}</span>
+                                @if ($student->date_of_birth)
+                                    <span class="badge bg-success-subtle text-success border-0 fw-normal">
+                                        {{ \Carbon\Carbon::parse($student->date_of_birth)->age }} سنة
+                                    </span>
+                                @endif
+                            </div>
+                        @empty
+                            <div class="list-group-item text-center text-muted small py-3">
+                                لا يوجد طلاب مسجلين في هذه المجموعة حالياً
+                            </div>
+                        @endforelse
                     </div>
-                </form>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary px-4 rounded-3" data-bs-dismiss="modal">إغلاق</button>
+                </div>
             </div>
         </div>
     </div>
+    {{-- استدعاء مودال الإضافة خارج الحلقة --}}
+    @include('groups.create_modal')
+
 @endsection
 
 @push('scripts')
@@ -292,5 +196,67 @@
                 if (result.isConfirmed) document.getElementById('deleteForm' + id).submit();
             });
         }
+        $(document).ready(function() {
+            $('#createGroupForm').on('submit', function(e) {
+                e.preventDefault();
+
+                let form = $(this);
+                let submitBtn = form.find('button[type="submit"]');
+                let formData = form.serialize();
+
+                submitBtn.prop('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm"></span> جاري الحفظ...');
+
+                $.ajax({
+                    url: form.attr('action'),
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            // 1. إغلاق المودال وتفريغ الحقول
+                            $('#createGroupModal').modal('hide');
+                            form[0].reset();
+
+                            // 2. إضافة الصف الجديد للجدول يدوياً في البداية
+                            let newRow = `
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="avatar-circle bg-primary-subtle text-primary fw-bold">
+                                        ${response.group.GroupName.charAt(0)}
+                                    </div>
+                                    <span class="fw-bold">${response.group.GroupName}</span>
+                                </div>
+                            </td>
+                            <td>${response.group.teacher_name}</td>
+                            <td><span class="badge bg-info-subtle text-info border px-3">0 طلاب</span></td>
+                            <td><span class="text-muted small">${response.group.created_at}</span></td>
+                            <td>
+                                <button class="btn btn-action text-primary"><i class="bi bi-pencil-square"></i></button>
+                            </td>
+                        </tr>`;
+
+                            $('table tbody').prepend(newRow); // إضافة في أول الجدول
+
+                            // 3. تنبيه النجاح
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'تمت العملية',
+                                text: response.message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        submitBtn.prop('disabled', false).text('حفظ');
+                        if (xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            Swal.fire('خطأ!', Object.values(errors)[0][0], 'error');
+                        }
+                    }
+                });
+            });
+        });
     </script>
 @endpush
