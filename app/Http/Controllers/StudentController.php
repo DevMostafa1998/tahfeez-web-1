@@ -85,7 +85,14 @@ class StudentController extends Controller
             'updated_by' => Auth::user()->id,
             'updated_at' => now(),
         ]));
-        $student->update($request->all());
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'تم تحديث بيانات الطالب بنجاح',
+                'student' => $student
+            ]);
+        }
+        // $student->update($request->all());
 
         return redirect()->route('student.index')->with('success', 'تم تحديث بيانات الطالب بنجاح');
     }

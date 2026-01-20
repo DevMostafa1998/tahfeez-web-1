@@ -24,12 +24,18 @@
 
                 <li class="nav-item">
                     <a href="{{ route('student.index') }}" class="nav-link">
-                        <i class="nav-icon bi bi-palette"></i>
+                        <i class="nav-icon bi bi-mortarboard"></i>
                         <p>الطلاب</p>
                     </a>
                 </li>
-               <li class="nav-item">
-                    <a href="{{ route('teachers.attendance') }}" class="nav-link {{ request()->routeIs('teachers.attendance') ? 'active' : '' }}">
+                <li class="nav-item">
+                    <a href="{{ route('group.index') }}" class="nav-link">
+                        <i class="nav-icon bi bi-people"></i>
+                        <p>المجموعات</p>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('teachers.attendance') }}"
+                        class="nav-link {{ request()->routeIs('teachers.attendance') ? 'active' : '' }}">
                         <i class="nav-icon bi bi-person-check"></i>
                         <p>حضور وغياب المحفظين</p>
                     </a>

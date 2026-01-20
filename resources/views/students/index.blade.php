@@ -4,9 +4,8 @@
 
 @push('css')
     <link rel="stylesheet" href="{{ asset('assets/css/user_table.css') }}" />
-    <style>
-
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 @endpush
 
 @section('content')
@@ -186,3 +185,71 @@
         </div>
     </div>
 @endsection
+@push('js')
+    <script>
+        $(document).ready(function() {
+            $('.update-student-form').on('submit', function(e) {
+                e.preventDefault();
+
+                let form = $(this);
+                let studentId = form.data('id');
+                let formData = form.serialize();
+                let submitBtn = form.find('button[type="submit"]');
+
+                // إظهار مؤشر التحميل
+                submitBtn.prop('disabled', true).find('.spinner-border').removeClass('d-none');
+
+                $.ajax({
+                    url: `/student/${studentId}`, // تأكد من مطابقة مسار الـ Route عندك
+                    method: 'POST', // نستخدم POST مع _method PUT في البيانات
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            // 1. إغلاق المودال
+                            $(`#editStudentModal${studentId}`).modal('hide');
+
+                            // 2. تحديث بيانات الصف في الجدول فوراً
+                            updateRow(studentId, response.student);
+
+                            // 3. رسالة نجاح
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'تمت العملية',
+                                text: 'تم تحديث بيانات الطالب بنجاح',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        let errors = xhr.responseJSON.errors;
+                        let errorMessage = 'حدث خطأ ما، يرجى المحاولة لاحقاً';
+                        if (errors) {
+                            errorMessage = Object.values(errors)[0][0];
+                        }
+                        Swal.fire('خطأ!', errorMessage, 'error');
+                    },
+                    complete: function() {
+                        submitBtn.prop('disabled', false).find('.spinner-border').addClass(
+                            'd-none');
+                    }
+                });
+            });
+
+            // دالة لتحديث بيانات الصف دون إعادة تحميل الصفحة
+            function updateRow(id, student) {
+                let row = $(`#editStudentModal${id}`).closest('tr');
+                row.find('td:nth-child(1) span.fw-bold').text(student.full_name);
+                row.find('td:nth-child(2)').text(student.id_number);
+                row.find('td:nth-child(3)').text(student.phone_number);
+                row.find('td:nth-child(4)').text(student.address);
+
+                // تحديث حالة السكن (نازح/مقيم)
+                let statusBadge = student.is_displaced == 1 ?
+                    '<span class="badge bg-warning-subtle text-warning-emphasis border badge-status">نازح</span>' :
+                    '<span class="badge bg-success-subtle text-success border badge-status">مقيم</span>';
+                row.find('td:nth-child(5)').html(statusBadge);
+            }
+        });
+    </script>
+@endpush

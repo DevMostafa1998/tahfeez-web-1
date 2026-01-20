@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\GroupController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StudentgroupController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
@@ -36,6 +38,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/teachers-attendance', [AttendanceController::class, 'storeTeachersAttendance'])->name('teachers.attendance.store');
 
     Route::resource('student', StudentController::class);
+    Route::resource('group', GroupController::class);
+    Route::resource('studentgroup', StudentgroupController::class);
+
+
     Route::get('/logout', function (Request $request) {
         Auth::logout();
         $request->session()->invalidate();

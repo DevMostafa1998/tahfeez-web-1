@@ -11,28 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('student', function (Blueprint $table) {
+        Schema::create('group', function (Blueprint $table) {
             $table->id();
-            $table->string('full_name');
-            $table->string('id_number')->unique();
-            $table->dateTime('date_of_birth');
-            $table->string('phone_number');
-            $table->string('address');
-            $table->boolean('is_displaced')->default(false);
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('UserId')->constrained('user')->onDelete('cascade');
+            $table->string('GroupName');
+            $table->timestamp('creation_at')->nullable();
             $table->string('creation_by')->nullable();
+            $table->timestamp('updated_at')->nullable();
             $table->string('updated_by')->nullable();
+            $table->timestamp('deleted_at')->nullable();
             $table->string('deleted_by')->nullable();
-            $table->timestamps();
-            $table->softDeletes();
         });
     }
-
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('student');
+        Schema::dropIfExists('group');
     }
 };
