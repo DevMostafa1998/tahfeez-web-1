@@ -8,32 +8,46 @@
     <div class="sidebar-wrapper">
         <nav class="mt-2">
             <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation">
+
                 <li class="nav-item">
-                    <a href="{{ route('dashboard') }}" class="nav-link">
+                    <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                         <i class="nav-icon bi bi-speedometer"></i>
                         <p>لوحة التحكم</p>
                     </a>
                 </li>
 
+                @if(auth()->user()->is_admin)
                 <li class="nav-item">
-                    <a href="{{ route('user') }}" class="nav-link">
+                    <a href="{{ route('user') }}" class="nav-link {{ request()->routeIs('user') ? 'active' : '' }}">
                         <i class="nav-icon bi bi-palette"></i>
                         <p>المستخدمين</p>
                     </a>
                 </li>
+                @endif
 
                 <li class="nav-item">
-                    <a href="{{ route('student.index') }}" class="nav-link">
+                    <a href="{{ route('student.index') }}" class="nav-link {{ request()->routeIs('student.*') ? 'active' : '' }}">
                         <i class="nav-icon bi bi-mortarboard"></i>
                         <p>الطلاب</p>
                     </a>
                 </li>
+
                 <li class="nav-item">
-                    <a href="{{ route('group.index') }}" class="nav-link">
+                    <a href="{{ route('group.index') }}" class="nav-link {{ request()->routeIs('group.*') ? 'active' : '' }}">
                         <i class="nav-icon bi bi-people"></i>
                         <p>المجموعات</p>
                     </a>
                 </li>
+
+                <li class="nav-item">
+                    <a href="{{ route('attendance.index') }}"
+                       class="nav-link {{ request()->routeIs('attendance.index') ? 'active' : '' }}">
+                        <i class="nav-icon bi bi-person-check-fill"></i>
+                        <p>حضور وغياب الطلاب</p>
+                    </a>
+                </li>
+
+                @if(auth()->user()->is_admin)
                 <li class="nav-item">
                     <a href="{{ route('teachers.attendance') }}"
                         class="nav-link {{ request()->routeIs('teachers.attendance') ? 'active' : '' }}">
@@ -41,6 +55,8 @@
                         <p>حضور وغياب المحفظين</p>
                     </a>
                 </li>
+                @endif
+
             </ul>
         </nav>
     </div>
