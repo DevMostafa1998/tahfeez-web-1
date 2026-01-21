@@ -84,6 +84,7 @@ class GroupLogic
      */
     public function getGroupDetails($id)
     {
-        return Group::with(['students', 'teacher'])->findOrFail($id);
+        // إضافة students.latestMemorization لجلب آخر تسميع لكل طالب
+        return Group::with(['students.latestMemorization', 'teacher'])->findOrFail($id);
     }
 }
