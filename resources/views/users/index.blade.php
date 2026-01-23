@@ -2,173 +2,154 @@
 @section('title', 'إدارة المستخدمين')
 
 @section('content')
-<div class="container-fluid p-4">
+<div class="container-fluid p-4" dir="rtl">
 
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
             {{ session('success') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
     <div class="page-header d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 text-primary fw-bold">إدارة المستخدمين</h1>
-        <a href="{{ route('user.create') }}" class="btn btn-primary px-4 shadow-sm">
-            <i class="bi bi-plus-lg"></i> مستخدم جديد
+        <h1 class="h3 text-primary fw-bold mb-0">إدارة المستخدمين</h1>
+        <a href="{{ route('user.create') }}" class="btn btn-primary px-4 shadow-sm fw-bold">
+            <i class="bi bi-plus-lg ms-1"></i> مستخدم جديد
         </a>
     </div>
 
-    <div class="card shadow-sm border-0" style="border-radius: 15px;">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0 text-center">
-            <thead class="bg-light text-secondary">
-                <tr>
-                    <th>اسم المستخدم</th>
-                    <th>رقم الهوية</th>
-                    <th>رقم الجوال</th>
-                    <th>العنوان</th>
-                    <th>التصنيف</th>
-                    <th>الحالة</th>
-                    <th>الإجراءات</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($users as $user)
-                <tr>
-                    <td class="text-start ps-4">
-                        <strong>{{ $user->full_name }}</strong>
-                    </td>
-                    <td>{{ $user->id_number }}</td>
-                    <td>{{ $user->phone_number }}</td>
-                    <td>{{ $user->address ?? 'غير محدد' }}</td>
+    <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 text-center">
+                <thead class="bg-light text-secondary">
+                    <tr>
+                        <th class="py-3" style="width: 50px;">#</th>
+                        <th class="text-start ps-4">اسم المستخدم</th>
+                        <th>رقم الهوية</th>
+                        <th>رقم الجوال</th>
+                        <th>العنوان</th>
+                        <th>التصنيف</th>
+                        <th>الحالة</th>
+                        <th style="width: 120px;">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($users as $user)
+                    <tr>
+                        <td class="text-muted fw-bold">
+                            {{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}
+                        </td>
 
-                    <td>
-                        @php $catName = \DB::table('categorie')->where('id', $user->category_id)->value('name'); @endphp
-                        <span class="badge bg-dark">{{ $catName }}</span>
-                    </td>
-                    <td>
-                        <span class="badge {{ $user->is_admin ? 'bg-primary' : 'bg-success' }}">
-                            {{ $user->is_admin ? 'مسؤول' : 'محفظ' }}
-                        </span>
-                    </td>
-                    <td>
-                        <div class="btn-group gap-2">
-                            <button class="btn btn-sm btn-outline-warning rounded-circle edit-btn"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#editUserModal"
-                                    data-user="{{ json_encode($user) }}">
-                                <i class="bi bi-pencil-square"></i>
-                            </button>
+                        <td class="text-start ps-4">
+                            <strong>{{ $user->full_name }}</strong>
+                        </td>
+                        <td><span class="badge bg-light text-dark border">{{ $user->id_number }}</span></td>
+                        <td>{{ $user->phone_number }}</td>
+                        <td class="small">{{ $user->address ?? 'غير محدد' }}</td>
 
-                            <form action="{{ route('user.destroy', $user->id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من نقل المستخدم لسلة المهملات؟')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle">
-                                    <i class="bi bi-trash3"></i>
+                        <td>
+                            @php $catName = \DB::table('categorie')->where('id', $user->category_id)->value('name'); @endphp
+                            <span class="badge rounded-pill bg-dark px-3">{{ $catName }}</span>
+                        </td>
+                        <td>
+                            <span class="badge rounded-pill {{ $user->is_admin ? 'bg-primary' : 'bg-success' }} px-3">
+                                {{ $user->is_admin ? 'مسؤول' : 'محفظ' }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group gap-2 justify-content-center">
+                                <button class="btn btn-sm btn-outline-warning rounded-circle action-btn"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editUserModal"
+                                        data-user="{{ json_encode($user) }}"
+                                        style="width: 32px; height: 32px; padding: 0;">
+                                    <i class="bi bi-pencil-square"></i>
                                 </button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+
+                                <form action="{{ route('user.destroy', $user->id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من نقل المستخدم لسلة المهملات؟')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle action-btn"
+                                            style="width: 32px; height: 32px; padding: 0;">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-footer bg-white border-0 py-3">
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <div class="text-muted small mb-2 mb-md-0">
+                    عرض من {{ $users->firstItem() }} إلى {{ $users->lastItem() }} من إجمالي {{ $users->total() }} مستخدم
+                </div>
+                <div class="pagination-container">
+                    {{ $users->links('pagination::bootstrap-5') }}
+
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-</div>
 
+{{-- مودال التعديل --}}
 <div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <form id="editForm" method="POST">
             @csrf
             @method('PUT')
-            <div class="modal-content" style="border-radius: 15px;">
-                <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title fw-bold">تعديل بيانات المستخدم</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header bg-warning text-dark border-0 py-3">
+                    <h5 class="modal-title fw-bold ms-auto"><i class="bi bi-person-gear me-2"></i>تعديل بيانات المستخدم</h5>
+                    <button type="button" class="btn-close ms-0" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-               <div class="modal-body p-4" dir="rtl">
-                <div class="row g-4">
-
-                    <div class="col-md-4 text-end">
-                        <label class="form-label fw-bold small text-muted d-block" style="text-align: right;">الاسم رباعي</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="bi bi-person text-primary"></i></span>
-                            <input type="text" name="full_name" id="edit_full_name" class="form-control"
-                                style="direction: rtl !important; text-align: right !important;"
-                                placeholder="أدخل الاسم رباعي" required>
+                <div class="modal-body p-4 text-end" dir="rtl">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">الاسم رباعي</label>
+                            <input type="text" name="full_name" id="edit_full_name" class="form-control bg-light border-0 shadow-none" required>
                         </div>
-                    </div>
-
-                    <div class="col-md-4 text-end">
-                        <label class="form-label fw-bold small text-muted d-block" style="text-align: right;">رقم الهوية</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="bi bi-card-heading text-primary"></i></span>
-                            <input type="text" name="id_number" id="edit_id_number" class="form-control"
-                                style="direction: rtl !important; text-align: right !important;"
-                                placeholder="أدخل رقم الهوية" required>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">رقم الهوية</label>
+                            <input type="text" name="id_number" id="edit_id_number" class="form-control bg-light border-0 shadow-none" required>
                         </div>
-                    </div>
-
-                    <div class="col-md-4 text-end">
-                        <label class="form-label fw-bold small text-muted d-block" style="text-align: right;">رقم الجوال</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="bi bi-telephone text-primary"></i></span>
-                            <input type="tel" name="phone_number" id="edit_phone_number" class="form-control"
-                                style="direction: rtl !important; text-align: right !important;"
-                                placeholder="05XXXXXXXX" required>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">رقم الجوال</label>
+                            <input type="tel" name="phone_number" id="edit_phone_number" class="form-control bg-light border-0 shadow-none" required>
                         </div>
-                    </div>
-
-                    <div class="col-md-4 text-end">
-                        <label class="form-label fw-bold small text-muted d-block" style="text-align: right;">العنوان</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="bi bi-geo-alt text-primary"></i></span>
-                            <input type="text" name="address" id="edit_address" class="form-control"
-                                style="direction: rtl !important; text-align: right !important;"
-                                placeholder="المدينة، الحي" required>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">العنوان</label>
+                            <input type="text" name="address" id="edit_address" class="form-control bg-light border-0 shadow-none">
                         </div>
-                    </div>
-
-                    <div class="col-md-4 text-end">
-                        <label class="form-label fw-bold small text-muted d-block" style="text-align: right;">الصلاحية</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="bi bi-layers text-primary"></i></span>
-                            <select name="is_admin" id="edit_is_admin" class="form-select" style="direction: rtl !important; text-align: right !important;">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">الصلاحية</label>
+                            <select name="is_admin" id="edit_is_admin" class="form-select bg-light border-0 shadow-none">
                                 <option value="1">مسؤول</option>
                                 <option value="0">محفظ</option>
                             </select>
                         </div>
-                    </div>
-
-                    <div class="col-md-4 text-end">
-                        <label class="form-label fw-bold small text-muted d-block" style="text-align: right;">نوع التصنيف</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="bi bi-tags text-primary"></i></span>
-                            <select name="category_id" id="edit_category_id" class="form-select" style="direction: rtl !important; text-align: right !important;">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">نوع التصنيف</label>
+                            <select name="category_id" id="edit_category_id" class="form-select bg-light border-0 shadow-none">
                                 @foreach(\DB::table('categorie')->get() as $cat)
                                     <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                 @endforeach
                             </select>
                         </div>
-                    </div>
-
-                    <div class="col-md-4 text-end">
-                        <label class="form-label fw-bold small text-muted d-block" style="text-align: right;">كلمة المرور الجديدة</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="bi bi-lock text-primary"></i></span>
-                            <input type="password" name="password" id="edit_password" class="form-control"
-                                style="direction: rtl !important; text-align: right !important;"
-                                placeholder="اتركها فارغة لعدم التغيير">
+                        <div class="col-12 mt-3">
+                            <label class="form-label fw-bold small">تغيير كلمة المرور <span class="text-muted fw-normal">(اختياري)</span></label>
+                            <input type="password" name="password" id="edit_password" class="form-control bg-light border-0 shadow-none" placeholder="اتركها فارغة لعدم التغيير">
                         </div>
                     </div>
-
-
                 </div>
-            </div>
-                <div class="modal-footer border-0 p-3">
-                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="submit" class="btn btn-warning px-5 fw-bold shadow-sm">حفظ التغييرات</button>
+                <div class="modal-footer border-0 p-3 bg-light">
+                    <button type="button" class="btn btn-secondary px-4 rounded-pill shadow-sm" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-warning px-5 fw-bold shadow-sm rounded-pill">حفظ التعديلات</button>
                 </div>
             </div>
         </form>
@@ -177,12 +158,31 @@
 @endsection
 
 @push('scripts')
+<style>
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    .btn-outline-warning:hover { background-color: #ffc107 !important; color: #fff !important; }
+    .btn-outline-danger:hover { background-color: #dc3545 !important; color: #fff !important; }
+
+    .pagination { margin-bottom: 0; gap: 5px; }
+    .page-link {
+        border: none;
+        border-radius: 8px !important;
+        color: #666;
+        padding: 8px 16px;
+    }
+    .page-item.active .page-link { background-color: #0d6efd; box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3); }
+</style>
+
 <script>
-    document.querySelectorAll('.edit-btn').forEach(button => {
+    document.querySelectorAll('.edit-btn, button[data-bs-target="#editUserModal"]').forEach(button => {
         button.addEventListener('click', function() {
             const user = JSON.parse(this.dataset.user);
             const form = document.getElementById('editForm');
-
             form.action = `/user/${user.id}`;
 
             document.getElementById('edit_full_name').value = user.full_name;

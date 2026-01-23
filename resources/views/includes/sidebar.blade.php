@@ -16,6 +16,7 @@
                     </a>
                 </li>
 
+                {{-- المستخدمين - للمدير فقط --}}
                 @if(auth()->user()->is_admin)
                 <li class="nav-item">
                     <a href="{{ route('user') }}" class="nav-link {{ request()->routeIs('user') ? 'active' : '' }}">
@@ -25,13 +26,17 @@
                 </li>
                 @endif
 
+                {{-- الطلاب -  للمدير فقط --}}
+                @if(auth()->user()->is_admin)
                 <li class="nav-item">
                     <a href="{{ route('student.index') }}" class="nav-link {{ request()->routeIs('student.*') ? 'active' : '' }}">
                         <i class="nav-icon bi bi-mortarboard"></i>
                         <p>الطلاب</p>
                     </a>
                 </li>
+                @endif
 
+                {{-- المجموعات - تظهر للجميع --}}
                 <li class="nav-item">
                     <a href="{{ route('group.index') }}" class="nav-link {{ request()->routeIs('group.*') ? 'active' : '' }}">
                         <i class="nav-icon bi bi-people"></i>
@@ -39,6 +44,17 @@
                     </a>
                 </li>
 
+                {{-- إدارة التصنيفات - للمدير فقط --}}
+                @if(auth()->user()->is_admin)
+                <li class="nav-item">
+                    <a href="{{ route('category.index') }}" class="nav-link {{ request()->routeIs('category.*') ? 'active' : '' }}">
+                        <i class="nav-icon bi bi-tags-fill"></i>
+                          <p>إدارة التصنيفات</p>
+                    </a>
+                </li>
+                @endif
+
+                {{-- حضور وغياب الطلاب - تظهر للجميع --}}
                 <li class="nav-item">
                     <a href="{{ route('attendance.index') }}"
                        class="nav-link {{ request()->routeIs('attendance.index') ? 'active' : '' }}">
@@ -47,6 +63,7 @@
                     </a>
                 </li>
 
+                {{-- حضور وغياب المحفظين - للمدير فقط --}}
                 @if(auth()->user()->is_admin)
                 <li class="nav-item">
                     <a href="{{ route('teachers.attendance') }}"
