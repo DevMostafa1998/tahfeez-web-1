@@ -34,4 +34,10 @@ class Student extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function latestMemorization()
+    {
+    // هذه العلاقة تجلب آخر سجل مضاف للطالب في جدول الحفظ اليومي
+    return $this->hasOne(StudentDailyMemorization::class, 'student_id')->latestOfMany('date');
+    }
 }

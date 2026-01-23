@@ -3,6 +3,7 @@
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\MemorizationController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentgroupController;
 use App\Http\Controllers\UserController;
@@ -49,6 +50,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('student', StudentController::class);
     Route::resource('group', GroupController::class);
     Route::resource('studentgroup', StudentgroupController::class);
+    Route::resource('memorization', MemorizationController::class);
+
 
 
     Route::get('/logout', function (Request $request) {

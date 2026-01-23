@@ -27,7 +27,7 @@ class GroupLogic
             //     ->whereNull('deleted_at')
             //     ->orderBy('creation_at', 'desc')
             //     ->get(),
-            'groups' => $groupsQuery->get(),
+            'groups' => $groupsQuery->paginate(5),
             'teachers' => DB::table('user')
                 ->select('id', 'full_name')
                 ->where('is_admin', 0)
@@ -84,6 +84,17 @@ class GroupLogic
      */
     public function getGroupDetails($id)
     {
-        return Group::with(['students', 'teacher'])->findOrFail($id);
+        $group = Group::with('teacher')->findOrFail($id);
+        $students = $group->students()
+            ->with('latestMemorization')
+            ->paginate(5); // عرض 10 طلاب في الصفحة
+        // إضافة students.latestMemorization لجلب آخر تسميع لكل طالب
+        // return Group::with(['students.latestMemorization', 'teacher'])->findOrFail($id);
+        $surahs = DB::table('surahs')->orderBy('number')->get();
+        return [
+            'group' => $group,
+            'students' => $students,
+            'surahs' => $surahs
+        ];
     }
 }
