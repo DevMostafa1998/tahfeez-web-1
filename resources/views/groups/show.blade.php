@@ -6,6 +6,23 @@
     {{-- استخدام أيقونات Bootstrap و SweetAlert2 للتنبيهات --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .select2-container .select2-selection--single {
+            height: 45px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 45px;
+            padding-right: 15px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 43px;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -31,7 +48,7 @@
                     </div>
                     <div class="d-flex gap-2">
                         <span class="badge bg-white text-primary px-3 py-2 fs-6 shadow-sm">
-                            عدد الطلاب: {{ $group->students->count() }}
+                            عدد الطلاب: {{ $students->total() }}
                         </span>
                         <a href="{{ route('group.index') }}" class="btn btn-light px-4 shadow-sm fw-bold">
                             <i class="bi bi-arrow-right me-1"></i> عودة للمجموعات
@@ -63,7 +80,7 @@
                         </thead>
                         <tbody>
                             {{-- تكرار الطلاب المرتبطين بالمجموعة --}}
-                            @forelse($group->students as $student)
+                            @forelse($students as $student)
                                 <tr id="row-student-{{ $student->id }}">
                                     <td class="ps-4">
                                         <div class="d-flex align-items-center gap-3">
@@ -151,11 +168,20 @@
                                                                         <i class="bi bi-book ms-1 text-primary"></i> اسم
                                                                         السورة
                                                                     </label>
-                                                                    <input type="text" name="sura_name"
-                                                                        value="{{ $student->latestMemorization->sura_name ?? '' }}"
-                                                                        class="form-control form-control-lg border-2"
-                                                                        placeholder="أدخل اسم السورة هنا" required
-                                                                        style="border-radius: 10px; text-align: right; direction: rtl;">
+                                                                    {{-- تحويل الحقل إلى select مع كلاس surah-select --}}
+                                                                    <select name="sura_name"
+                                                                        class="form-select surah-select" required
+                                                                        style="width: 100%;">
+                                                                        <option value="">ابحث عن اسم السورة...
+                                                                        </option>
+                                                                        @foreach ($surahs as $surah)
+                                                                            <option value="{{ $surah->name_ar }}"
+                                                                                {{ isset($student->latestMemorization->sura_name) && $student->latestMemorization->sura_name == $surah->name_ar ? 'selected' : '' }}>
+                                                                                {{ $surah->number }}.
+                                                                                {{ $surah->name_ar }}
+                                                                            </option>
+                                                                        @endforeach
+                                                                    </select>
                                                                 </div>
 
                                                                 {{-- الحقول الجانبية --}}
@@ -230,6 +256,13 @@
                         </tbody>
                     </table>
                 </div>
+                @if ($students->hasPages())
+                    <div class="card-footer bg-white border-top-0 py-3">
+                        <div class="d-flex justify-content-end">
+                            {!! $students->links('pagination::bootstrap-5') !!}
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -238,8 +271,20 @@
 @push('scripts')
     {{-- استخدام jQuery و SweetAlert لإرسال البيانات دون تحديث الصفحة --}}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
+            $('.modal').on('shown.bs.modal', function() {
+                $(this).find('.surah-select').select2({
+                    dropdownParent: $(this), // ضروري جداً لتعمل القائمة داخل المودال
+                    dir: "rtl",
+                    language: {
+                        noResults: function() {
+                            return "لا توجد نتائج";
+                        }
+                    }
+                });
+            });
             // نستخدم document.on للتعامل مع العناصر المنشأة ديناميكياً أو المتأثرة بالمودال
             $(document).on('submit', '.memorizationForm', function(e) {
                 e.preventDefault();
@@ -249,7 +294,7 @@
 
                 // جلب البيانات
                 let studentId = form.find('input[name="student_id"]').val();
-                let newSura = form.find('input[name="sura_name"]').val();
+                let newSura = form.find('select[name="sura_name"] option:selected').val();
                 let newVerseTo = form.find('input[name="verses_to"]').val();
 
                 // زر التحميل
@@ -274,7 +319,7 @@
                             timer: 1500,
                             showConfirmButton: false
                         });
-
+                        form.find('textarea[name="note"]').val('');
                         // 3. تحديث الجدول
                         let row = $('#row-student-' + studentId);
 

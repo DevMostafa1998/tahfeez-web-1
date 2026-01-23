@@ -68,9 +68,8 @@ class GroupController extends Controller
      */
     public function show(string $id)
     {
-        $group = $this->groupLogic->getGroupDetails($id);
-
-        return view('groups.show', compact('group'));
+        $data = $this->groupLogic->getGroupDetails($id);
+        return view('groups.show', $data);
     }
 
     /**

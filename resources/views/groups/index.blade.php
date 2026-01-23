@@ -56,6 +56,7 @@
                         </thead>
                         <tbody>
                             @forelse($groups as $group)
+                                {{-- ... (نفس محتوى الحلقة الحالي الخاص بك) ... --}}
                                 <tr>
                                     <td class="ps-4">
                                         <div class="d-flex align-items-center gap-3">
@@ -66,6 +67,7 @@
                                             <span class="fw-bold">{{ $group->GroupName }}</span>
                                         </div>
                                     </td>
+                                    {{-- باقي الأعمدة... --}}
                                     <td class="text-center">
                                         <span class="fw-medium">{{ $group->teacher->full_name ?? 'غير محدد' }}</span>
                                     </td>
@@ -98,14 +100,12 @@
                                                         onclick="confirmDelete({{ $group->id }})" title="حذف">
                                                         <i class="bi bi-trash3"></i>
                                                     </button>
+                                                </form>
                                             @endif
-
-                                            </form>
                                         </div>
                                     </td>
                                 </tr>
 
-                                {{-- استدعاء مودالات التعديل وإدارة الطلاب داخل الحلقة --}}
                                 @include('groups.edit_modal')
                                 @include('groups.manage_students_modal')
                             @empty
@@ -117,6 +117,15 @@
                     </table>
                 </div>
             </div>
+
+            {{-- هنا إضافة الترقيم --}}
+            @if ($groups->hasPages())
+                <div class="card-footer bg-white border-top-0 py-3">
+                    <div class="d-flex justify-content-end">
+                        {{ $groups->links('pagination::bootstrap-5') }}
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
     {{-- مودال عرض تفاصيل المجموعة --}}
