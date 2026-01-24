@@ -21,10 +21,12 @@
     <div class="app-content">
         <div class="container-fluid">
             <div class="row">
+                {{-- الكارت الأول: عدد الحفاظ --}}
                 <div class="col-lg-3 col-6">
                     <div class="small-box text-bg-primary">
                         <div class="inner">
-                            <h3>150</h3>
+                            {{-- تم وضع المتغير هنا --}}
+                            <h3>{{ $students_count ?? 0 }}</h3>
                             <p>عدد الحفاظ</p>
                         </div>
                         <svg class="small-box-icon" fill="currentColor" viewBox="0 0 24 24"
@@ -40,10 +42,12 @@
                     </div>
                 </div>
 
-                <div class="col-lg-3 col-6">
+                {{-- الكارت الثاني: نسبة الحفظ --}}
+                            <div class="col-lg-3 col-6">
                     <div class="small-box text-bg-success">
                         <div class="inner">
-                            <h3>53<sup class="fs-5">%</sup></h3>
+                            {{-- عرض النسبة التي حسبناها في الكنترولر --}}
+                            <h3>{{ $memorization_percentage ?? 0 }}<sup class="fs-5">%</sup></h3>
                             <p>نسبة الحفظ</p>
                         </div>
                         <svg class="small-box-icon" fill="currentColor" viewBox="0 0 24 24"
@@ -52,17 +56,20 @@
                                 d="M18.375 2.25c-1.035 0-1.875.84-1.875 1.875v15.75c0 1.035.84 1.875 1.875 1.875h.75c1.035 0 1.875-.84 1.875-1.875V4.125c0-1.036-.84-1.875-1.875-1.875h-.75zM9.75 8.625c0-1.036.84-1.875 1.875-1.875h.75c1.036 0 1.875.84 1.875 1.875v11.25c0 1.035-.84 1.875-1.875 1.875h-.75a1.875 1.875 0 01-1.875-1.875V8.625zM3 13.125c0-1.036.84-1.875 1.875-1.875h.75c1.036 0 1.875.84 1.875 1.875v6.75c0 1.035-.84 1.875-1.875 1.875h-.75A1.875 1.875 0 013 19.875v-6.75z">
                             </path>
                         </svg>
-                        <a href="#"
-                            class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
-                            التفاصيل <i class="bi bi-link-45deg"></i>
-                        </a>
+                        {{-- الرابط الجديد مع الفلتر --}}
+                        <a href="{{ route('student.index', ['filter' => 'not_memorized_today']) }}"
+                class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
+                معرفة الغائبين عن التسميع <i class="bi bi-link-45deg"></i>
+                </a>
                     </div>
                 </div>
 
+                {{-- الكارت الثالث: عدد المجموعات --}}
                 <div class="col-lg-3 col-6">
                     <div class="small-box text-bg-warning">
                         <div class="inner">
-                            <h3>44</h3>
+                             {{-- تم وضع المتغير هنا --}}
+                            <h3>{{ $groups_count ?? 0 }}</h3>
                             <p>عدد المجموعات</p>
                         </div>
                         <svg class="small-box-icon" fill="currentColor" viewBox="0 0 24 24"
@@ -78,10 +85,12 @@
                     </div>
                 </div>
 
+                {{-- الكارت الرابع: عدد المحفظين --}}
                 <div class="col-lg-3 col-6">
                     <div class="small-box text-bg-danger">
                         <div class="inner">
-                            <h3>65</h3>
+                             {{-- تم وضع المتغير هنا --}}
+                            <h3>{{ $users_count ?? 0 }}</h3>
                             <p>عدد المحفظين</p>
                         </div>
                         <svg class="small-box-icon" fill="currentColor" viewBox="0 0 24 24"

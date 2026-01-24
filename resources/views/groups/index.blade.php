@@ -79,10 +79,17 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-1">
+                                            <a href="{{ route('attendance.index', ['group_id' => $group->id]) }}"
+                                            class="btn btn-action text-warning"
+                                            title="تسجيل الحضور والغياب">
+                                                <i class="bi bi-calendar-check-fill"></i>
+                                            </a>
+
                                             <a href="{{ route('group.show', $group->id) }}" class="btn btn-action text-info"
                                                 title="عرض الطلاب">
                                                 <i class="bi bi-eye-fill"></i>
                                             </a>
+
                                             @if (auth()->check() && auth()->user()->is_admin)
                                                 <button class="btn btn-action text-success" data-bs-toggle="modal"
                                                     data-bs-target="#manageStudents{{ $group->id }}"

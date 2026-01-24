@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\MemorizationController;
 use App\Http\Controllers\StudentController;
@@ -26,9 +27,8 @@ Route::middleware(['guest'])->group(function () {
 
 Route::middleware(['auth'])->group(function () {
 
-    Route::get('/dashboard', function () {
-        return view('layouts.dashboard');
-    })->name('dashboard');
+    //Route::get('/dashboard', function () {return view('layouts.dashboard');})->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/user', [UserController::class, 'index'])->name('user');
     Route::get('/user/create', [UserController::class, 'create'])->name('user.create');

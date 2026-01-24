@@ -24,10 +24,33 @@
             </a>
         </div>
 
-        <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0 text-center">
+                <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
+
+                    <div class="card-header bg-white border-0 pt-4 px-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3 class="h5 fw-bold mb-0">
+                                @if(request('filter') == 'not_memorized_today')
+                                    <span class="text-danger">
+                                        <i class="bi bi-exclamation-circle-fill me-2"></i>قائمة الطلاب الغائبين عن التسميع (اليوم)
+                                    </span>
+                                @else
+                                    <span class="text-dark">قائمة جميع الطلاب</span>
+                                @endif
+                            </h3>
+
+                            @if(request('filter'))
+                                {{-- زر للعودة لعرض كل الطلاب يظهر فقط عند وجود فلتر --}}
+                                <a href="{{ route('student.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                                    <i class="bi bi-arrow-right-short"></i> عرض جميع الطلاب
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 text-center">
+                                {{-- ... الجدول ... --}}
                         <thead class="bg-light text-secondary">
                             <tr>
                                 <th class="py-3" style="width: 50px;">#</th>
@@ -50,8 +73,12 @@
                                         <strong class="text-dark">{{ $student->full_name }}</strong>
                                     </td>
 
-                                    <td><span class="badge bg-light text-dark border">{{ $student->id_number }}</span></td>
-                                    <td>{{ $student->phone_number }}</td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border px-3 py-2 fs-8 fw-bold" style="letter-spacing: 1px;">
+                                            {{ $student->id_number }}
+                                        </span>
+                                    </td>
+                                      <td>{{ $student->phone_number }}</td>
                                     <td class="small">{{ $student->address }}</td>
 
                                     <td>
@@ -85,49 +112,74 @@
 
                                 {{-- مودال التعديل لكل طالب --}}
                                 <div class="modal fade" id="editStudentModal{{ $student->id }}" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg modal-dialog-centered">
-                                        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-                                            <div class="modal-header bg-warning text-dark border-0 py-3">
-                                                <h5 class="modal-title fw-bold ms-auto"><i class="bi bi-person-gear me-2"></i>تعديل بيانات الطالب</h5>
-                                                <button type="button" class="btn-close ms-0" data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <form action="{{ route('student.update', $student->id) }}" method="POST">
-                                                @csrf @method('PUT')
-                                                <div class="modal-body p-4 text-end">
-                                                    <div class="row g-3">
-                                                        <div class="col-md-6">
-                                                            <label class="form-label fw-bold small">الاسم رباعي</label>
-                                                            <input type="text" name="full_name" class="form-control bg-light border-0 shadow-none" value="{{ $student->full_name }}" required>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label class="form-label fw-bold small">رقم الهوية</label>
-                                                            <input type="text" name="id_number" class="form-control bg-light border-0 shadow-none" value="{{ $student->id_number }}" required>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label class="form-label fw-bold small">رقم الجوال</label>
-                                                            <input type="text" name="phone_number" class="form-control bg-light border-0 shadow-none" value="{{ $student->phone_number }}" required>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label class="form-label fw-bold small">العنوان</label>
-                                                            <input type="text" name="address" class="form-control bg-light border-0 shadow-none" value="{{ $student->address }}" required>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label class="form-label fw-bold small">حالة السكن</label>
-                                                            <select name="is_displaced" class="form-select bg-light border-0 shadow-none">
-                                                                <option value="0" {{ !$student->is_displaced ? 'selected' : '' }}>مقيم</option>
-                                                                <option value="1" {{ $student->is_displaced ? 'selected' : '' }}>نازح</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer border-0 p-3 bg-light">
-                                                    <button type="button" class="btn btn-secondary px-4 rounded-pill shadow-sm" data-bs-dismiss="modal">إلغاء</button>
-                                                    <button type="submit" class="btn btn-warning px-5 fw-bold shadow-sm rounded-pill">حفظ التغييرات</button>
-                                                </div>
-                                            </form>
+                                <div class="modal-dialog modal-lg modal-dialog-centered">
+                                    <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;" dir="rtl">
+
+                                        {{-- رأس المودال: العنوان يمين والزر يسار --}}
+                                        <div class="modal-header bg-warning text-dark border-0 py-3 d-flex flex-row-reverse justify-content-between align-items-center">
+                                            <button type="button" class="btn-close m-0" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            <h5 class="modal-title fw-bold m-0">
+                                                <i class="bi bi-person-gear ms-2"></i>تعديل بيانات الطالب
+                                            </h5>
                                         </div>
+
+                                        <form action="{{ route('student.update', $student->id) }}" method="POST">
+                                            @csrf
+                                            @method('PUT')
+
+                                            <div class="modal-body p-4">
+                                                <div class="row g-3">
+
+                                                    {{-- الاسم رباعي --}}
+                                                    <div class="col-md-6 text-end">
+                                                        <label class="form-label fw-bold small d-block" style="text-align: right;">الاسم رباعي</label>
+                                                        <input type="text" name="full_name" class="form-control bg-light border-0 shadow-none"
+                                                            style="text-align: right;" value="{{ $student->full_name }}" required>
+                                                    </div>
+
+                                                    {{-- رقم الهوية --}}
+                                                    <div class="col-md-6 text-end">
+                                                        <label class="form-label fw-bold small d-block" style="text-align: right;">رقم الهوية</label>
+                                                        <input type="text" name="id_number" class="form-control bg-light border-0 shadow-none"
+                                                            style="text-align: right;" value="{{ $student->id_number }}" required>
+                                                    </div>
+
+                                                    {{-- رقم الجوال --}}
+                                                    <div class="col-md-6 text-end">
+                                                        <label class="form-label fw-bold small d-block" style="text-align: right;">رقم الجوال</label>
+                                                        <input type="text" name="phone_number" class="form-control bg-light border-0 shadow-none"
+                                                            style="text-align: right;" value="{{ $student->phone_number }}" required>
+                                                    </div>
+
+                                                    {{-- العنوان --}}
+                                                    <div class="col-md-6 text-end">
+                                                        <label class="form-label fw-bold small d-block" style="text-align: right;">العنوان</label>
+                                                        <input type="text" name="address" class="form-control bg-light border-0 shadow-none"
+                                                            style="text-align: right;" value="{{ $student->address }}" required>
+                                                    </div>
+
+                                                    {{-- حالة السكن --}}
+                                                    <div class="col-md-6 text-end">
+                                                        <label class="form-label fw-bold small d-block" style="text-align: right;">حالة السكن</label>
+                                                        <select name="is_displaced" class="form-select bg-light border-0 shadow-none"
+                                                                style="text-align: right; direction: rtl;">
+                                                            <option value="0" {{ !$student->is_displaced ? 'selected' : '' }}>مقيم</option>
+                                                            <option value="1" {{ $student->is_displaced ? 'selected' : '' }}>نازح</option>
+                                                        </select>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+                                            {{-- أزرار التحكم --}}
+                                            <div class="modal-footer border-0 p-3 bg-light d-flex justify-content-end">
+                                                <button type="submit" class="btn btn-warning px-5 fw-bold shadow-sm rounded-pill">حفظ التغييرات</button>
+                                                <button type="button" class="btn btn-secondary px-4 rounded-pill shadow-sm" data-bs-dismiss="modal">إلغاء</button>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
+                            </div>
                             @empty
                                 <tr>
                                     <td colspan="7" class="py-4 text-muted small">لا يوجد طلاب مسجلين حالياً.</td>

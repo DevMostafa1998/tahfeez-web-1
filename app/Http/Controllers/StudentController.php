@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\BusinessLogic\StudentLogic;
 use App\Models\Student;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StudentController extends Controller
 {
@@ -16,11 +17,25 @@ class StudentController extends Controller
     {
         $this->studentLogic = $studentLogic;
     }
-    public function index()
-    {
-        $students = $this->studentLogic->getAllStudents();
-        return view('students.index', compact('students'));
+  public function index(Request $request)
+{
+    $query = DB::table('student');
+
+    if ($request->filter == 'not_memorized_today') {
+        $today = \Carbon\Carbon::today();
+
+        // جلب معرفات الطلاب الذين سمعوا اليوم
+        $who_memorized = DB::table('student_daily_memorizations')
+            ->whereDate('date', $today)
+            ->pluck('student_id');
+
+        // عرض الطلاب الذين "ليسوا" في القائمة أعلاه
+        $query->whereNotIn('id', $who_memorized);
     }
+
+    $students = $query->paginate(10)->withQueryString();
+    return view('students.index', compact('students'));
+}
     /**
      * Show the form for creating a new resource.
      */

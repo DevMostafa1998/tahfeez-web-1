@@ -55,6 +55,7 @@ class UserController extends Controller
             'phone_number' => 'required',
             'address' => 'required',
             'category_id' => 'required',
+            'password'     => 'nullable|string|min:6|confirmed',
         ]);
 
         $this->userLogic->updateUser($user, $request->all());
