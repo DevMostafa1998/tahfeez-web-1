@@ -7,6 +7,7 @@ use App\Http\Controllers\MemorizationController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentgroupController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -37,9 +38,14 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/teachers-attendance', [AttendanceController::class, 'teachersAttendance'])->name('teachers.attendance');
     Route::post('/teachers-attendance', [AttendanceController::class, 'storeTeachersAttendance'])->name('teachers.attendance.store');
-    
+
     Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
     Route::post('/attendance', [AttendanceController::class, 'store'])->name('attendance.store');
+
+    Route::get('/category', [CategoryController::class, 'index'])->name('category.index');
+    Route::post('/category/store', [CategoryController::class, 'store'])->name('category.store');
+    Route::put('/category/{id}', [CategoryController::class, 'update'])->name('category.update');
+    Route::delete('/category/{id}', [CategoryController::class, 'destroy'])->name('category.destroy');
 
     Route::resource('student', StudentController::class);
     Route::resource('group', GroupController::class);

@@ -5,169 +5,124 @@
 @push('css')
     <link rel="stylesheet" href="{{ asset('assets/css/user_table.css') }}" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 @endpush
 
 @section('content')
     <div class="container-fluid p-4" dir="rtl">
         <div class="page-header d-flex justify-content-between align-items-center mb-4">
             <div class="d-flex align-items-center gap-3">
-                <div class="bg-white p-2 rounded-3 shadow-sm">
-                    <i class="bi bi-person-badge-fill fs-3 text-primary"></i>
+                <div class="bg-white p-2 rounded-3 shadow-sm text-primary">
+                    <i class="bi bi-person-badge-fill fs-3"></i>
                 </div>
                 <div>
-                    <h1 class="page-title m-0 h3">إدارة الطلاب</h1>
+                    <h1 class="page-title m-0 h3 fw-bold text-primary">إدارة الطلاب</h1>
                 </div>
             </div>
             <a href="{{ route('student.create') }}"
-                class="btn btn-primary d-flex align-items-center gap-2 px-4 py-2 rounded-3">
+                class="btn btn-primary d-flex align-items-center gap-2 px-4 py-2 rounded-pill shadow-sm fw-bold">
                 <i class="bi bi-plus-lg"></i><span>طالب جديد</span>
             </a>
         </div>
 
-        <div class="card card-table overflow-hidden">
+        <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="bg-light">
+                    <table class="table table-hover align-middle mb-0 text-center">
+                        <thead class="bg-light text-secondary">
                             <tr>
-                                <th class="ps-4">اسم الطالب رباعي</th>
-                                <th class="text-center">رقم الهوية</th>
-                                <th class="text-center">رقم الجوال</th>
-                                <th class="text-center">العنوان</th>
-                                <th class="text-center">حالة السكن</th>
-                                <th class="text-center">الإجراءات</th>
+                                <th class="py-3" style="width: 50px;">#</th>
+                                <th class="text-start ps-4">اسم الطالب رباعي</th>
+                                <th>رقم الهوية</th>
+                                <th>رقم الجوال</th>
+                                <th>العنوان</th>
+                                <th>حالة السكن</th>
+                                <th style="width: 120px;">الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($students as $student)
                                 <tr>
-                                    <td class="ps-4">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div class="avatar-circle bg-primary text-white d-flex align-items-center justify-content-center rounded-circle"
-                                                style="width: 40px; height: 40px;">
-                                                {{ mb_substr($student->full_name, 0, 1) }}
-                                            </div>
-                                            <span class="fw-bold">{{ $student->full_name }}</span>
-                                        </div>
+                                    <td class="text-muted fw-bold">
+                                        {{ ($students->currentPage() - 1) * $students->perPage() + $loop->iteration }}
                                     </td>
-                                    <td class="text-center">{{ $student->id_number }}</td>
-                                    <td class="text-center">{{ $student->phone_number }}</td>
-                                    <td class="text-center">{{ $student->address }}</td>
-                                    <td class="text-center">
-                                        <span
-                                            class="badge {{ $student->is_displaced ? 'bg-warning-subtle text-warning-emphasis' : 'bg-success-subtle text-success' }} border badge-status">
+
+                                    <td class="text-start ps-4">
+                                        <strong class="text-dark">{{ $student->full_name }}</strong>
+                                    </td>
+
+                                    <td><span class="badge bg-light text-dark border">{{ $student->id_number }}</span></td>
+                                    <td>{{ $student->phone_number }}</td>
+                                    <td class="small">{{ $student->address }}</td>
+
+                                    <td>
+                                        <span class="badge rounded-pill {{ $student->is_displaced ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success' }} border px-3">
                                             {{ $student->is_displaced ? 'نازح' : 'مقيم' }}
                                         </span>
                                     </td>
-                                    <td class="text-center">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <button type="button" class="btn btn-action text-primary"
+
+                                        <td class="text-center">
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <button type="button"
+                                                class="btn btn-sm btn-outline-warning rounded-circle d-flex align-items-center justify-content-center shadow-sm"
                                                 data-bs-toggle="modal"
-                                                data-bs-target="#editStudentModal{{ $student->id }}">
-                                                <i class="bi bi-pencil-square fs-5"></i>
+                                                data-bs-target="#editStudentModal{{ $student->id }}"
+                                                style="width: 35px; height: 35px;">
+                                                <i class="bi bi-pencil-square fs-6"></i>
                                             </button>
 
                                             <form action="{{ route('student.destroy', $student->id) }}" method="POST"
-                                                class="d-inline" onsubmit="return confirm('هل أنت متأكد؟')">
+                                                id="deleteForm{{ $student->id }}" class="d-inline">
                                                 @csrf @method('DELETE')
-                                                <button type="submit" class="btn btn-action text-danger"><i
-                                                        class="bi bi-trash3 fs-5"></i></button>
+                                                <button type="button" onclick="confirmDelete({{ $student->id }})"
+                                                    class="btn btn-sm btn-outline-danger rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+                                                    style="width: 35px; height: 35px;">
+                                                    <i class="bi bi-trash3 fs-6"></i>
+                                                </button>
                                             </form>
                                         </div>
                                     </td>
                                 </tr>
 
-                                <div class="modal fade" id="editStudentModal{{ $student->id }}" tabindex="-1"
-                                    aria-hidden="true">
+                                {{-- مودال التعديل لكل طالب --}}
+                                <div class="modal fade" id="editStudentModal{{ $student->id }}" tabindex="-1" aria-hidden="true">
                                     <div class="modal-dialog modal-lg modal-dialog-centered">
-                                        <div class="modal-content"
-                                            style="border-radius: 15px; overflow: hidden; border: none;">
-                                            <div class="modal-header modal-header-yellow">
-                                                <h5 class="modal-title fw-bold">تعديل بيانات الطالب</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
+                                        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                                            <div class="modal-header bg-warning text-dark border-0 py-3">
+                                                <h5 class="modal-title fw-bold ms-auto"><i class="bi bi-person-gear me-2"></i>تعديل بيانات الطالب</h5>
+                                                <button type="button" class="btn-close ms-0" data-bs-dismiss="modal"></button>
                                             </div>
                                             <form action="{{ route('student.update', $student->id) }}" method="POST">
                                                 @csrf @method('PUT')
-                                                <div class="modal-body p-4 text-start">
+                                                <div class="modal-body p-4 text-end">
                                                     <div class="row g-3">
                                                         <div class="col-md-6">
-                                                            <label class="form-label small fw-bold">الاسم رباعي</label>
-                                                            <div class="input-group">
-                                                                <span class="input-group-text bg-white"><i
-                                                                        class="bi bi-person text-primary"></i></span>
-                                                                <input type="text" name="full_name" class="form-control"
-                                                                    value="{{ $student->full_name }}" required autofocus>
-
-                                                            </div>
+                                                            <label class="form-label fw-bold small">الاسم رباعي</label>
+                                                            <input type="text" name="full_name" class="form-control bg-light border-0 shadow-none" value="{{ $student->full_name }}" required>
                                                         </div>
                                                         <div class="col-md-6">
-                                                            <label class="form-label small fw-bold">رقم الهوية</label>
-                                                            <div class="input-group">
-                                                                <span class="input-group-text bg-white"><i
-                                                                        class="bi bi-card-heading text-primary"></i></span>
-                                                                <input type="text" name="id_number" class="form-control"
-                                                                    value="{{ $student->id_number }}" required>
-
-                                                            </div>
+                                                            <label class="form-label fw-bold small">رقم الهوية</label>
+                                                            <input type="text" name="id_number" class="form-control bg-light border-0 shadow-none" value="{{ $student->id_number }}" required>
                                                         </div>
                                                         <div class="col-md-6">
-                                                            <label class="form-label small fw-bold">رقم الجوال</label>
-                                                            <div class="input-group">
-                                                                <span class="input-group-text bg-white"><i
-                                                                        class="bi bi-telephone text-primary"></i></span>
-                                                                <input type="text" name="phone_number"
-                                                                    class="form-control"
-                                                                    value="{{ $student->phone_number }}" required>
-
-                                                            </div>
+                                                            <label class="form-label fw-bold small">رقم الجوال</label>
+                                                            <input type="text" name="phone_number" class="form-control bg-light border-0 shadow-none" value="{{ $student->phone_number }}" required>
                                                         </div>
                                                         <div class="col-md-6">
-                                                            <label class="form-label small fw-bold">العنوان</label>
-                                                            <div class="input-group">
-                                                                <span class="input-group-text bg-white"><i
-                                                                        class="bi bi-geo-alt text-primary"></i></span>
-                                                                <input type="text" name="address" class="form-control"
-                                                                    value="{{ $student->address }}" required>
-
-                                                            </div>
+                                                            <label class="form-label fw-bold small">العنوان</label>
+                                                            <input type="text" name="address" class="form-control bg-light border-0 shadow-none" value="{{ $student->address }}" required>
                                                         </div>
                                                         <div class="col-md-6">
-                                                            <label class="form-label small fw-bold">تاريخ الميلاد</label>
-                                                            <div class="input-group">
-                                                                <span class="input-group-text bg-white"><i
-                                                                        class="bi bi-calendar3 text-primary"></i></span>
-                                                                <input type="date" name="date_of_birth"
-                                                                    class="form-control"
-                                                                    value="{{ $student->date_of_birth->format('Y-m-d') }}"
-                                                                    required>
-
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label class="form-label small fw-bold">حالة السكن</label>
-                                                            <div class="input-group">
-                                                                <span class="input-group-text bg-white"><i
-                                                                        class="bi bi-house-door text-primary"></i></span>
-                                                                <select name="is_displaced" class="form-select" required>
-                                                                    <option value="0"
-                                                                        {{ $student->is_displaced == 0 ? 'selected' : '' }}>
-                                                                        مقيم</option>
-                                                                    <option value="1"
-                                                                        {{ $student->is_displaced == 1 ? 'selected' : '' }}>
-                                                                        نازح</option>
-                                                                </select>
-
-                                                            </div>
+                                                            <label class="form-label fw-bold small">حالة السكن</label>
+                                                            <select name="is_displaced" class="form-select bg-light border-0 shadow-none">
+                                                                <option value="0" {{ !$student->is_displaced ? 'selected' : '' }}>مقيم</option>
+                                                                <option value="1" {{ $student->is_displaced ? 'selected' : '' }}>نازح</option>
+                                                            </select>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="modal-footer border-0 justify-content-start px-4 pb-4">
-                                                    <button type="submit" class="btn btn-save-yellow px-4 py-2">حفظ
-                                                        التغييرات</button>
-                                                    <button type="button" class="btn btn-light border px-4 py-2 fw-bold"
-                                                        data-bs-dismiss="modal">إلغاء</button>
+                                                <div class="modal-footer border-0 p-3 bg-light">
+                                                    <button type="button" class="btn btn-secondary px-4 rounded-pill shadow-sm" data-bs-dismiss="modal">إلغاء</button>
+                                                    <button type="submit" class="btn btn-warning px-5 fw-bold shadow-sm rounded-pill">حفظ التغييرات</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -175,95 +130,60 @@
                                 </div>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center py-4 text-muted">لا يوجد طلاب.</td>
+                                    <td colspan="7" class="py-4 text-muted small">لا يوجد طلاب مسجلين حالياً.</td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
             </div>
+
+            <div class="card-footer bg-white border-0 py-3">
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <div class="text-muted small mb-2 mb-md-0">
+                        عرض من {{ $students->firstItem() }} إلى {{ $students->lastItem() }} من إجمالي {{ $students->total() }} طالب
+                    </div>
+                    <div>
+                        {{ $students->links('pagination::bootstrap-5') }}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 @endsection
+
 @push('js')
+    <style>
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .btn-outline-warning:hover { background-color: #ffc107 !important; color: #fff !important; }
+        .btn-outline-danger:hover { background-color: #dc3545 !important; color: #fff !important; }
+        .pagination { margin-bottom: 0; gap: 5px; }
+        .page-link { border: none; border-radius: 8px !important; padding: 8px 16px; color: #666; }
+        .page-item.active .page-link { background-color: #0d6efd; box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3); }
+    </style>
+
     <script>
-        $(document).ready(function() {
-            $('.update-student-form').on('submit', function(e) {
-                e.preventDefault();
-
-                let form = $(this);
-                let studentId = form.data('id');
-                let formData = form.serialize();
-                let submitBtn = form.find('button[type="submit"]');
-
-                // إظهار مؤشر التحميل
-                submitBtn.prop('disabled', true).find('.spinner-border').removeClass('d-none');
-
-                $.ajax({
-                    url: `/student/${studentId}`, // تأكد من مطابقة مسار الـ Route عندك
-                    method: 'POST', // نستخدم POST مع _method PUT في البيانات
-                    data: formData,
-                    success: function(response) {
-                        if (response.success) {
-                            // 1. إغلاق المودال
-                            $(`#editStudentModal${studentId}`).modal('hide');
-
-                            // 2. تحديث بيانات الصف في الجدول فوراً
-                            updateRow(studentId, response.student);
-
-                            // 3. رسالة نجاح
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'تمت العملية',
-                                text: 'تم تحديث بيانات الطالب بنجاح',
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
-                        }
-                    },
-                    error: function(xhr) {
-                        let errors = xhr.responseJSON.errors;
-                        let errorMessage = 'حدث خطأ ما، يرجى المحاولة لاحقاً';
-                        if (errors) {
-                            errorMessage = Object.values(errors)[0][0];
-                        }
-                        Swal.fire('خطأ!', errorMessage, 'error');
-                    },
-                    complete: function() {
-                        submitBtn.prop('disabled', false).find('.spinner-border').addClass(
-                            'd-none');
-                    }
-                });
+        function confirmDelete(id) {
+            Swal.fire({
+                title: 'هل أنت متأكد؟',
+                text: "سيتم نقل بيانات الطالب إلى سلة المهملات!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'نعم، احذف',
+                cancelButtonText: 'تراجع',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('deleteForm' + id).submit();
+                }
             });
-
-            function confirmDelete(id) {
-                Swal.fire({
-                    title: 'هل أنت متأكد؟',
-                    text: "سيتم حذف  نهائياً!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    confirmButtonText: 'نعم، احذف',
-                    cancelButtonText: 'تراجع',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) document.getElementById('deleteForm' + id).submit();
-                });
-            }
-            // دالة لتحديث بيانات الصف دون إعادة تحميل الصفحة
-            function updateRow(id, student) {
-                let row = $(`#editStudentModal${id}`).closest('tr');
-                row.find('td:nth-child(1) span.fw-bold').text(student.full_name);
-                row.find('td:nth-child(2)').text(student.id_number);
-                row.find('td:nth-child(3)').text(student.phone_number);
-                row.find('td:nth-child(4)').text(student.address);
-
-                // تحديث حالة السكن (نازح/مقيم)
-                let statusBadge = student.is_displaced == 1 ?
-                    '<span class="badge bg-warning-subtle text-warning-emphasis border badge-status">نازح</span>' :
-                    '<span class="badge bg-success-subtle text-success border badge-status">مقيم</span>';
-                row.find('td:nth-child(5)').html(statusBadge);
-            }
-        });
+        }
     </script>
 @endpush
