@@ -4,6 +4,10 @@
 
 @push('css')
     {{-- استخدام أيقونات Bootstrap و SweetAlert2 للتنبيهات --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.bootstrap4.css">
+    <link rel="stylesheet" href="{{ asset('assets/css/user_table.css') }}" />
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -21,6 +25,48 @@
 
         .select2-container--default .select2-selection--single .select2-selection__arrow {
             height: 43px;
+        }
+
+        .dataTables_wrapper .row:first-child {
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: center;
+            width: 100%;
+            margin: 0 0 1rem 0;
+            padding: 0 15px;
+            overflow-x: hidden !important;
+        }
+
+        #groupsTable {
+            width: 100% !important;
+            margin: 0 !important;
+        }
+
+        select.custom-select {
+            direction: ltr !important;
+            text-align: center !important;
+            background-image: none !important;
+            appearance: menulist !important;
+            -webkit-appearance: menulist !important;
+            -moz-appearance: menulist !important;
+            padding: 4px 30px 4px 10px !important;
+            min-width: auto !important;
+            height: auto !important;
+            border-radius: 4px;
+        }
+
+        /* محاذاة البحث */
+        .dataTables_filter {
+            text-align: left !important;
+        }
+
+        .dataTables_filter input {
+            margin-right: 10px;
+        }
+
+        .dataTables_length {
+            text-align: right !important;
         }
     </style>
 @endpush
@@ -66,21 +112,22 @@
                 </h5>
             </div>
             <div class="card-body p-0 text-end">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="bg-light text-secondary">
+                <div class="card-body p-3">
+                    {{-- إضافة كلاس table-bordered لرسم الخطوط --}}
+                    <table id="studentsTable" class="table table-bordered table-hover align-middle mb-0 shadow-sm">
+                        <thead class="bg-light"> {{-- ضروري جداً لتثبيت الأسهم --}}
                             <tr>
-                                <th class="text-center">اسم الطالب</th>
-                                <th class="text-center">العمر</th>
-                                <th class="text-center">آخر سورة</th> {{-- عمود جديد --}}
-                                <th class="text-center">آخر آية</th> {{-- عمود جديد --}}
-                                <th class="text-center">رقم الهوية</th>
-                                <th class="text-center">الإجراءات</th>
+                                <th class="text-center py-3">اسم الطالب</th>
+                                <th class="text-center py-3">العمر</th>
+                                <th class="text-center py-3">آخر سورة</th>
+                                <th class="text-center py-3">آخر آية</th>
+                                <th class="text-center py-3">رقم الهوية</th>
+                                <th class="text-center py-3">الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody>
                             {{-- تكرار الطلاب المرتبطين بالمجموعة --}}
-                            @forelse($students as $student)
+                            @foreach ($students as $student)
                                 <tr id="row-student-{{ $student->id }}">
                                     <td class="ps-4">
                                         <div class="d-flex align-items-center gap-3">
@@ -191,19 +238,21 @@
                                                                         <i class="bi bi-hash ms-1 text-primary"></i> من آية
                                                                     </label>
                                                                     <input type="number" name="verses_from"
-                                                                        value="{{ isset($student->latestMemorization->verses_from) ? $student->latestMemorization->verses_from : '' }}"
+                                                                        {{-- المنطق: إذا وجد حفظ سابق، ابدأ من الآية التالية مباشرة --}}
+                                                                        value="{{ isset($student->latestMemorization->verses_to) ? $student->latestMemorization->verses_to + 1 : 1 }}"
                                                                         class="form-control form-control-lg border-2"
                                                                         min="1" required
                                                                         style="border-radius: 10px; text-align: right; direction: rtl;">
                                                                 </div>
+
                                                                 <div class="col-6" style="text-align: right;">
                                                                     <label class="form-label fw-bold text-secondary mb-2"
                                                                         style="display: block; width: 100%;">
                                                                         <i class="bi bi-hash ms-1 text-primary"></i> إلى
                                                                         آية
                                                                     </label>
-                                                                    <input type="number" name="verses_to"
-                                                                        value="{{ isset($student->latestMemorization->verses_to) ? $student->latestMemorization->verses_to : '' }}"
+                                                                    {{-- حقل "إلى آية" نتركه فارغاً دائماً ليبدأ المعلم بالإدخال --}}
+                                                                    <input type="number" name="verses_to" value=""
                                                                         class="form-control form-control-lg border-2"
                                                                         min="1" required
                                                                         style="border-radius: 10px; text-align: right; direction: rtl;">
@@ -244,25 +293,17 @@
                                 </tr>
 
                                 {{-- مودال تسجيل الحفظ لكل طالب --}}
-
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center py-5 text-muted">
-                                        <i class="bi bi-info-circle d-block fs-2 mb-2"></i>
-                                        لا يوجد طلاب في هذه المجموعة حالياً.
-                                    </td>
-                                </tr>
-                            @endforelse
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
-                @if ($students->hasPages())
+                {{-- @if ($students->hasPages())
                     <div class="card-footer bg-white border-top-0 py-3">
                         <div class="d-flex justify-content-end">
                             {!! $students->links('pagination::bootstrap-5') !!}
                         </div>
                     </div>
-                @endif
+                @endif --}}
             </div>
         </div>
     </div>
@@ -270,14 +311,68 @@
 
 @push('scripts')
     {{-- استخدام jQuery و SweetAlert لإرسال البيانات دون تحديث الصفحة --}}
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/2.3.6/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.3.6/js/dataTables.bootstrap4.js"></script>
+
+    {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
+            // 1. تفعيل DataTable مع معالجة مشاكل التنسيق الظاهرة في الصورة
+            if ($.fn.DataTable.isDataTable('#studentsTable')) {
+                $('#studentsTable').DataTable().destroy();
+            }
+
+            let table = $('#studentsTable').DataTable({
+                "autoWidth": false, // منع الحساب التلقائي للعرض الذي يسبب السكرول
+                "responsive": true,
+                "searching": true,
+                "ordering": true,
+                "language": {
+                    "sProcessing": "جاري التحميل...",
+                    "sLengthMenu": "عرض _MENU_ طلاب",
+                    "sZeroRecords": "لم يعثر على أية سجلات",
+                    "sInfo": "إظهار _START_ إلى _END_ من أصل _TOTAL_ طالب",
+                    "sInfoEmpty": "يعرض 0 إلى 0 من أصل 0 سجل",
+                    "sInfoFiltered": "(منتقاة من مجموع _MAX_ مُدخل)",
+                    "sSearch": "بحث سريع:",
+                    "sEmptyTable": "لا يوجد طلاب في هذه المجموعة حالياً.",
+                    "oPaginate": {
+                        "sFirst": "الأول",
+                        "sPrevious": "السابق",
+                        "sNext": "التالي",
+                        "sLast": "الأخير"
+                    }
+                },
+                // ضبط توزيع العناصر (f: البحث، l: الطول، tr: الجدول، i: المعلومات، p: الترقيم)
+                "dom": "<'row mb-3 align-items-center'<'col-md-6 d-flex justify-content-start'l><'col-md-6 d-flex justify-content-end'f>>" +
+                    "tr" +
+                    "<'row mt-3'<'col-12 d-flex justify-content-between align-items-center'ip>>", // الجزء السفلي (المعلومات i والتنقل p)
+                "columnDefs": [{
+                        "orderable": false,
+                        "targets": 5
+                    }, // منع الترتيب لعمود الإجراءات
+                    {
+                        "searchable": false,
+                        "targets": 5
+                    },
+                    {
+                        "className": "text-center",
+                        "targets": "_all"
+                    } // توحيد المحاذاة للوسط
+                ]
+            });
+
+            // 2. تفعيل Select2 داخل المودالات (إصلاح مشكلة البحث داخل القائمة)
             $('.modal').on('shown.bs.modal', function() {
                 $(this).find('.surah-select').select2({
-                    dropdownParent: $(this), // ضروري جداً لتعمل القائمة داخل المودال
+                    dropdownParent: $(this),
                     dir: "rtl",
+                    width: '100%',
                     language: {
                         noResults: function() {
                             return "لا توجد نتائج";
@@ -285,20 +380,20 @@
                     }
                 });
             });
-            // نستخدم document.on للتعامل مع العناصر المنشأة ديناميكياً أو المتأثرة بالمودال
+
+            // 3. معالجة إرسال نموذج الحفظ عبر AJAX (تحديث الجدول لحظياً)
             $(document).on('submit', '.memorizationForm', function(e) {
                 e.preventDefault();
                 let form = $(this);
                 let btn = form.find('button[type="submit"]');
-                let modalId = form.closest('.modal').attr('id'); // نأخذ آيدي المودال لإغلاقه بدقة
+                let modalId = form.closest('.modal').attr('id');
 
-                // جلب البيانات
+                // جلب البيانات قبل الإرسال لتحديث الواجهة
                 let studentId = form.find('input[name="student_id"]').val();
                 let newSura = form.find('select[name="sura_name"] option:selected').val();
                 let newVerseTo = form.find('input[name="verses_to"]').val();
-
-                // زر التحميل
                 let originalText = btn.text();
+
                 btn.prop('disabled', true).html(
                     '<span class="spinner-border spinner-border-sm me-1"></span> جاري الحفظ...');
 
@@ -307,50 +402,40 @@
                     method: 'POST',
                     data: form.serialize(),
                     success: function(response) {
-
-                        // 1. إغلاق المودال
                         $('#' + modalId).modal('hide');
 
-                        // 2. رسالة النجاح
                         Swal.fire({
                             icon: 'success',
                             title: 'تم بنجاح',
-                            text: 'تم تحديث البيانات في الجدول',
+                            text: 'تم تحديث سجل الطالب بنجاح',
                             timer: 1500,
                             showConfirmButton: false
                         });
-                        form.find('textarea[name="note"]').val('');
-                        // 3. تحديث الجدول
+
+                        // تحديث خلايا الجدول دون الحاجة لتحديث الصفحة
                         let row = $('#row-student-' + studentId);
-
-                        // فحص في الكونسول للتأكد من العثور على الصف
-                        console.log('Target Row ID:', '#row-student-' + studentId);
-                        console.log('Row Found:', row.length);
-
                         if (row.length > 0) {
-                            // تحديث القيم
                             row.find('.sura-cell').text(newSura);
                             row.find('.verse-cell span').text(newVerseTo);
 
-                            // تأثير وميض أصفر لتأكيد التحديث للمستخدم
-                            row.css('background-color', '#fff3cd');
+                            // تأثير بصري (وميض) لتأكيد التغيير
+                            row.addClass('table-warning');
                             setTimeout(() => {
-                                row.css('background-color', '');
-                            }, 1000);
+                                row.removeClass('table-warning');
+                            }, 2000);
 
-                            // تجهيز المودال للمرة القادمة
+                            // إعداد المودال للإدخال القادم تلقائياً
                             let nextStart = parseInt(newVerseTo) + 1;
                             form.find('input[name="verses_from"]').val(nextStart);
                             form.find('input[name="verses_to"]').val('');
-                        } else {
-                            console.error('لم يتم العثور على صف الطالب في الجدول');
+                            form.find('textarea[name="note"]').val('');
                         }
 
                         btn.prop('disabled', false).text(originalText);
                     },
                     error: function(xhr) {
                         btn.prop('disabled', false).text(originalText);
-                        let errorMsg = 'حدث خطأ ما';
+                        let errorMsg = 'حدث خطأ أثناء الاتصال بالخادم';
                         if (xhr.responseJSON && xhr.responseJSON.errors) {
                             errorMsg = Object.values(xhr.responseJSON.errors)[0][0];
                         }
