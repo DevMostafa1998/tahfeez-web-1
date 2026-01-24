@@ -3,10 +3,59 @@
 @section('title', 'إدارة المجموعات')
 
 @push('css')
+    {{-- 1. تحميل المكتبات أولاً --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.bootstrap4.css">
     <link rel="stylesheet" href="{{ asset('assets/css/user_table.css') }}" />
+
+    {{-- 2. التنسيقات المخصصة ثانياً --}}
+    <style>
+        /* تنسيق الحاوية العلوية */
+        .dataTables_wrapper .row:first-child {
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: center;
+            width: 100%;
+            margin: 0 0 1rem 0;
+            padding: 0 15px;
+            overflow-x: hidden !important;
+        }
+
+        #groupsTable {
+            width: 100% !important;
+            margin: 0 !important;
+        }
+
+        select.custom-select {
+            direction: ltr !important;
+            text-align: center !important;
+            background-image: none !important;
+            appearance: menulist !important;
+            -webkit-appearance: menulist !important;
+            -moz-appearance: menulist !important;
+            padding: 4px 30px 4px 10px !important;
+            min-width: auto !important;
+            height: auto !important;
+            border-radius: 4px;
+        }
+
+        /* محاذاة البحث */
+        .dataTables_filter {
+            text-align: left !important;
+        }
+
+        .dataTables_filter input {
+            margin-right: 10px;
+        }
+
+        .dataTables_length {
+            text-align: right !important;
+        }
+    </style>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endpush
-
 @section('content')
     <div class="container-fluid p-4" dir="rtl">
         {{-- تنبيهات النجاح --}}
@@ -43,11 +92,11 @@
         {{-- جدول البيانات --}}
         <div class="card card-table shadow-sm border-0 overflow-hidden">
             <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+                <div>
+                    <table id="groupsTable" class="table table-striped table-bordered align-middle mb-0" style="width:100%">
                         <thead class="bg-light text-secondary">
                             <tr>
-                                <th class="ps-4">اسم المجموعة</th>
+                                <th class="text-center">اسم المجموعة</th>
                                 <th class="text-center">اسم المحفظ</th>
                                 <th class="text-center">تاريخ الإنشاء</th>
                                 <th class="text-center">عدد الطلاب</th>
@@ -55,7 +104,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($groups as $group)
+                            @foreach($groups as $group)
                                 {{-- ... (نفس محتوى الحلقة الحالي الخاص بك) ... --}}
                                 <tr>
                                     <td class="ps-4">
@@ -115,24 +164,21 @@
 
                                 @include('groups.edit_modal')
                                 @include('groups.manage_students_modal')
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="text-center py-5 text-muted">لا يوجد مجموعات حالياً.</td>
-                                </tr>
-                            @endforelse
+
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
             </div>
 
             {{-- هنا إضافة الترقيم --}}
-            @if ($groups->hasPages())
+            {{-- @if ($groups->hasPages())
                 <div class="card-footer bg-white border-top-0 py-3">
                     <div class="d-flex justify-content-end">
                         {{ $groups->links('pagination::bootstrap-5') }}
                     </div>
                 </div>
-            @endif
+            @endif --}}
         </div>
     </div>
     {{-- مودال عرض تفاصيل المجموعة --}}
@@ -185,7 +231,19 @@
 @endsection
 
 @push('scripts')
+    {{-- استدعاء مكتبة DataTables --}}
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/2.3.6/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.3.6/js/dataTables.bootstrap4.js"></script>
+
+
+    {{-- <script src="https://cdn.datatables.net/2.3.6/js/dataTables.bootstrap4.js"></script> --}}
+
     <script>
+        // دالة تصفية الطلاب داخل المودال
         function filterStudents(input, listId) {
             let filter = input.value.toLowerCase();
             let items = document.getElementById(listId).getElementsByClassName('student-item');
@@ -195,6 +253,7 @@
             }
         }
 
+        // دالة تأكيد الحذف باستخدام SweetAlert
         function confirmDelete(id) {
             Swal.fire({
                 title: 'هل أنت متأكد؟',
@@ -209,7 +268,41 @@
                 if (result.isConfirmed) document.getElementById('deleteForm' + id).submit();
             });
         }
+
         $(document).ready(function() {
+            // 1. تفعيل DataTable مع الإعدادات العربية (اليقظة والذكاء)
+            let table = $('#groupsTable').DataTable({
+                "order": [
+                    [2, "desc"]
+                ], // الترتيب التلقائي حسب تاريخ الإنشاء
+                "language": {
+                    // ترجمة يدوية لتجنب خطأ تحميل الملف i18n
+                    "sProcessing": "جاري التحميل...",
+                    "sLengthMenu": "أظهر _MENU_ مجموعات",
+                    "sZeroRecords": "لم يعثر على أية سجلات",
+                    "sInfo": "إظهار _START_ إلى _END_ من أصل _TOTAL_ مدخل",
+                    "sInfoEmpty": "يعرض 0 إلى 0 من أصل 0 سجل",
+                    "sInfoFiltered": "(منتقاة من مجموع _MAX_ مُدخل)",
+                    "sSearch": "بحث:",
+                    "oPaginate": {
+                        "sFirst": "الأول",
+                        "sPrevious": "السابق",
+                        "sNext": "التالي",
+                        "sLast": "الأخير"
+                    }
+                },
+                "dom": "<'row'<'col-12 d-flex justify-content-between align-items-center'lf>>" +
+                    // الجزء العلوي (بحث وعدد المدخلات)
+                    "<'row'<'col-12'tr>>" + // الجدول
+                    "<'row mt-3'<'col-12 d-flex justify-content-between align-items-center'ip>>", // الجزء السفلي (المعلومات i والتنقل p)
+                "columnDefs": [{
+                        "orderable": false,
+                        "targets": 4
+                    } // منع الترتيب لعمود الإجراءات
+                ]
+            });
+
+            // 2. معالجة نموذج إنشاء مجموعة جديدة عبر AJAX
             $('#createGroupForm').on('submit', function(e) {
                 e.preventDefault();
 
@@ -226,32 +319,11 @@
                     data: formData,
                     success: function(response) {
                         if (response.success) {
-                            // 1. إغلاق المودال وتفريغ الحقول
+                            // إغلاق المودال وتصفير الفورم
                             $('#createGroupModal').modal('hide');
                             form[0].reset();
 
-                            // 2. إضافة الصف الجديد للجدول يدوياً في البداية
-                            let newRow = `
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="avatar-circle bg-primary-subtle text-primary fw-bold">
-                                        ${response.group.GroupName.charAt(0)}
-                                    </div>
-                                    <span class="fw-bold">${response.group.GroupName}</span>
-                                </div>
-                            </td>
-                            <td>${response.group.teacher_name}</td>
-                            <td><span class="badge bg-info-subtle text-info border px-3">0 طلاب</span></td>
-                            <td><span class="text-muted small">${response.group.created_at}</span></td>
-                            <td>
-                                <button class="btn btn-action text-primary"><i class="bi bi-pencil-square"></i></button>
-                            </td>
-                        </tr>`;
-
-                            $('table tbody').prepend(newRow); // إضافة في أول الجدول
-
-                            // 3. تنبيه النجاح
+                            // تنبيه النجاح
                             Swal.fire({
                                 icon: 'success',
                                 title: 'تمت العملية',
@@ -259,6 +331,12 @@
                                 timer: 2000,
                                 showConfirmButton: false
                             });
+
+                            // ذكاء برمجي: بدلاً من إضافة HTML يدوياً، نقوم بتحديث الصفحة
+                            // لضمان ظهور المودالات (تعديل، إدارة طلاب) المرتبطة بالصف الجديد
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1000);
                         }
                     },
                     error: function(xhr) {

@@ -27,7 +27,7 @@ class GroupLogic
             //     ->whereNull('deleted_at')
             //     ->orderBy('creation_at', 'desc')
             //     ->get(),
-            'groups' => $groupsQuery->paginate(5),
+            'groups' => $groupsQuery->get(),
             'teachers' => DB::table('user')
                 ->select('id', 'full_name')
                 ->where('is_admin', 0)
