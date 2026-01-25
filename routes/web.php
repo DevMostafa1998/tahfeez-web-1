@@ -8,6 +8,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentgroupController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,6 +52,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('group', GroupController::class);
     Route::resource('studentgroup', StudentgroupController::class);
     Route::resource('memorization', MemorizationController::class);
+    Route::resource('profile', ProfileController::class);
+
 
 
 
