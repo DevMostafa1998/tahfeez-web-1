@@ -44,8 +44,11 @@
                         <td class="text-start ps-4">
                             <strong>{{ $user->full_name }}</strong>
                         </td>
-                        <td><span class="badge bg-light text-dark border">{{ $user->id_number }}</span></td>
-                        <td>{{ $user->phone_number }}</td>
+                        <td>
+                            <span class="badge bg-light text-dark border px-3 py-2 fs-8 fw-bold" style="letter-spacing: 1px;">
+                                {{ $user->id_number }}
+                            </span>
+                        </td>                        <td>{{ $user->phone_number }}</td>
                         <td class="small">{{ $user->address ?? 'غير محدد' }}</td>
 
                         <td>
@@ -103,53 +106,70 @@
         <form id="editForm" method="POST">
             @csrf
             @method('PUT')
-            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-                <div class="modal-header bg-warning text-dark border-0 py-3">
-                    <h5 class="modal-title fw-bold ms-auto"><i class="bi bi-person-gear me-2"></i>تعديل بيانات المستخدم</h5>
-                    <button type="button" class="btn-close ms-0" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; text-align: right;" dir="rtl">
+
+                <div class="modal-header bg-warning text-dark border-0 py-3 d-flex flex-row-reverse justify-content-between align-items-center">
+                    <button type="button" class="btn-close m-0" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title fw-bold m-0">
+                        <i class="bi bi-person-gear ms-2"></i>تعديل بيانات المستخدم
+                    </h5>
                 </div>
-                <div class="modal-body p-4 text-end" dir="rtl">
+
+                <div class="modal-body p-4">
                     <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small">الاسم رباعي</label>
-                            <input type="text" name="full_name" id="edit_full_name" class="form-control bg-light border-0 shadow-none" required>
+                        <div class="col-md-6 text-end">
+                            <label class="form-label fw-bold small d-block" style="text-align: right;">الاسم رباعي</label>
+                            <input type="text" name="full_name" id="edit_full_name" class="form-control bg-light border-0 shadow-none" style="text-align: right;" required>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small">رقم الهوية</label>
-                            <input type="text" name="id_number" id="edit_id_number" class="form-control bg-light border-0 shadow-none" required>
+
+                        <div class="col-md-6 text-end">
+                            <label class="form-label fw-bold small d-block" style="text-align: right;">رقم الهوية</label>
+                            <input type="text" name="id_number" id="edit_id_number" class="form-control bg-light border-0 shadow-none" style="text-align: right;" required>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small">رقم الجوال</label>
-                            <input type="tel" name="phone_number" id="edit_phone_number" class="form-control bg-light border-0 shadow-none" required>
+
+                        <div class="col-md-6 text-end">
+                            <label class="form-label fw-bold small d-block" style="text-align: right;">رقم الجوال</label>
+                            <input type="tel" name="phone_number" id="edit_phone_number" class="form-control bg-light border-0 shadow-none" style="text-align: right;" required>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small">العنوان</label>
-                            <input type="text" name="address" id="edit_address" class="form-control bg-light border-0 shadow-none">
+
+                        <div class="col-md-6 text-end">
+                            <label class="form-label fw-bold small d-block" style="text-align: right;">العنوان</label>
+                            <input type="text" name="address" id="edit_address" class="form-control bg-light border-0 shadow-none" style="text-align: right;">
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small">الصلاحية</label>
-                            <select name="is_admin" id="edit_is_admin" class="form-select bg-light border-0 shadow-none">
+
+                        <div class="col-md-6 text-end">
+                            <label class="form-label fw-bold small d-block" style="text-align: right;">الصلاحية</label>
+                            <select name="is_admin" id="edit_is_admin" class="form-select bg-light border-0 shadow-none" style="text-align: right; direction: rtl;">
                                 <option value="1">مسؤول</option>
                                 <option value="0">محفظ</option>
                             </select>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small">نوع التصنيف</label>
-                            <select name="category_id" id="edit_category_id" class="form-select bg-light border-0 shadow-none">
+
+                        <div class="col-md-6 text-end">
+                            <label class="form-label fw-bold small d-block" style="text-align: right;">نوع التصنيف</label>
+                            <select name="category_id" id="edit_category_id" class="form-select bg-light border-0 shadow-none" style="text-align: right; direction: rtl;">
                                 @foreach(\DB::table('categorie')->get() as $cat)
                                     <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-12 mt-3">
-                            <label class="form-label fw-bold small">تغيير كلمة المرور <span class="text-muted fw-normal">(اختياري)</span></label>
-                            <input type="password" name="password" id="edit_password" class="form-control bg-light border-0 shadow-none" placeholder="اتركها فارغة لعدم التغيير">
+
+                        <div class="col-md-6 mt-3 text-end">
+                            <label class="form-label fw-bold small d-block" style="text-align: right;">كلمة المرور الجديدة</label>
+                            <input type="password" name="password" id="edit_password" class="form-control bg-light border-0 shadow-none" style="text-align: right;" placeholder="اتركها فارغة لعدم التغيير">
+                        </div>
+
+                        <div class="col-md-6 mt-3 text-end">
+                            <label class="form-label fw-bold small d-block" style="text-align: right;">تأكيد كلمة المرور</label>
+                            <input type="password" name="password_confirmation" id="edit_password_confirmation" class="form-control bg-light border-0 shadow-none" style="text-align: right;" placeholder="أعد كتابة كلمة المرور">
+                            <div id="passwordMatchError" class="text-danger small mt-1 d-none" style="text-align: right;">كلمات المرور غير متطابقة!</div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 p-3 bg-light">
-                    <button type="button" class="btn btn-secondary px-4 rounded-pill shadow-sm" data-bs-dismiss="modal">إلغاء</button>
+
+                <div class="modal-footer border-0 p-3 bg-light d-flex justify-content-end">
                     <button type="submit" class="btn btn-warning px-5 fw-bold shadow-sm rounded-pill">حفظ التعديلات</button>
+                    <button type="button" class="btn btn-secondary px-4 rounded-pill shadow-sm" data-bs-dismiss="modal">إلغاء</button>
                 </div>
             </div>
         </form>
@@ -193,5 +213,28 @@
             document.getElementById('edit_category_id').value = user.category_id;
         });
     });
+    document.getElementById('editForm').addEventListener('submit', function(e) {
+    const password = document.getElementById('edit_password').value;
+    const confirmPassword = document.getElementById('edit_password_confirmation').value;
+    const errorElement = document.getElementById('passwordMatchError');
+
+    // إذا بدأ المستخدم في كتابة كلمة مرور جديدة
+    if (password.length > 0) {
+        // التحقق من التطابق أو إذا كان الحقل الثاني فارغاً
+        if (password !== confirmPassword) {
+            e.preventDefault(); // منع إرسال النموذج (يبقى المودال مفتوحاً)
+            errorElement.classList.remove('d-none'); // إظهار رسالة الخطأ
+            document.getElementById('edit_password_confirmation').classList.add('is-invalid');
+        } else {
+            errorElement.classList.add('d-none');
+            document.getElementById('edit_password_confirmation').classList.remove('is-invalid');
+        }
+    }
+});
+
+document.getElementById('edit_password_confirmation').addEventListener('input', function() {
+    document.getElementById('passwordMatchError').classList.add('d-none');
+    this.classList.remove('is-invalid');
+});
 </script>
 @endpush
