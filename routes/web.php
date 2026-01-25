@@ -10,6 +10,7 @@ use App\Http\Controllers\StudentgroupController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\QuranMemTestController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -53,6 +54,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('studentgroup', StudentgroupController::class);
     Route::resource('memorization', MemorizationController::class);
     Route::resource('profile', ProfileController::class);
+    Route::resource('quran_tests', QuranMemTestController::class);
+
 
 
 
