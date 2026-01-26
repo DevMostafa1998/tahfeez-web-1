@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class QuranMemTest extends Model
 {
+    use SoftDeletes;
     protected $table = 'quran_mem_tests';
     const CREATED_AT = 'creation_at';
     const UPDATED_AT = 'updated_at';

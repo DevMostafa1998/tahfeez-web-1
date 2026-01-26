@@ -1,7 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mt-5" dir="rtl text-right">
+
+    <div class="container mt-5" dir="rtl">
         <div class="card shadow">
             <div class="card-header bg-primary text-white">
                 <h4 class="mb-0">إضافة اختبار تسميع جديد</h4>
@@ -10,23 +11,43 @@
                 <form action="{{ route('quran_tests.store') }}" method="POST">
                     @csrf
                     <div class="row">
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-6 mb-3 text-right" dir="rtl">
                             <label class="form-label">اختر الطالب</label>
-                            <select name="studentId" class="form-select @error('studentId') is-invalid @enderror" required>
-                                <option value="">اختر من القائمة...</option>
-                                @isset($students)
-                                    @foreach ($students as $student)
-                                        <option value="{{ $student->id }}" class="text-dark" style="color: black !important;">
-                                            {{ $student->full_name }}
-                                        </option>
-                                    @endforeach
-                                @endisset
-                            </select>
+
+                            <div class="dropdown custom-search-select">
+                                <button class="form-select text-start" type="button" id="studentDropdownBtn"
+                                    data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
+                                    اختر من القائمة...
+                                </button>
+
+                                <div class="dropdown-menu w-100 shadow dropdown-menu-start"
+                                    aria-labelledby="studentDropdownBtn">
+                                    <div class="p-2">
+                                        <input type="text" id="studentSearchInput" class="form-control text-right"
+                                            placeholder="ابحث عن اسم الطالب..." dir="rtl" autocomplete="off">
+                                    </div>
+                                    <ul class="list-unstyled mb-0" id="studentsList"
+                                        style="max-height: 200px; overflow-y: auto; padding-right: 0;">
+                                        @isset($students)
+                                            @foreach ($students as $student)
+                                                <li>
+                                                    <button type="button" class="dropdown-item text-start student-option"
+                                                        data-id="{{ $student->id }}" data-name="{{ $student->full_name }}">
+                                                        {{ $student->full_name }}
+                                                    </button>
+                                                </li>
+                                            @endforeach
+                                        @endisset
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <input type="hidden" name="studentId" id="selectedStudentId" required>
+
                             @error('studentId')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
                         </div>
-
                         <div class="col-md-6 mb-3">
                             <label class="form-label">تاريخ الاختبار</label>
                             <input type="date" name="date" class="form-control" value="{{ date('Y-m-d') }}" required>
@@ -49,8 +70,8 @@
                         <div class="col-md-4 mb-3">
                             <label class="form-label">النتيجة</label>
                             <select name="result_status" class="form-select text-center">
-                                <option value="ناجح" class="text-success font-weight-bold">ناجح</option>
-                                <option value="راسب" class="text-danger font-weight-bold">راسب</option>
+                                <option value="ناجح" class="text-success fw-bold">ناجح</option>
+                                <option value="راسب" class="text-danger fw-bold">راسب</option>
                             </select>
                         </div>
 
@@ -69,3 +90,105 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // المعرفات الأساسية
+            const searchInput = document.getElementById('studentSearchInput');
+            const studentOptions = document.querySelectorAll('.student-option');
+            const dropdownBtn = document.getElementById('studentDropdownBtn');
+            const hiddenInput = document.getElementById('selectedStudentId');
+            const testForm = document.querySelector('form');
+
+            // 1. وظيفة البحث والتصفية
+            searchInput.addEventListener('input', function() {
+                const filter = searchInput.value.toLowerCase();
+                studentOptions.forEach(option => {
+                    const name = option.getAttribute('data-name').toLowerCase();
+                    if (name.includes(filter)) {
+                        option.parentElement.style.display = "";
+                    } else {
+                        option.parentElement.style.display = "none";
+                    }
+                });
+            });
+
+            // 2. وظيفة اختيار الطالب من القائمة
+            studentOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const studentId = this.getAttribute('data-id');
+                    const studentName = this.getAttribute('data-name');
+
+                    dropdownBtn.innerText = studentName;
+                    hiddenInput.value = studentId;
+                });
+            });
+
+            // 3. مسح البحث وإعادة العرض عند إغلاق القائمة
+            const dropdownParent = dropdownBtn.parentElement;
+            dropdownParent.addEventListener('hidden.bs.dropdown', function() {
+                searchInput.value = '';
+                studentOptions.forEach(option => {
+                    option.parentElement.style.display = "";
+                });
+            });
+
+            // 4. إرسال النموذج باستخدام AJAX مع رسائل SweetAlert2
+            testForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const formData = new FormData(this);
+                const actionUrl = this.getAttribute('action');
+
+                // إظهار مؤشر تحميل (اختياري)
+                Swal.fire({
+                    title: 'جاري الحفظ...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                fetch(actionUrl, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // رسالة نجاح احترافية
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'تم بنجاح!',
+                                text: data.message,
+                                confirmButtonText: 'حسناً',
+                                timer: 3000, // تختفي تلقائياً بعد 3 ثوانٍ
+                                timerProgressBar: true
+                            });
+
+                            // إعادة ضبط النموذج
+                            testForm.reset();
+                            dropdownBtn.innerText = 'اختر من القائمة...';
+                            hiddenInput.value = '';
+                        } else {
+                            throw new Error('بيانات غير صحيحة');
+                        }
+                    })
+                    .catch(error => {
+                        // رسالة خطأ احترافية
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'خطأ!',
+                            text: 'حدث خطأ أثناء حفظ البيانات، يرجى التأكد من تعبئة جميع الحقول.',
+                            confirmButtonText: 'إغلاق'
+                        });
+                    });
+            });
+        });
+    </script>
+@endpush

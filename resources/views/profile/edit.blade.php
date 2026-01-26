@@ -125,7 +125,7 @@
             </div>
 
             <div class="p-4">
-                <form method="POST" action="{{ route('profile.update', auth()->user()->id) }}">
+                <form method="POST" class="profile-form" action="{{ route('profile.update', auth()->user()->id) }}">
                     @csrf
                     @method('PUT')
 
@@ -138,7 +138,8 @@
                             <label class="form-label small fw-bold">رقم الهوية</label>
                             <div class="input-group">
                                 <input type="text" name="id_number" class="form-control form-control-modern"
-                                    value="{{ old('id_number', $user->id_number) }}" required>
+                                    value="{{ old('id_number', $user->id_number) }}"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
                                 <span class="input-group-text"><i class="fas fa-id-card"></i></span>
                             </div>
                         </div>
@@ -170,7 +171,8 @@
                             <label class="form-label small fw-bold">الاسم الكامل</label>
                             <div class="input-group">
                                 <input type="text" name="full_name" class="form-control form-control-modern"
-                                    value="{{ $user->full_name }}">
+                                    value="{{ $user->full_name }}"
+                                    oninput="this.value = this.value.replace(/[0-9!@#$%^&*()_+={}\[\]:;<>,.?\/|\\]/g, '')">
                                 <span class="input-group-text"><i class="fas fa-user"></i></span>
                             </div>
                         </div>
@@ -178,7 +180,8 @@
                             <label class="form-label small fw-bold">رقم الهاتف</label>
                             <div class="input-group">
                                 <input type="text" name="phone_number" class="form-control form-control-modern"
-                                    value="{{ $user->phone_number }}">
+                                    value="{{ $user->phone_number }}"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                 <span class="input-group-text"><i class="fas fa-phone"></i></span>
                             </div>
                         </div>
@@ -204,7 +207,7 @@
                     <i class="fas fa-shield-alt ml-1"></i> أمان الحساب (تغيير كلمة السر)
                 </div>
 
-                <form method="POST" action="{{ route('profile.update', auth()->user()->id) }}">
+                <form method="POST" class="profile-form" action="{{ route('profile.update', auth()->user()->id) }}">
                     @csrf
                     @method('PUT')
                     <div class="row g-3">
@@ -233,3 +236,54 @@
         </div>
     </div>
 @endsection
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.profile-form').on('submit', function(e) {
+            e.preventDefault(); // منع الصفحة من التحديث
+
+            let form = $(this);
+            let formData = form.serialize();
+            let submitBtn = form.find('button[type="submit"]');
+
+            // تعطيل الزر مؤقتاً
+            submitBtn.prop('disabled', true).html(
+                '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...');
+
+            $.ajax({
+                url: form.attr('action'),
+                method: 'POST',
+                data: formData,
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'تم بنجاح',
+                        text: response.message,
+                        confirmButtonText: 'ممتاز',
+                        timer: 3000
+                    });
+                    submitBtn.prop('disabled', false).html(
+                        '<i class="fas fa-save ms-1"></i> حفظ البيانات');
+                    if (form.find('input[name="password"]').length > 0) form.trigger(
+                        'reset'); // تفريغ حقول كلمة السر
+                },
+                error: function(xhr) {
+                    let errorMsg = 'عذراً، حدث خطأ ما';
+                    if (xhr.status === 422) {
+                        // استخراج أول خطأ من قائمة الأخطاء
+                        let errors = xhr.responseJSON.errors;
+                        errorMsg = Object.values(errors)[0][0];
+                    }
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'خطأ في التحديث',
+                        text: errorMsg,
+                        confirmButtonText: 'حاول مجدداً'
+                    });
+                    submitBtn.prop('disabled', false).html('حفظ البيانات');
+                }
+            });
+        });
+    });
+</script>

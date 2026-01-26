@@ -20,29 +20,6 @@ class ProfileController extends Controller
         //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
 
     /**
      * Show the form for editing the specified resource.
@@ -73,7 +50,12 @@ class ProfileController extends Controller
             'address'       => ['sometimes', 'required', 'string', 'max:500'],
             'password'      => ['nullable', 'confirmed', 'min:8'],
         ];
-        $validated = $request->validate($rules);
+        $messages = [
+            'id_number.unique'       => 'رقم الهوية هذا مسجل مسبقاً في النظام.',
+            'password.confirmed'     => 'كلمة المرور غير متطابقة',
+            'password.min'           => 'كلمة المرور يجب أن لا تقل عن 8 أحرف.',
+        ];
+        $validated = $request->validate($rules, $messages);
         if ($request->has('full_name')) {
             $user->full_name = $request->full_name;
             $user->phone_number = $request->phone_number;
@@ -89,7 +71,12 @@ class ProfileController extends Controller
 
         $user->updated_by = Auth::user()->full_name;
         $user->save();
-
+        if ($request->ajax()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'تم تحديث البيانات بنجاح!'
+            ]);
+        }
         return redirect()->back()->with('status', 'تم التحديث بنجاح!');
     }
 
