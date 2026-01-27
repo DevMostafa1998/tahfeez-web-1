@@ -6,6 +6,7 @@ use App\BusinessLogic\StudentLogic;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class StudentController extends Controller
 {
@@ -17,25 +18,42 @@ class StudentController extends Controller
     {
         $this->studentLogic = $studentLogic;
     }
-  public function index(Request $request)
-{
-    $query = DB::table('student');
-
-    if ($request->filter == 'not_memorized_today') {
+    public function index(Request $request)
+    {
+        $user = Auth::user();
+        $isAdmin = $user->is_admin == 1;
         $today = \Carbon\Carbon::today();
 
-        // جلب معرفات الطلاب الذين سمعوا اليوم
-        $who_memorized = DB::table('student_daily_memorizations')
-            ->whereDate('date', $today)
-            ->pluck('student_id');
+        // 1. نبدأ باستعلام جدول الطلاب (مع تحديد الأعمدة لتجنب تضارب الـ IDs)
+        $query = DB::table('student')
+            ->select('student.*')
+            ->whereNull('student.deleted_at');
 
-        // عرض الطلاب الذين "ليسوا" في القائمة أعلاه
-        $query->whereNotIn('id', $who_memorized);
+        // 2. إذا كان المستخدم "محفظ" (ليس أدمن)، نعرض طلابه فقط من خلال المجموعات
+        if (!$isAdmin) {
+            $query->join('student_group', 'student.id', '=', 'student_group.student_id')
+                ->join('group', 'student_group.group_id', '=', 'group.id')
+                ->where('group.UserId', $user->id)
+                ->distinct(); // لمنع تكرار الطالب إذا كان مسجلاً في أكثر من مجموعة
+        }
+
+        // 3. تطبيق فلتر "لم يسمعوا اليوم" إذا تم طلبه من لوحة التحكم
+        if ($request->filter == 'not_memorized_today') {
+            // جلب معرفات الطلاب الذين سمعوا اليوم (من جدول التسميع اليومي)
+            $who_memorized = DB::table('student_daily_memorizations')
+                ->whereDate('date', $today)
+                ->pluck('student_id');
+
+            // استبعاد من قاموا بالتسميع من النتائج
+            $query->whereNotIn('student.id', $who_memorized);
+        }
+
+        // 4. تنفيذ الاستعلام مع التقسيم لصفحات والحفاظ على روابط الفلتر
+        $students = $query->paginate(10)->withQueryString();
+
+        // 5. العودة للملف (تأكد من اسم الملف هل هو student.index أم students.index)
+        return view('students.index', compact('students', 'isAdmin'));
     }
-
-    $students = $query->paginate(10)->withQueryString();
-    return view('students.index', compact('students'));
-}
     /**
      * Show the form for creating a new resource.
      */
@@ -57,6 +75,12 @@ class StudentController extends Controller
             'phone_number'  => 'required|string|max:15',
             'address'       => 'required|string',
             'is_displaced'  => 'required|boolean',
+            'birth_place'   => 'required|string|max:255',
+            'center_name'   => 'required|string|max:255',
+            'mosque_name'   => 'required|string|max:255',
+            'mosque_address' => 'required|string|max:255',
+            'whatsapp_number' => 'required|string|max:15',
+
         ]);
         $student = $this->studentLogic->storeStudent($validated);
         if ($request->ajax()) {
@@ -92,11 +116,16 @@ class StudentController extends Controller
     {
         $validatedData = $request->validate([
             'full_name'     => 'required|string|max:255',
-            'id_number'     => 'required|numeric|digits:9',
-            'phone_number'  => 'required|numeric|digits:10',
+            'id_number'     => 'required|string|digits:9',
             'date_of_birth' => 'required|date',
+            'phone_number'  => 'required|string|max:15',
             'address'       => 'required|string',
             'is_displaced'  => 'required|boolean',
+            'birth_place'   => 'required|string|max:255',
+            'center_name'   => 'required|string|max:255',
+            'mosque_name'   => 'required|string|max:255',
+            'mosque_address' => 'required|string|max:255',
+            'whatsapp_number' => 'required|string|max:15',
         ]);
 
         $student = $this->studentLogic->updateStudent($id, $validatedData);

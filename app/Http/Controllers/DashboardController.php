@@ -5,68 +5,123 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $students_count = DB::table('student')->count();
-
-        // حساب المحفظين بدون المحذوفين
-        $users_count = DB::table('user')
-            ->whereNull('deleted_at')
-            ->where(function ($query) {
-                $query->where('is_admin', 0)
-                    ->orWhereNull('is_admin');
-            })
-            ->count();
-
-        //  عدد المجموعات
-        $groups_count = DB::table('group')->count();
-
+        $user = Auth::user();
+        $isAdmin = $user->is_admin == 1;
         $today = Carbon::today();
 
-        $students_who_memorized_today = DB::table('student_daily_memorizations')
-            ->whereDate('date', $today)
-            ->distinct('student_id')
-            ->count();
+        $studentsQuery = DB::table('student')->whereNull('deleted_at');
 
-        // المعادلة: (عدد الذين سمعوا اليوم ÷ عدد الطلاب الكلي) * 100
-        if ($students_count > 0) {
-            $memorization_percentage = round(($students_who_memorized_today / $students_count) * 100);
+        if (!$isAdmin) {
+            // جلب طلاب المجموعة
+            $myStudentIds = DB::table('student_group')
+                ->join('group', 'student_group.group_id', '=', 'group.id')
+                ->where('group.UserId', $user->id)
+                ->whereNull('group.deleted_at')
+                ->distinct()
+                ->pluck('student_group.student_id')
+                ->toArray();
+
+            $studentsQuery->whereIn('id', $myStudentIds);
+            $currentStudentIds = $myStudentIds;
         } else {
-            $memorization_percentage = 0;
+            $currentStudentIds = null;
         }
 
+        $students_count = $studentsQuery->count();
 
-        $ageData = DB::table('student')
-            ->selectRaw("TIMESTAMPDIFF(YEAR,date_of_birth, CURDATE()) AS age, count(*) as count")
-            ->whereNull('deleted_at')
-            ->groupBy('age')
-            ->orderBy('age')
+        // --- 2. إحصائية المجموعات والمحفظين ---
+        if ($isAdmin) {
+            $users_count = DB::table('user')
+                ->whereNull('deleted_at')
+                ->where(function ($query) {
+                    $query->where('is_admin', 0)->orWhereNull('is_admin');
+                })->count();
+            $groups_count = DB::table('group')->whereNull('deleted_at')->count();
+        } else {
+            $users_count = 0;
+            $groups_count = DB::table('group')
+                ->where('UserId', $user->id)
+                ->whereNull('deleted_at')
+                ->count();
+        }
+        $userCategoryData = DB::table('categorie')
+            ->leftJoin('user', 'categorie.id', '=', 'user.category_id')
+            ->where('user.is_admin', 0) // التصفية للمحفظين فقط
+            ->whereNull('user.deleted_at')
+            ->select('categorie.name as cat_name', DB::raw('count(user.id) as teacher_count'))
+            ->groupBy('categorie.id', 'categorie.name')
             ->get();
-        $groupData = DB::table('group')
+        // --- 3. نسبة الحفظ اليومية ---
+        $memorizationQuery = DB::table('student_daily_memorizations')
+            ->whereDate('date', $today);
+
+        if (!$isAdmin) {
+            // نستخدم المصفوفة الجاهزة لضمان عدم وجود تكرار
+            $memorizationQuery->whereIn('student_id', $currentStudentIds);
+        }
+
+        $students_who_memorized_today = $memorizationQuery->distinct('student_id')->count();
+        $memorization_percentage = $students_count > 0 ? round(($students_who_memorized_today / $students_count) * 100) : 0;
+
+        // --- 4. إحصائية الحضور والغياب (حل مشكلة الزيادة +1) ---
+        $attendanceBaseQuery = DB::table('student_attendances')
+            ->whereDate('attendance_date', $today);
+
+        if (!$isAdmin) {
+            // التصفية بمعرفات الطلاب المحددة مسبقاً يمنع احتساب أي سجل خارجي
+            $attendanceBaseQuery->whereIn('student_id', $currentStudentIds);
+        }
+
+        // نستخدم distinct لضمان عدم عد سجلين لنفس الطالب في نفس اليوم إن وجدا خطأً
+        $present_count = (clone $attendanceBaseQuery)->where('status', 'حاضر')->distinct('student_id')->count();
+        $absent_count = (clone $attendanceBaseQuery)->where('status', 'غائب')->distinct('student_id')->count();
+
+        // --- 5. بيانات المخططات ---
+        // مخطط الأعمار
+        $ageQuery = DB::table('student')
+            ->selectRaw("TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) AS age, count(*) as count")
+            ->whereNull('deleted_at');
+
+        if (!$isAdmin) {
+            $ageQuery->whereIn('id', $currentStudentIds);
+        }
+        $ageData = $ageQuery->groupBy('age')->orderBy('age')->get();
+
+        // مخطط المجموعات
+        $groupChartQuery = DB::table('group')
             ->leftJoin('student_group', 'group.id', '=', 'student_group.group_id')
+            ->leftJoin('student', 'student.id', '=', 'student_group.student_id')
             ->whereNull('group.deleted_at')
-            ->select('group.GroupName as name', DB::raw('count(student_group.student_id) as students_count'))
+            ->whereNull('student.deleted_at');
+
+        if (!$isAdmin) {
+            $groupChartQuery->where('group.UserId', $user->id);
+        }
+
+        $groupData = $groupChartQuery->select('group.GroupName as name', DB::raw('count(student.id) as students_count'))
             ->groupBy('group.id', 'group.GroupName')
             ->get();
-        $age_labels = $ageData->pluck('age')->map(fn($age) => $age . ' سنة');
-        $age_counts = $ageData->pluck('count');
-        $group_labels = $groupData->pluck('name');
-        $group_students_counts = $groupData->pluck('students_count');
 
-
-        // إرسال البيانات للصفحة
-        return view('layouts.dashboard', compact(
-            'students_count',
-            'users_count',
-            'groups_count',
-            'memorization_percentage',
-            'age_labels',
-            'age_counts',
-            'group_labels',
-            'group_students_counts'
-        ));
+        return view('layouts.dashboard', [
+            'students_count' => $students_count,
+            'users_count' => $users_count,
+            'groups_count' => $groups_count,
+            'memorization_percentage' => $memorization_percentage,
+            'present_count' => $present_count,
+            'absent_count' => $absent_count,
+            'age_labels' => $ageData->pluck('age')->map(fn($a) => $a . ' سنة'),
+            'age_counts' => $ageData->pluck('count'),
+            'group_labels' => $groupData->pluck('name'),
+            'group_students_counts' => $groupData->pluck('students_count'),
+            'isAdmin' => $isAdmin,
+            'user_cat_labels' => $userCategoryData->pluck('cat_name'),
+            'user_cat_counts' => $userCategoryData->pluck('teacher_count'),
+        ]);
     }
 }

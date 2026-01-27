@@ -38,6 +38,14 @@ class UserController extends Controller
             'phone_number'  => 'required',
             'address'       => 'required',
             'category_id'   => 'required',
+            'birth_place'     => 'nullable|string|max:255',
+            'wallet_number'   => 'nullable|string',
+            'whatsapp_number' => 'nullable|string',
+            'qualification'   => 'nullable|string',
+            'specialization'  => 'nullable|string',
+            'parts_memorized' => 'nullable|integer|min:0|max:30',
+            'mosque_name'     => 'nullable|string',
+            'is_displaced'    => 'required|boolean',
         ]);
 
         $this->userLogic->storeUser($request->all());
@@ -51,11 +59,19 @@ class UserController extends Controller
 
         $request->validate([
             'full_name' => 'required|string|max:255',
-            'id_number' => 'required|unique:user,id_number,'.$id,
+            'id_number' => 'required|unique:user,id_number,' . $id,
             'phone_number' => 'required',
             'address' => 'required',
             'category_id' => 'required',
             'password'     => 'nullable|string|min:6|confirmed',
+            'birth_place'     => 'nullable|string',
+            'wallet_number'   => 'nullable|string',
+            'whatsapp_number' => 'nullable|string',
+            'qualification'   => 'nullable|string',
+            'specialization'  => 'nullable|string',
+            'parts_memorized' => 'nullable|integer|min:0|max:30',
+            'mosque_name'     => 'nullable|string',
+            'is_displaced'    => 'required|boolean',
         ]);
 
         $this->userLogic->updateUser($user, $request->all());

@@ -20,6 +20,11 @@ class Student extends Model
         'creation_by',
         'updated_by',
         'deleted_by',
+        'birth_place',
+        'center_name',
+        'mosque_name',
+        'mosque_address',
+        'whatsapp_number'
     ];
     protected $casts = [
         'date_of_birth' => 'date',
@@ -37,7 +42,7 @@ class Student extends Model
 
     public function latestMemorization()
     {
-    // هذه العلاقة تجلب آخر سجل مضاف للطالب في جدول الحفظ اليومي
-    return $this->hasOne(StudentDailyMemorization::class, 'student_id')->latestOfMany('date');
+        // هذه العلاقة تجلب آخر سجل مضاف للطالب في جدول الحفظ اليومي
+        return $this->hasOne(StudentDailyMemorization::class, 'student_id')->latestOfMany('date');
     }
 }

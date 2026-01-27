@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Hash;
 class UserLogic
 {
 
-     // محاولة تسجيل الدخول
+    // محاولة تسجيل الدخول
 
     public function attemptLogin($idNumber, $password)
     {
@@ -35,11 +35,19 @@ class UserLogic
             'category_id'   => $data['category_id'],
             'is_admin'      => ($data['is_admin'] == 'مسؤول') ? true : false,
             'creation_by'   => Auth::user()->full_name ?? 'System',
+            'birth_place'     => $data['birth_place'] ?? null,
+            'wallet_number'   => $data['wallet_number'] ?? null,
+            'whatsapp_number' => $data['whatsapp_number'] ?? null,
+            'qualification'   => $data['qualification'] ?? null,
+            'specialization'  => $data['specialization'] ?? null,
+            'parts_memorized' => $data['parts_memorized'] ?? 0,
+            'mosque_name'     => $data['mosque_name'] ?? null,
+            'is_displaced'    => $data['is_displaced'] ?? false,
         ]);
     }
 
 
-     // تحديث بيانات مستخدم
+    // تحديث بيانات مستخدم
 
     public function updateUser($user, $data)
     {
@@ -51,8 +59,18 @@ class UserLogic
             'is_admin'     => $data['is_admin'],
             'category_id'  => $data['category_id'],
             'updated_by'   => Auth::user()->full_name ?? 'System',
+            'birth_place'     => $data['birth_place'] ?? $user->birth_place,
+            'wallet_number'   => $data['wallet_number'] ?? $user->wallet_number,
+            'whatsapp_number' => $data['whatsapp_number'] ?? $user->whatsapp_number,
+            'qualification'   => $data['qualification'] ?? $user->qualification,
+            'specialization'  => $data['specialization'] ?? $user->specialization,
+            'parts_memorized' => $data['parts_memorized'] ?? $user->parts_memorized,
+            'mosque_name'     => $data['mosque_name'] ?? $user->mosque_name,
+            'is_displaced'    => $data['is_displaced'] ?? $user->is_displaced,
         ];
-
+        if (isset($data['is_admin'])) {
+            $updateData['is_admin'] = ($data['is_admin'] == 'مسؤول') ? true : false;
+        }
         if (!empty($data['password'])) {
             $updateData['password'] = Hash::make($data['password']);
         }
@@ -61,7 +79,7 @@ class UserLogic
     }
 
 
-     // حذف مستخدم (
+    // حذف مستخدم (
 
     public function deleteUser($user)
     {

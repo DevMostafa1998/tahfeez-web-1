@@ -47,7 +47,6 @@
                                         </ul>
                                     </div>
                                 @endif
-
                                 <div class="row g-4">
                                     <div class="col-md-4">
                                         <label class="form-label fw-bold small text-muted">الاسم رباعي</label>
@@ -82,6 +81,16 @@
                                     </div>
 
                                     <div class="col-md-4">
+                                        <label class="form-label fw-bold small text-muted">مكان الميلاد</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i
+                                                    class="bi bi-geo text-primary"></i></span>
+                                            <input type="text" name="birth_place" class="form-control"
+                                                placeholder="أدخل مكان الميلاد" value="{{ old('birth_place') }}" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
                                         <label class="form-label fw-bold small text-muted">رقم الهاتف</label>
                                         <div class="input-group">
                                             <span class="input-group-text bg-light"><i
@@ -94,7 +103,19 @@
                                     </div>
 
                                     <div class="col-md-4">
-                                        <label class="form-label fw-bold small text-muted">العنوان</label>
+                                        <label class="form-label fw-bold small text-muted">رقم الواتساب</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i
+                                                    class="bi bi-whatsapp text-success"></i></span>
+                                            <input type="tel" name="whatsapp_number" class="form-control"
+                                                placeholder="05XXXXXXXX" maxlength="15"
+                                                oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                                value="{{ old('whatsapp_number') }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold small text-muted">العنوان الحالي</label>
                                         <div class="input-group">
                                             <span class="input-group-text bg-light"><i
                                                     class="bi bi-geo-alt text-primary"></i></span>
@@ -117,6 +138,37 @@
                                             </select>
                                         </div>
                                     </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold small text-muted">اسم المركز</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i
+                                                    class="bi bi-building text-primary"></i></span>
+                                            <input type="text" name="center_name" class="form-control"
+                                                placeholder="أدخل اسم المركز" value="{{ old('center_name') }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold small text-muted">اسم المسجد</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i
+                                                    class="bi bi-mosque text-primary"></i></span>
+                                            <input type="text" name="mosque_name" class="form-control"
+                                                placeholder="أدخل اسم المسجد" value="{{ old('mosque_name') }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-8">
+                                        <label class="form-label fw-bold small text-muted">عنوان المسجد</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i
+                                                    class="bi bi-map text-primary"></i></span>
+                                            <input type="text" name="mosque_address" class="form-control"
+                                                placeholder="أدخل عنوان المسجد بالتفصيل"
+                                                value="{{ old('mosque_address') }}">
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="card-footer bg-white border-0 mt-4 p-0">
@@ -125,7 +177,8 @@
                                             style="background-color: #28a745; border:none;">
                                             <i class="bi bi-check-circle me-1"></i> حفظ البيانات
                                         </button>
-                                        <a href="{{ route('student.index') }}" class="btn btn-light px-4 border">إلغاء</a>
+                                        <a href="{{ route('student.index') }}"
+                                            class="btn btn-light px-4 border">إلغاء</a>
                                     </div>
                                 </div>
                             </form>

@@ -34,6 +34,14 @@ class User extends Authenticatable
         'creation_by',
         'updated_by',
         'deleted_by',
+        'birth_place',
+        'wallet_number',
+        'whatsapp_number',
+        'qualification',
+        'specialization',
+        'parts_memorized',
+        'mosque_name',
+        'is_displaced'
 
     ];
     protected $dates = ['deleted_at'];
