@@ -31,6 +31,7 @@ class GroupLogic
             'teachers' => DB::table('user')
                 ->select('id', 'full_name')
                 ->where('is_admin', 0)
+                ->whereNull('deleted_at')
                 ->get(),
 
             'availableStudents' => Student::whereDoesntHave('groups')->get(),

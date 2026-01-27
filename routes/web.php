@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\MemorizationController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\CourseController;
 use App\Http\Controllers\StudentgroupController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CategoryController;
@@ -58,7 +59,7 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-
+    Route::resource('courses', CourseController::class);
 
     Route::get('/logout', function (Request $request) {
         Auth::logout();

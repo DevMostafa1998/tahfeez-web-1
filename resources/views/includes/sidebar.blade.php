@@ -17,21 +17,18 @@
                     </a>
                 </li>
 
-                {{-- المستخدمين - للمدير فقط --}}
                 @if (auth()->user()->is_admin)
+                    {{-- المستخدمين --}}
                     <li class="nav-item">
                         <a href="{{ route('user') }}" class="nav-link {{ request()->routeIs('user') ? 'active' : '' }}">
                             <i class="nav-icon bi bi-palette"></i>
                             <p>المستخدمين</p>
                         </a>
                     </li>
-                @endif
 
-                {{-- الطلاب -  للمدير فقط --}}
-                @if (auth()->user()->is_admin)
+                    {{-- الطلاب --}}
                     <li class="nav-item">
-                        <a href="{{ route('student.index') }}"
-                            class="nav-link {{ request()->routeIs('student.*') ? 'active' : '' }}">
+                        <a href="{{ route('student.index') }}" class="nav-link {{ request()->routeIs('student.*') ? 'active' : '' }}">
                             <i class="nav-icon bi bi-mortarboard"></i>
                             <p>الطلاب</p>
                         </a>
@@ -47,20 +44,26 @@
                     </a>
                 </li>
 
-
-                <li class="nav-item">
-                    <a href="{{ route('quran_tests.index') }}" class="nav-link ">
-                        <i class="nav-icon bi bi-people"></i>
-                        <p>الاختبارات</p>
-                    </a>
-                </li>
-
-
-                {{-- إدارة التصنيفات - للمدير فقط --}}
-                @if (auth()->user()->is_admin)
+                @if(auth()->user()->is_admin)
+                    {{-- إدارة الدورات العلمية --}}
                     <li class="nav-item">
-                        <a href="{{ route('category.index') }}"
-                            class="nav-link {{ request()->routeIs('category.*') ? 'active' : '' }}">
+                        <a href="{{ route('courses.index') }}" class="nav-link {{ request()->routeIs('courses.*') ? 'active' : '' }}">
+                            <i class="nav-icon bi bi-book-half"></i>
+                            <p>إدارة الدورات</p>
+                        </a>
+                    </li>
+
+                    {{-- الاختبارات --}}
+                    <li class="nav-item">
+                        <a href="{{ route('quran_tests.index') }}" class="nav-link {{ request()->routeIs('quran_tests.*') ? 'active' : '' }}">
+                            <i class="nav-icon bi bi-pencil-square"></i>
+                            <p>الاختبارات</p>
+                        </a>
+                    </li>
+
+                    {{-- إدارة التصنيفات --}}
+                    <li class="nav-item">
+                        <a href="{{ route('category.index') }}" class="nav-link {{ request()->routeIs('category.*') ? 'active' : '' }}">
                             <i class="nav-icon bi bi-tags-fill"></i>
                             <p>إدارة التصنيفات</p>
                         </a>
@@ -76,8 +79,8 @@
                     </a>
                 </li>
 
-                {{-- حضور وغياب المحفظين - للمدير فقط --}}
                 @if (auth()->user()->is_admin)
+                    {{-- حضور وغياب المحفظين --}}
                     <li class="nav-item">
                         <a href="{{ route('teachers.attendance') }}"
                             class="nav-link {{ request()->routeIs('teachers.attendance') ? 'active' : '' }}">
