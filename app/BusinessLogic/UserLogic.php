@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\Hash;
 class UserLogic
 {
 
-     // محاولة تسجيل الدخول
-
     public function attemptLogin($idNumber, $password)
     {
         if (Auth::attempt(['id_number' => $idNumber, 'password' => $password])) {
@@ -20,12 +18,9 @@ class UserLogic
         return false;
     }
 
-
-    // إنشاء مستخدم جديد
-
     public function storeUser($data)
     {
-        return User::create([
+        $user = User::create([
             'full_name'     => $data['full_name'],
             'id_number'     => $data['id_number'],
             'password'      => Hash::make($data['password']),
@@ -33,13 +28,17 @@ class UserLogic
             'phone_number'  => $data['phone_number'],
             'address'       => $data['address'],
             'category_id'   => $data['category_id'],
-            'is_admin'      => ($data['is_admin'] == 'مسؤول') ? true : false,
+            'is_admin'      => (isset($data['is_admin']) && ($data['is_admin'] == '1' || $data['is_admin'] == 'مسؤول')) ? true : false,
             'creation_by'   => Auth::user()->full_name ?? 'System',
         ]);
+
+        // ربط الدورات
+        if (isset($data['courses']) && is_array($data['courses'])) {
+            $user->courses()->attach($data['courses']);
+        }
+
+        return $user;
     }
-
-
-     // تحديث بيانات مستخدم
 
     public function updateUser($user, $data)
     {
@@ -48,8 +47,8 @@ class UserLogic
             'id_number'    => $data['id_number'],
             'phone_number' => $data['phone_number'],
             'address'      => $data['address'],
-            'is_admin'     => $data['is_admin'],
             'category_id'  => $data['category_id'],
+            'is_admin'     => (isset($data['is_admin']) && ($data['is_admin'] == '1' || $data['is_admin'] == 'مسؤول')) ? true : false,
             'updated_by'   => Auth::user()->full_name ?? 'System',
         ];
 
@@ -57,11 +56,17 @@ class UserLogic
             $updateData['password'] = Hash::make($data['password']);
         }
 
-        return $user->update($updateData);
+        $user->update($updateData);
+
+        // تحديث الدورات (Sync يحذف القديم ويضيف الجديد)
+        if (isset($data['courses']) && is_array($data['courses'])) {
+            $user->courses()->sync($data['courses']);
+        } else {
+            $user->courses()->detach(); // حذف الكل إذا لم يتم اختيار شيء
+        }
+
+        return $user;
     }
-
-
-     // حذف مستخدم (
 
     public function deleteUser($user)
     {

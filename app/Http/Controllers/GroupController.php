@@ -45,7 +45,7 @@ class GroupController extends Controller
     {
         $validated = $request->validate([
             'GroupName' => 'required|string|max:255',
-            'UserId'    => 'required|exists:user,id,is_admin,0',
+            'UserId' => 'required|exists:user,id,is_admin,0,deleted_at,NULL',
         ]);
 
         $group = $this->groupLogic->storeGroup($validated);

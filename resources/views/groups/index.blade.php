@@ -3,11 +3,12 @@
 @section('title', 'إدارة المجموعات')
 
 @push('css')
+
     {{-- 1. تحميل المكتبات أولاً --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.bootstrap4.css">
     <link rel="stylesheet" href="{{ asset('assets/css/user_table.css') }}" />
-
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap4.min.css">
     {{-- 2. التنسيقات المخصصة ثانياً --}}
     <style>
         /* تنسيق الحاوية العلوية */
@@ -52,6 +53,21 @@
         .dataTables_length {
             text-align: right !important;
         }
+        .btn-excel {
+        background-color: #1d6f42 !important;
+        color: white !important;
+        border-radius: 8px !important;
+        border: none !important;
+        margin-left: 10px !important;
+        padding: 5px 15px !important;
+        font-weight: bold !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+    }
+    .btn-excel:hover {
+        background-color: #155231 !important;
+    }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -238,7 +254,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.datatables.net/2.3.6/js/dataTables.js"></script>
     <script src="https://cdn.datatables.net/2.3.6/js/dataTables.bootstrap4.js"></script>
-
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
     {{-- <script src="https://cdn.datatables.net/2.3.6/js/dataTables.bootstrap4.js"></script> --}}
 
@@ -272,35 +291,41 @@
         $(document).ready(function() {
             // 1. تفعيل DataTable مع الإعدادات العربية (اليقظة والذكاء)
             let table = $('#groupsTable').DataTable({
-                "order": [
-                    [2, "desc"]
-                ], // الترتيب التلقائي حسب تاريخ الإنشاء
-                "language": {
-                    // ترجمة يدوية لتجنب خطأ تحميل الملف i18n
-                    "sProcessing": "جاري التحميل...",
-                    "sLengthMenu": "أظهر _MENU_ مجموعات",
-                    "sZeroRecords": "لم يعثر على أية سجلات",
-                    "sInfo": "إظهار _START_ إلى _END_ من أصل _TOTAL_ مدخل",
-                    "sInfoEmpty": "يعرض 0 إلى 0 من أصل 0 سجل",
-                    "sInfoFiltered": "(منتقاة من مجموع _MAX_ مُدخل)",
-                    "sSearch": "بحث:",
-                    "oPaginate": {
-                        "sFirst": "الأول",
-                        "sPrevious": "السابق",
-                        "sNext": "التالي",
-                        "sLast": "الأخير"
-                    }
-                },
-                "dom": "<'row'<'col-12 d-flex justify-content-between align-items-center'lf>>" +
-                    // الجزء العلوي (بحث وعدد المدخلات)
-                    "<'row'<'col-12'tr>>" + // الجدول
-                    "<'row mt-3'<'col-12 d-flex justify-content-between align-items-center'ip>>", // الجزء السفلي (المعلومات i والتنقل p)
-                "columnDefs": [{
-                        "orderable": false,
-                        "targets": 4
-                    } // منع الترتيب لعمود الإجراءات
-                ]
-            });
+    "order": [[2, "desc"]],
+    "language": {
+        "sProcessing": "جاري التحميل...",
+        "sLengthMenu": "أظهر _MENU_ مجموعات",
+        "sZeroRecords": "لم يعثر على أية سجلات",
+        "sInfo": "إظهار _START_ إلى _END_ من أصل _TOTAL_ مدخل",
+        "sInfoEmpty": "يعرض 0 إلى 0 من أصل 0 سجل",
+        "sSearch": "بحث:",
+        "oPaginate": {
+            "sFirst": "الأول",
+            "sPrevious": "السابق",
+            "sNext": "التالي",
+            "sLast": "الأخير"
+        }
+    },
+    // إعدادات الأزرار
+    "buttons": [
+        {
+            extend: 'excelHtml5',
+            text: '<i class="bi bi-file-earmark-excel"></i> تصدير إكسل',
+            className: 'btn-excel',
+            title: 'قائمة مجموعات مركز التحفيظ - ' + new Date().toLocaleDateString('ar-EG'),
+            exportOptions: {
+                columns: [0, 1, 2, 3] // تصدير أول 4 أعمدة فقط (استثناء عمود الإجراءات)
+            }
+        }
+    ],
+    // تعديل الـ dom ليظهر زر الإكسل بجانب البحث
+    "dom": "<'row mb-3'<'col-md-4'l><'col-md-4 text-center'B><'col-md-4'f>>" +
+           "<'row'<'col-12'tr>>" +
+           "<'row mt-3'<'col-12 d-flex justify-content-between align-items-center'ip>>",
+    "columnDefs": [
+        { "orderable": false, "targets": 4 }
+    ]
+});
 
             // 2. معالجة نموذج إنشاء مجموعة جديدة عبر AJAX
             $('#createGroupForm').on('submit', function(e) {

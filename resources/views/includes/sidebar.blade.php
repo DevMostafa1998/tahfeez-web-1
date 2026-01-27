@@ -26,7 +26,7 @@
                 </li>
                 @endif
 
-                {{-- الطلاب -  للمدير فقط --}}
+                {{-- الطلاب - للمدير فقط --}}
                 @if(auth()->user()->is_admin)
                 <li class="nav-item">
                     <a href="{{ route('student.index') }}" class="nav-link {{ request()->routeIs('student.*') ? 'active' : '' }}">
@@ -49,7 +49,17 @@
                 <li class="nav-item">
                     <a href="{{ route('category.index') }}" class="nav-link {{ request()->routeIs('category.*') ? 'active' : '' }}">
                         <i class="nav-icon bi bi-tags-fill"></i>
-                          <p>إدارة التصنيفات</p>
+                        <p>إدارة التصنيفات</p>
+                    </a>
+                </li>
+                @endif
+
+                {{-- إدارة الدورات العلمية - للمدير فقط --}}
+                @if(auth()->user()->is_admin)
+                <li class="nav-item">
+                    <a href="{{ route('courses.index') }}" class="nav-link {{ request()->routeIs('courses.*') ? 'active' : '' }}">
+                        <i class="nav-icon bi bi-book-half"></i>
+                        <p>إدارة الدورات</p>
                     </a>
                 </li>
                 @endif
