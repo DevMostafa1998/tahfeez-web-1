@@ -118,7 +118,7 @@
                     <tbody>
                         @foreach ($tests as $test)
                             <tr>
-                                <td class="ps-4 fw-medium">{{ $test->student->full_name }}</td>
+                                <td class="ps-4 fw-medium">{{ $test->student?->full_name }}</td>
                                 <td>{{ $test->date->format('Y-m-d') }}</td>
                                 <td><span class="text-muted">{{ $test->juz_count }} </span></td>
                                 <td><span class="badge bg-soft-info text-info border border-info"
@@ -132,7 +132,7 @@
                                     <button type="button" class="btn-action btn-edit text-primary edit-test-btn"
                                         data-bs-toggle="modal" data-bs-target="#editTestModal" data-id="{{ $test->id }}"
                                         data-student="{{ $test->studentId }}"
-                                        data-student-name="{{ $test->student->full_name }}"
+                                        data-student-name="{{ $test->student?->full_name }}"
                                         data-date="{{ $test->date->format('Y-m-d') }}" data-juz="{{ $test->juz_count }}"
                                         data-type="{{ $test->examType }}" data-status="{{ $test->result_status }}"
                                         data-note="{{ $test->note }}" title="تعديل">
@@ -140,7 +140,7 @@
                                     </button>
 
                                     <button type="button" class="btn-action btn-delete text-danger delete-test-btn"
-                                        data-id="{{ $test->id }}" data-name="{{ $test->student->full_name }}"
+                                        data-id="{{ $test->id }}" data-name="{{ $test->student?->full_name }}"
                                         title="حذف">
                                         <i class="bi bi-trash3"></i>
                                     </button>

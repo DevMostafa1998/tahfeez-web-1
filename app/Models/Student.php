@@ -8,9 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Student extends Model
 {
     use SoftDeletes;
-
     protected $table = 'student';
-
     protected $fillable = [
         'full_name',
         'id_number',
@@ -18,13 +16,16 @@ class Student extends Model
         'phone_number',
         'address',
         'is_displaced',
-        'group_id', //
         'user_id',
         'creation_by',
         'updated_by',
         'deleted_by',
+        'birth_place',
+        'center_name',
+        'mosque_name',
+        'mosque_address',
+        'whatsapp_number'
     ];
-
     protected $casts = [
         'date_of_birth' => 'date',
         'is_displaced' => 'boolean',
@@ -47,4 +48,12 @@ class Student extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function latestMemorization()
+    {
+        // هذه العلاقة تجلب آخر سجل مضاف للطالب في جدول الحفظ اليومي
+        return $this->hasOne(StudentDailyMemorization::class, 'student_id')->latestOfMany('date');
+    }
 }
+
+

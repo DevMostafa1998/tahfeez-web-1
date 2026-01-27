@@ -7,69 +7,55 @@ use Illuminate\Support\Facades\Auth;
 
 class StudentLogic
 {
+    /**
+     * جلب جميع الطلاب النشطين
+     */
+    public function getAllStudents()
+    {
+        return Student::whereNull('deleted_at')->latest()->paginate(10);
+    }
+
+    /**
+     * حفظ طالب جديد
+     */
     public function storeStudent(array $data)
     {
-        //  تجهيز بيانات الطالب فقطد)
-        $studentData = [
-            'full_name'     => $data['full_name'],
-            'id_number'     => $data['id_number'],
-            'date_of_birth' => $data['date_of_birth'],
-            'phone_number'  => $data['phone_number'],
-            'address'       => $data['address'],
-            'group_id'      => $data['group_id'] ?? null,
-            'is_displaced'  => isset($data['is_displaced']) ? 1 : 0,
-            'user_id'       => Auth::id(), // المحفظ الذي أضاف الطالب
-            'creation_by'   => Auth::user()->id,
-        ];
+        $data = array_merge($data, [
+            'user_id'     => Auth::id(),
+            'creation_by' => Auth::user()->id,
+            'created_at'  => now(),
+        ]);
 
-        //  إنشاء الطالب
-        $student = Student::create($studentData);
-
-
-        if (isset($data['courses']) && is_array($data['courses'])) {
-            $student->courses()->attach($data['courses']);
-        }
-
-        return $student;
+        return Student::create($data);
     }
 
+    /**
+     * جلب طالب معين بواسطة المعرف
+     */
     public function getStudentById($id)
     {
-        return Student::with('courses')->findOrFail($id);
+        return Student::findOrFail($id);
     }
 
+    /**
+     * تحديث بيانات الطالب
+     */
     public function updateStudent($id, array $data)
     {
         $student = $this->getStudentById($id);
 
-        $updateData = [
-            'full_name'     => $data['full_name'],
-            'id_number'     => $data['id_number'],
-            'phone_number'  => $data['phone_number'],
-            'address'       => $data['address'] ?? $student->address,
-            'is_displaced'  => isset($data['is_displaced']) ? 1 : 0,
-            'updated_by'    => Auth::user()->id,
-        ];
+        $updateData = array_merge($data, [
+            'updated_by' => Auth::user()->id,
+            'updated_at' => now(),
+        ]);
 
-    if (isset($data['group_id'])) {
-        $updateData['group_id'] = $data['group_id'];
-    }
-
-    if (isset($data['date_of_birth'])) {
-        $updateData['date_of_birth'] = $data['date_of_birth'];
-    }
         $student->update($updateData);
-
-        //  تحديث الدورات
-        if (isset($data['courses']) && is_array($data['courses'])) {
-            $student->courses()->sync($data['courses']);
-        } else {
-            $student->courses()->sync([]); // إزالة جميع الدورات إذا لم يتم إرسال أي دورة
-        }
-
         return $student;
     }
 
+    /**
+     * حذف الطالب (حذف منطقي Soft Delete مع تحديث المستخدم)
+     */
     public function deleteStudent($id)
     {
         $student = $this->getStudentById($id);

@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Hash;
 class UserLogic
 {
 
+    // محاولة تسجيل الدخول
+
     public function attemptLogin($idNumber, $password)
     {
         if (Auth::attempt(['id_number' => $idNumber, 'password' => $password])) {
@@ -18,9 +20,12 @@ class UserLogic
         return false;
     }
 
+
+    // إنشاء مستخدم جديد
+
     public function storeUser($data)
     {
-        $user = User::create([
+        return User::create([
             'full_name'     => $data['full_name'],
             'id_number'     => $data['id_number'],
             'password'      => Hash::make($data['password']),
@@ -28,17 +33,21 @@ class UserLogic
             'phone_number'  => $data['phone_number'],
             'address'       => $data['address'],
             'category_id'   => $data['category_id'],
-            'is_admin'      => (isset($data['is_admin']) && ($data['is_admin'] == '1' || $data['is_admin'] == 'مسؤول')) ? true : false,
+            'is_admin'      => ($data['is_admin'] == 'مسؤول') ? true : false,
             'creation_by'   => Auth::user()->full_name ?? 'System',
+            'birth_place'     => $data['birth_place'] ?? null,
+            'wallet_number'   => $data['wallet_number'] ?? null,
+            'whatsapp_number' => $data['whatsapp_number'] ?? null,
+            'qualification'   => $data['qualification'] ?? null,
+            'specialization'  => $data['specialization'] ?? null,
+            'parts_memorized' => $data['parts_memorized'] ?? 0,
+            'mosque_name'     => $data['mosque_name'] ?? null,
+            'is_displaced'    => $data['is_displaced'] ?? false,
         ]);
-
-        // ربط الدورات
-        if (isset($data['courses']) && is_array($data['courses'])) {
-            $user->courses()->attach($data['courses']);
-        }
-
-        return $user;
     }
+
+
+    // تحديث بيانات مستخدم
 
     public function updateUser($user, $data)
     {
@@ -47,26 +56,30 @@ class UserLogic
             'id_number'    => $data['id_number'],
             'phone_number' => $data['phone_number'],
             'address'      => $data['address'],
+            'is_admin'     => $data['is_admin'],
             'category_id'  => $data['category_id'],
-            'is_admin'     => (isset($data['is_admin']) && ($data['is_admin'] == '1' || $data['is_admin'] == 'مسؤول')) ? true : false,
             'updated_by'   => Auth::user()->full_name ?? 'System',
+            'birth_place'     => $data['birth_place'] ?? $user->birth_place,
+            'wallet_number'   => $data['wallet_number'] ?? $user->wallet_number,
+            'whatsapp_number' => $data['whatsapp_number'] ?? $user->whatsapp_number,
+            'qualification'   => $data['qualification'] ?? $user->qualification,
+            'specialization'  => $data['specialization'] ?? $user->specialization,
+            'parts_memorized' => $data['parts_memorized'] ?? $user->parts_memorized,
+            'mosque_name'     => $data['mosque_name'] ?? $user->mosque_name,
+            'is_displaced'    => $data['is_displaced'] ?? $user->is_displaced,
         ];
-
+        if (isset($data['is_admin'])) {
+            $updateData['is_admin'] = ($data['is_admin'] == 'مسؤول') ? true : false;
+        }
         if (!empty($data['password'])) {
             $updateData['password'] = Hash::make($data['password']);
         }
 
-        $user->update($updateData);
-
-        // تحديث الدورات (Sync يحذف القديم ويضيف الجديد)
-        if (isset($data['courses']) && is_array($data['courses'])) {
-            $user->courses()->sync($data['courses']);
-        } else {
-            $user->courses()->detach(); // حذف الكل إذا لم يتم اختيار شيء
-        }
-
-        return $user;
+        return $user->update($updateData);
     }
+
+
+    // حذف مستخدم (
 
     public function deleteUser($user)
     {

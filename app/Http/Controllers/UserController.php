@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\Course;
 use App\BusinessLogic\UserLogic;
 use Illuminate\Support\Facades\DB;
 
@@ -19,14 +18,14 @@ class UserController extends Controller
 
     public function index()
     {
-        $users = User::with('courses')->paginate(10);
-        $categories = DB::table('categorie')->get();
-        // جلب دورات المحفظين فقط
-        // جلب الدورات التي تتبع المحفظين (teachers) أو التي تتبع الجميع (null)
-        $all_courses = Course::where(function($query) {$query->where('type', 'teachers')->orWhereNull('type');
-        })->get();
+        $users = User::paginate(5);
+        return view('users.index', compact('users'));
+    }
 
-        return view('users.index', compact('users', 'categories', 'all_courses'));
+    public function create()
+    {
+        $categories = DB::table('categorie')->get();
+        return view('users.create', compact('categories'));
     }
 
     public function store(Request $request)
@@ -39,12 +38,19 @@ class UserController extends Controller
             'phone_number'  => 'required',
             'address'       => 'required',
             'category_id'   => 'required',
-            'courses'       => 'nullable|array',
+            'birth_place'     => 'nullable|string|max:255',
+            'wallet_number'   => 'nullable|string',
+            'whatsapp_number' => 'nullable|string',
+            'qualification'   => 'nullable|string',
+            'specialization'  => 'nullable|string',
+            'parts_memorized' => 'nullable|integer|min:0|max:30',
+            'mosque_name'     => 'nullable|string',
+            'is_displaced'    => 'required|boolean',
         ]);
 
         $this->userLogic->storeUser($request->all());
 
-        return redirect()->route('user')->with('success', 'تم إضافة المستخدم والدورات بنجاح!');
+        return redirect()->route('user')->with('success', 'تم إضافة المستخدم بنجاح!');
     }
 
     public function update(Request $request, $id)
@@ -52,37 +58,32 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         $request->validate([
-            'full_name'    => 'required|string|max:255',
-            'id_number'    => 'required|unique:user,id_number,'.$id,
+            'full_name' => 'required|string|max:255',
+            'id_number' => 'required|unique:user,id_number,' . $id,
             'phone_number' => 'required',
-            'address'      => 'required',
-            'category_id'  => 'required',
+            'address' => 'required',
+            'category_id' => 'required',
             'password'     => 'nullable|string|min:6|confirmed',
-            'courses'      => 'nullable|array',
+            'birth_place'     => 'nullable|string',
+            'wallet_number'   => 'nullable|string',
+            'whatsapp_number' => 'nullable|string',
+            'qualification'   => 'nullable|string',
+            'specialization'  => 'nullable|string',
+            'parts_memorized' => 'nullable|integer|min:0|max:30',
+            'mosque_name'     => 'nullable|string',
+            'is_displaced'    => 'required|boolean',
         ]);
 
         $this->userLogic->updateUser($user, $request->all());
 
-        return redirect()->route('user')->with('success', 'تم تحديث البيانات والدورات بنجاح');
+        return redirect()->route('user')->with('success', 'تم تحديث بيانات المستخدم بنجاح');
     }
 
     public function destroy($id)
     {
         $user = User::findOrFail($id);
         $this->userLogic->deleteUser($user);
-        return redirect()->route('user')->with('success', 'تم الحذف بنجاح');
+
+        return redirect()->route('user')->with('success', 'تم نقل المستخدم إلى المحذوفات بنجاح');
     }
-    public function create()
-{
-    // جلب التصنيفات
-    $categories = DB::table('categorie')->get();
-
-    //  جلب دورات المحفظين + الدورات العامة (null)
-    $all_courses = Course::where(function($query) {
-        $query->where('type', 'teachers')
-              ->orWhereNull('type');
-    })->get();
-
-    return view('users.create', compact('categories', 'all_courses'));
-}
 }
