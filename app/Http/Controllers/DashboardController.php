@@ -10,17 +10,16 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // حساب الطلاب (الحفاظ)
         $students_count = DB::table('student')->count();
 
         // حساب المحفظين بدون المحذوفين
         $users_count = DB::table('user')
-        ->whereNull('deleted_at')
-        ->where(function($query) {
-            $query->where('is_admin', 0)
-                  ->orWhereNull('is_admin');
-        })
-        ->count();
+            ->whereNull('deleted_at')
+            ->where(function ($query) {
+                $query->where('is_admin', 0)
+                    ->orWhereNull('is_admin');
+            })
+            ->count();
 
         //  عدد المجموعات
         $groups_count = DB::table('group')->count();
@@ -39,12 +38,35 @@ class DashboardController extends Controller
             $memorization_percentage = 0;
         }
 
+
+        $ageData = DB::table('student')
+            ->selectRaw("TIMESTAMPDIFF(YEAR,date_of_birth, CURDATE()) AS age, count(*) as count")
+            ->whereNull('deleted_at')
+            ->groupBy('age')
+            ->orderBy('age')
+            ->get();
+        $groupData = DB::table('group')
+            ->leftJoin('student_group', 'group.id', '=', 'student_group.group_id')
+            ->whereNull('group.deleted_at')
+            ->select('group.GroupName as name', DB::raw('count(student_group.student_id) as students_count'))
+            ->groupBy('group.id', 'group.GroupName')
+            ->get();
+        $age_labels = $ageData->pluck('age')->map(fn($age) => $age . ' سنة');
+        $age_counts = $ageData->pluck('count');
+        $group_labels = $groupData->pluck('name');
+        $group_students_counts = $groupData->pluck('students_count');
+
+
         // إرسال البيانات للصفحة
         return view('layouts.dashboard', compact(
             'students_count',
             'users_count',
             'groups_count',
-            'memorization_percentage'
+            'memorization_percentage',
+            'age_labels',
+            'age_counts',
+            'group_labels',
+            'group_students_counts'
         ));
     }
 }

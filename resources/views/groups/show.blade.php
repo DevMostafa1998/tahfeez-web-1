@@ -380,7 +380,10 @@
                     }
                 });
             });
-
+            $('.modal').on('hide.bs.modal', function() {
+                // استهداف حقل الملاحظات ومسحه فوراً
+                $(this).find('textarea[name="note"]').val('');
+            });
             // 3. معالجة إرسال نموذج الحفظ عبر AJAX (تحديث الجدول لحظياً)
             $(document).on('submit', '.memorizationForm', function(e) {
                 e.preventDefault();
