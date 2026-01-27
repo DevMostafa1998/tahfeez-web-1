@@ -39,7 +39,7 @@ class Student extends Model
     {
         return $this->belongsTo(Group::class, 'group_id');
     }
-public function groups()
+    public function groups()
     {
         return $this->belongsToMany(Group::class, 'student_group', 'student_id', 'group_id');
     }
