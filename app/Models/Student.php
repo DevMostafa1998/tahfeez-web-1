@@ -31,6 +31,15 @@ class Student extends Model
         'is_displaced' => 'boolean',
     ];
 
+    // العلاقة مع الدورات
+    public function courses() {
+        return $this->belongsToMany(Course::class, 'course_student');
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(Group::class, 'group_id');
+    }
     public function groups()
     {
         return $this->belongsToMany(Group::class, 'student_group', 'student_id', 'group_id');
@@ -46,3 +55,5 @@ class Student extends Model
         return $this->hasOne(StudentDailyMemorization::class, 'student_id')->latestOfMany('date');
     }
 }
+
+

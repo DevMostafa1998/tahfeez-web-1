@@ -69,7 +69,14 @@
                         </a>
                     </li>
                 @endif
-
+            {{-- تقرير التسميع اليومي - يظهر للجميع --}}
+                <li class="nav-item">
+                    <a href="{{ route('reports.memorization') }}"
+                        class="nav-link {{ request()->routeIs('reports.memorization') ? 'active' : '' }}">
+                        <i class="nav-icon bi bi-file-earmark-bar-graph"></i>
+                        <p>تقرير التسميع </p>
+                    </a>
+                </li>
                 {{-- حضور وغياب الطلاب - تظهر للجميع --}}
                 <li class="nav-item">
                     <a href="{{ route('attendance.index') }}"
@@ -78,6 +85,8 @@
                         <p>حضور وغياب الطلاب</p>
                     </a>
                 </li>
+
+
 
                 @if (auth()->user()->is_admin)
                     {{-- حضور وغياب المحفظين --}}
