@@ -5,11 +5,24 @@
     <div class="container-fluid p-4" dir="rtl">
 
         @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
-                <i class="bi bi-check-circle-fill me-2"></i>
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
+            <script>
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    }
+                });
+
+                Toast.fire({
+                    icon: 'success',
+                    title: "{{ session('success') }}"
+                });
+            </script>
         @endif
 
         <div class="page-header d-flex justify-content-between align-items-center mb-4">
@@ -72,11 +85,11 @@
                                         </button>
 
                                         <form action="{{ route('user.destroy', $user->id) }}" method="POST"
-                                            onsubmit="return confirm('هل أنت متأكد من نقل المستخدم لسلة المهملات؟')">
+                                            class="delete-form">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit"
-                                                class="btn btn-sm btn-outline-danger rounded-circle action-btn"
+                                            <button type="button"
+                                                class="btn btn-sm btn-outline-danger rounded-circle action-btn delete-btn"
                                                 style="width: 32px; height: 32px; padding: 0;">
                                                 <i class="bi bi-trash3"></i>
                                             </button>
@@ -145,42 +158,88 @@
     </style>
 
     <script>
-        document.querySelectorAll('.edit-btn, button[data-bs-target="#editUserModal"]').forEach(button => {
-            button.addEventListener('click', function() {
-                const user = JSON.parse(this.dataset.user);
-                const form = document.getElementById('editForm');
-                form.action = `/user/${user.id}`;
+        document.addEventListener('DOMContentLoaded', function() {
 
-                document.getElementById('edit_full_name').value = user.full_name;
-                document.getElementById('edit_id_number').value = user.id_number;
-                document.getElementById('edit_phone_number').value = user.phone_number;
-                document.getElementById('edit_address').value = user.address;
-                document.getElementById('edit_is_admin').value = user.is_admin ? "1" : "0";
-                document.getElementById('edit_category_id').value = user.category_id;
+            // 1. معالجة التأكيد لعمليات (الحذف والتعديل)
+            const setupConfirmation = (selector, config) => {
+                document.querySelectorAll(selector).forEach(element => {
+                    // نستخدم 'submit' للنماذج و 'click' للأزرار
+                    const eventType = element.tagName === 'FORM' ? 'submit' : 'click';
+
+                    element.addEventListener(eventType, function(e) {
+                        if (this.dataset.confirmed === "true")
+                            return; // منع التكرار بعد التأكيد
+
+                        e.preventDefault();
+                        const form = this.tagName === 'FORM' ? this : this.closest('form');
+
+                        Swal.fire({
+                            title: config.title,
+                            text: config.text,
+                            icon: config.icon,
+                            showCancelButton: true,
+                            confirmButtonColor: config.confirmColor,
+                            cancelButtonColor: '#6c757d',
+                            confirmButtonText: config.confirmText,
+                            cancelButtonText: 'تراجع',
+                            reverseButtons: true,
+                            customClass: {
+                                confirmButton: 'rounded-pill px-4',
+                                cancelButton: 'rounded-pill px-4'
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // التحقق من كلمة المرور فقط في حال كانت عملية تعديل
+                                if (selector === '.update-form') {
+                                    const pass = form.querySelector(
+                                        'input[name="password"]').value;
+                                    const conf = form.querySelector(
+                                        'input[name="password_confirmation"]').value;
+                                    if (pass.length > 0 && pass !== conf) {
+                                        Swal.fire('خطأ!', 'كلمة المرور غير متطابقة',
+                                            'error');
+                                        return;
+                                    }
+                                }
+
+                                this.dataset.confirmed = "true";
+                                form.submit();
+                            }
+                        });
+                    });
+                });
+            };
+
+            // تشغيل تأكيد الحذف
+            setupConfirmation('.delete-btn', {
+                title: 'هل أنت متأكد؟',
+                text: "سيتم حذف هذا المستخدم نهائياً!",
+                icon: 'warning',
+                confirmColor: '#dc3545',
+                confirmText: 'نعم، احذف!'
             });
-        });
-        document.getElementById('editForm').addEventListener('submit', function(e) {
-            const password = document.getElementById('edit_password').value;
-            const confirmPassword = document.getElementById('edit_password_confirmation').value;
-            const errorElement = document.getElementById('passwordMatchError');
 
-            // إذا بدأ المستخدم في كتابة كلمة مرور جديدة
-            if (password.length > 0) {
-                // التحقق من التطابق أو إذا كان الحقل الثاني فارغاً
-                if (password !== confirmPassword) {
-                    e.preventDefault(); // منع إرسال النموذج (يبقى المودال مفتوحاً)
-                    errorElement.classList.remove('d-none'); // إظهار رسالة الخطأ
-                    document.getElementById('edit_password_confirmation').classList.add('is-invalid');
-                } else {
-                    errorElement.classList.add('d-none');
-                    document.getElementById('edit_password_confirmation').classList.remove('is-invalid');
-                }
-            }
-        });
+            // تشغيل تأكيد التعديل
+            setupConfirmation('.update-form', {
+                title: 'تأكيد التعديل',
+                text: "هل أنت متأكد من حفظ التغييرات الجديدة؟",
+                icon: 'question',
+                confirmColor: '#ffc107',
+                confirmText: 'نعم، احفظ'
+            });
 
-        document.getElementById('edit_password_confirmation').addEventListener('input', function() {
-            document.getElementById('passwordMatchError').classList.add('d-none');
-            this.classList.remove('is-invalid');
+            // 2. رسائل النجاح (Toast)
+            @if (session('success'))
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: "{{ session('success') }}",
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            @endif
         });
     </script>
 @endpush
