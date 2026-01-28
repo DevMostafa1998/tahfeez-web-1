@@ -105,19 +105,56 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
     <script>
-     $(document).ready(function() {
+$(document).ready(function() {
     let table = null;
 
-    function fetchReports() {
+    // دالة تحديث الفلاتر التبادلية
+    function syncFilters(changedElement) {
         let data = {
-            date_from: $('input[name="date_from"]').val(),
-            date_to: $('input[name="date_to"]').val(),
             teacher_id: $('select[name="teacher_id"]').val(),
             group_id: $('select[name="group_id"]').val(),
             student_id: $('select[name="student_id"]').val(),
         };
 
-        // 1. تدمير الجدول تماماً قبل البدء بالبحث الجديد لمنع أي تعارض (حل مشكلة الـ Alert)
+        $.ajax({
+            url: "{{ route('reports.filters.data') }}",
+            type: 'GET',
+            data: data,
+            success: function(response) {
+                // تحديث المحفظين (إذا لم يكن هو العنصر الذي تغير)
+                if (changedElement !== 'teacher_id' && $('select[name="teacher_id"]').length) {
+                    updateSelect('teacher_id', response.teachers, 'id', 'full_name', data.teacher_id);
+                }
+                // تحديث المجموعات
+                if (changedElement !== 'group_id') {
+                    updateSelect('group_id', response.groups, 'id', 'GroupName', data.group_id);
+                }
+                // تحديث الطلاب
+                if (changedElement !== 'student_id') {
+                    updateSelect('student_id', response.students, 'id', 'full_name', data.student_id);
+                }
+            }
+        });
+    }
+
+    function updateSelect(name, items, valueKey, textKey, currentValue) {
+        let select = $(`select[name="${name}"]`);
+        select.empty().append('<option value="">-- الكل --</option>');
+        $.each(items, function(i, item) {
+            let selected = (item[valueKey] == currentValue) ? 'selected' : '';
+            select.append(`<option value="${item[valueKey]}" ${selected}>${item[textKey]}</option>`);
+        });
+    }
+
+    function fetchReports() {
+        let data = {
+            date_from: $('#date_from').val(),
+            date_to: $('#date_to').val(),
+            teacher_id: $('select[name="teacher_id"]').val(),
+            group_id: $('select[name="group_id"]').val(),
+            student_id: $('select[name="student_id"]').val(),
+        };
+
         if ($.fn.DataTable.isDataTable('#reportsTable')) {
             $('#reportsTable').DataTable().clear().destroy();
         }
@@ -128,10 +165,8 @@
             url: "{{ route('reports.memorization') }}",
             type: 'GET',
             data: data,
-            dataType: 'json',
             success: function(response) {
                 let html = '';
-
                 if (response && response.length > 0) {
                     $.each(response, function(index, memo) {
                         html += `<tr>
@@ -146,55 +181,40 @@
                             <td class="small text-muted">${memo.note || '-'}</td>
                         </tr>`;
                     });
-
                     $('#tableBody').html(html);
-
-                   // 2. تفعيل DataTable فقط في حال وجود بيانات
-                    table = $('#reportsTable').DataTable({
-                        "dom": "<'row'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6'B>>rtip",
-                        "language": {
-                            "emptyTable": "لا توجد سجلات",
-                            "sSearch": "بحث سريع داخل النتائج:",
-                            "sInfo": "إظهار _START_ إلى _END_ من أصل _TOTAL_ سجل",
-                            "sInfoEmpty": "إظهار 0 إلى 0 من أصل 0 سجل",
-                            "oPaginate": {
-                                "sNext": "التالي",
-                                "sPrevious": "السابق"
-                            }
-                        },
-                        "buttons": [{
-                            extend: 'excelHtml5',
-                            text: '<i class="bi bi-file-earmark-excel"></i> تصدير إكسل',
-                            className: 'btn-excel',
-                            title: 'تقرير التسميع - ' + new Date().toLocaleDateString('ar-EG').replace(/\//g, '-'),
-                            exportOptions: {
-                                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8] 
-                            }
-                        }]
-                    });
-
-                    // نقل أزرار الإكسل إلى الحاوية المخصصة في الأعلى
-                    $('#excel_button_container').empty();
-                    table.buttons().container().appendTo('#excel_button_container');
-
-                    } else {
-                        // 3. في حال عدم وجود نتائج
-                        $('#tableBody').html('<tr><td colspan="9" class="py-5 text-center text-muted fw-bold">عذراً، لا توجد سجلات تسميع لهذا الاختيار</td></tr>');
-                        $('#excel_button_container').empty();
-                    }
-            },
-            error: function(xhr) {
-                $('#tableBody').html('<tr><td colspan="9" class="text-center text-danger">حدث خطأ أثناء الاتصال بالسيرفر</td></tr>');
+                    initDataTable();
+                } else {
+                    $('#tableBody').html('<tr><td colspan="9" class="py-5 text-center text-muted fw-bold">لا توجد نتائج</td></tr>');
+                }
             }
         });
     }
 
-    // ربط البحث التلقائي بكل حقول الفلتر
+    function initDataTable() {
+        table = $('#reportsTable').DataTable({
+            "dom": "<'row'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6'B>>rtip",
+            "language": { "sSearch": "بحث سريع:", "oPaginate": { "sNext": "التالي", "sPrevious": "السابق" } },
+            "buttons": [{
+                extend: 'excelHtml5',
+                text: '<i class="bi bi-file-earmark-excel"></i> تصدير إكسل',
+                className: 'btn-excel',
+                title: 'تقرير التسميع - ' + new Date().toLocaleDateString('ar-EG').replace(/\//g, '-')
+            }]
+        });
+        $('#excel_button_container').empty();
+        table.buttons().container().appendTo('#excel_button_container');
+    }
+
     $(document).on('change', '.filter-input', function() {
+        let name = $(this).attr('name');
+
+        if (name === 'teacher_id' || name === 'group_id' || name === 'student_id') {
+            syncFilters(name);
+        }
+
         fetchReports();
     });
 
-    // تشغيل البحث عند تحميل الصفحة
     fetchReports();
 });
     </script>

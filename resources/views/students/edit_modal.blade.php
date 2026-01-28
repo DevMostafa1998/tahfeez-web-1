@@ -86,10 +86,10 @@
                             <label class="form-label fw-bold small d-block">
                                 <i class="bi bi-house-door-fill text-warning me-2"></i>حالة السكن
                             </label>
-                            <select name="is_displaced" class="form-select bg-light border-0">
-                                <option value="0" {{ !$student->is_displaced ? 'selected' : '' }}>مقيم</option>
-                                <option value="1" {{ $student->is_displaced ? 'selected' : '' }}>نازح</option>
-                            </select>
+                           <select name="is_displaced" class="form-select bg-light border-0">
+    <option value="0" {{ $student->is_displaced == 0 ? 'selected' : '' }}>مقيم</option>
+    <option value="1" {{ $student->is_displaced == 1 ? 'selected' : '' }}>نازح</option>
+</select>
                         </div>
 
                         {{-- اسم المركز --}}
