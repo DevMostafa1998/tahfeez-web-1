@@ -13,6 +13,8 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuranMemTestController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\StudentReportController;
+use App\Models\Student;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -57,9 +59,10 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('memorization', MemorizationController::class);
     Route::resource('profile', ProfileController::class);
     Route::resource('quran_tests', QuranMemTestController::class);
-
-Route::get('/reports/recitation', [ReportController::class, 'index'])->name('reports.memorization')->middleware('auth');
-
+    Route::get('/reports/students', [StudentReportController::class, 'index'])->name('reports.students')->middleware('auth');
+    Route::get('/reports/recitation', [ReportController::class, 'index'])->name('reports.memorization')->middleware('auth');
+    Route::get('/get-groups-by-teacher/{teacherId}', [StudentReportController::class, 'getGroupsByTeacher'])->name('get.groups.by.teacher');
+    Route::get('/get-group-teacher/{groupId}', [StudentReportController::class, 'getGroupTeacher'])->name('get.group.teacher');
     Route::resource('courses', CourseController::class);
 
     Route::get('/logout', function (Request $request) {
