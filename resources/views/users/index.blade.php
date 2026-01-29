@@ -77,34 +77,44 @@
                                 <span class="text-muted small">--</span>
                             @endif
                         </td>
-                        <td>
-                            <div class="d-flex gap-2 justify-content-center">
-                                {{-- زر الدورات --}}
+                        
+                        <td style="width: 150px;">
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; justify-items: center; align-items: center;">
+
+                            <div>
                                 @if(!$user->is_admin)
                                     <button class="btn btn-sm btn-outline-info rounded-circle action-btn course-btn"
                                             data-bs-toggle="modal" data-bs-target="#courseUserModal"
                                             data-user-id="{{ $user->id }}"
                                             data-user-name="{{ $user->full_name }}"
-                                            data-user-courses="{{ json_encode($user->courses->pluck('id')) }}">
+                                            data-user-courses="{{ json_encode($user->courses->pluck('id')) }}"
+                                            title="إدارة الدورات">
                                         <i class="bi bi-journal-plus"></i>
                                     </button>
+                                @else
+                                    <div style="width: 35px;"></div>
                                 @endif
+                            </div>
 
-                                {{-- زر التعديل --}}
+                            <div>
                                 <button class="btn btn-sm btn-outline-warning rounded-circle action-btn"
-                                        data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->id }}">
+                                        data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->id }}"
+                                        title="تعديل البيانات">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
-
-                                {{-- زر الحذف --}}
-                                <form action="{{ route('user.destroy', $user->id) }}" method="POST" id="deleteForm{{ $user->id }}" class="d-none">
-                                    @csrf @method('DELETE')
-                                </form>
-                                <button type="button" onclick="confirmDelete({{ $user->id }})" class="btn btn-sm btn-outline-danger rounded-circle action-btn">
-                                    <i class="bi bi-trash3"></i>
-                                </button>
                             </div>
-                        </td>
+
+                            <div>
+                                <form action="{{ route('user.destroy', $user->id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد؟')" class="m-0">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle action-btn" title="حذف">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </form>
+                            </div>
+
+                        </div>
+                    </td>
                     </tr>
                     @include('users.edit_modal', ['user' => $user])
                     @empty
