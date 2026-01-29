@@ -33,7 +33,9 @@ class Student extends Model
     ];
 
     // العلاقة مع الدورات
-    public function courses() {
+
+    public function courses()
+    {
         return $this->belongsToMany(Course::class, 'course_student', 'student_id', 'course_id');
     }
 
@@ -49,7 +51,10 @@ class Student extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
     public function latestMemorization()
     {
         // هذه العلاقة تجلب آخر سجل مضاف للطالب في جدول الحفظ اليومي

@@ -14,6 +14,8 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuranMemTestController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\StudentReportController;
+use App\Models\Student;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -63,6 +65,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports/recitation', [ReportController::class, 'index'])->name('reports.memorization')->middleware('auth');
     Route::get('/reports/get-filters-data', [ReportController::class, 'getFiltersData'])->name('reports.filters.data');
     Route::get('reports/teachers-courses', [TeacherReportController::class, 'index'])->name('reports.teachers_courses');
+
+    Route::get('/reports/students', [StudentReportController::class, 'index'])->name('reports.students')->middleware('auth');
+    Route::get('/get-groups-by-teacher/{teacherId}', [StudentReportController::class, 'getGroupsByTeacher'])->name('get.groups.by.teacher');
+    Route::get('/get-group-teacher/{groupId}', [StudentReportController::class, 'getGroupTeacher'])->name('get.group.teacher');
 
 
     Route::get('/logout', function (Request $request) {

@@ -28,7 +28,8 @@
 
                     {{-- الطلاب --}}
                     <li class="nav-item">
-                        <a href="{{ route('student.index') }}" class="nav-link {{ request()->routeIs('student.*') ? 'active' : '' }}">
+                        <a href="{{ route('student.index') }}"
+                            class="nav-link {{ request()->routeIs('student.*') ? 'active' : '' }}">
                             <i class="nav-icon bi bi-mortarboard"></i>
                             <p>الطلاب</p>
                         </a>
@@ -44,10 +45,11 @@
                     </a>
                 </li>
 
-                @if(auth()->user()->is_admin)
+                @if (auth()->user()->is_admin)
                     {{-- إدارة الدورات العلمية --}}
                     <li class="nav-item">
-                        <a href="{{ route('courses.index') }}" class="nav-link {{ request()->routeIs('courses.*') ? 'active' : '' }}">
+                        <a href="{{ route('courses.index') }}"
+                            class="nav-link {{ request()->routeIs('courses.*') ? 'active' : '' }}">
                             <i class="nav-icon bi bi-book-half"></i>
                             <p>إدارة الدورات</p>
                         </a>
@@ -55,7 +57,8 @@
 
                     {{-- الاختبارات --}}
                     <li class="nav-item">
-                        <a href="{{ route('quran_tests.index') }}" class="nav-link {{ request()->routeIs('quran_tests.*') ? 'active' : '' }}">
+                        <a href="{{ route('quran_tests.index') }}"
+                            class="nav-link {{ request()->routeIs('quran_tests.*') ? 'active' : '' }}">
                             <i class="nav-icon bi bi-pencil-square"></i>
                             <p>الاختبارات</p>
                         </a>
@@ -63,13 +66,14 @@
 
                     {{-- إدارة التصنيفات --}}
                     <li class="nav-item">
-                        <a href="{{ route('category.index') }}" class="nav-link {{ request()->routeIs('category.*') ? 'active' : '' }}">
+                        <a href="{{ route('category.index') }}"
+                            class="nav-link {{ request()->routeIs('category.*') ? 'active' : '' }}">
                             <i class="nav-icon bi bi-tags-fill"></i>
                             <p>إدارة التصنيفات</p>
                         </a>
                     </li>
                 @endif
-            {{-- تقرير التسميع اليومي - يظهر للجميع --}}
+                {{-- تقرير التسميع اليومي - يظهر للجميع --}}
                 <li class="nav-item">
                     <a href="{{ route('reports.memorization') }}"
                         class="nav-link {{ request()->routeIs('reports.memorization') ? 'active' : '' }}">
@@ -83,6 +87,14 @@
                     class="nav-link {{ request()->routeIs('reports.teachers_courses') ? 'active' : '' }}">
                         <i class="nav-icon bi bi-file-earmark-person-fill"></i>
                         <p>تقرير دورات المحفظين</p>
+                    </a>
+                </li>
+                {{-- تقرير الطلاب - يظهر للجميع --}}
+                <li class="nav-item">
+                    <a href="{{ route('reports.students') }}"
+                        class="nav-link {{ request()->routeIs('reports.students') ? 'active' : '' }}">
+                        <i class="nav-icon bi bi-file-earmark-spreadsheet-fill"></i>
+                        <p>تقرير الطلاب</p>
                     </a>
                 </li>
                 {{-- حضور وغياب الطلاب - تظهر للجميع --}}

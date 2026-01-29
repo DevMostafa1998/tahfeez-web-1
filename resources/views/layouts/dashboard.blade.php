@@ -114,7 +114,7 @@
                 <div class="col-4">
                     <div class="card shadow-sm border-top-success">
                         <div class="card-header border-0">
-                            <h3 class="card-title text-bold">توزيع المحفظين حسب التصنيف العلمي</h3>
+                            <h3 class="card-title text-bold">توزيع المحفظين حسب التصنيف</h3>
                         </div>
                         <div class="card-body">
                             <canvas id="userCategoryChart" style="height: 300px;"></canvas>
