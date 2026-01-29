@@ -52,10 +52,10 @@ class ReportLogic
         }
 
        return [
-        'groups'   => Group::where('UserId', $user->id)->get(),
-        'students' => Student::whereHas('studentGroups', function ($q) use ($user) {
-                         $q->whereHas('group', fn($query) => $query->where('UserId', $user->id));
-                      })->orderBy('full_name')->get(),
+        'groups'  => Group::where('UserId', $user->id)->get(),
+        'students' => Student::whereHas('groups', function ($q) use ($user) {
+            $q->where('UserId', $user->id); // جلب الطلاب الذين ينتمون لمجموعات هذا المحفظ
+        })->orderBy('full_name')->get(),
         'teachers' => collect(),
     ];
     }

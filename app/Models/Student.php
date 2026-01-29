@@ -16,6 +16,7 @@ class Student extends Model
         'phone_number',
         'address',
         'is_displaced',
+        'group_id',
         'user_id',
         'creation_by',
         'updated_by',
@@ -32,9 +33,10 @@ class Student extends Model
     ];
 
     // العلاقة مع الدورات
+
     public function courses()
     {
-        return $this->belongsToMany(Course::class, 'course_student');
+        return $this->belongsToMany(Course::class, 'course_student', 'student_id', 'course_id');
     }
 
     public function group()

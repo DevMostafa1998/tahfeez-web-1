@@ -65,7 +65,12 @@ class User extends Authenticatable
         return [
             'date_of_birth' => 'date',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
         ];
+    }
+     public function courses()
+    {
+        return $this->belongsToMany(Course::class, 'course_user');
     }
     public function username()
     {

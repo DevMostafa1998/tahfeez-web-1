@@ -63,6 +63,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports/recitation', [ReportController::class, 'index'])->name('reports.memorization')->middleware('auth');
     Route::get('/get-groups-by-teacher/{teacherId}', [StudentReportController::class, 'getGroupsByTeacher'])->name('get.groups.by.teacher');
     Route::get('/get-group-teacher/{groupId}', [StudentReportController::class, 'getGroupTeacher'])->name('get.group.teacher');
+
+    Route::get('/reports/recitation', [ReportController::class, 'index'])->name('reports.memorization')->middleware('auth');
+    Route::get('/reports/get-filters-data', [ReportController::class, 'getFiltersData'])->name('reports.filters.data');
     Route::resource('courses', CourseController::class);
 
     Route::get('/logout', function (Request $request) {
