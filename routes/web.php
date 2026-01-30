@@ -10,6 +10,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\StudentgroupController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\TeacherReportController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuranMemTestController;
@@ -60,10 +61,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('memorization', MemorizationController::class);
     Route::resource('profile', ProfileController::class);
     Route::resource('quran_tests', QuranMemTestController::class);
-    Route::get('/reports/students', [StudentReportController::class, 'index'])->name('reports.students')->middleware('auth');
-    Route::get('/reports/recitation', [ReportController::class, 'index'])->name('reports.memorization')->middleware('auth');
-    Route::get('/get-groups-by-teacher/{teacherId}', [StudentReportController::class, 'getGroupsByTeacher'])->name('get.groups.by.teacher');
-    Route::get('/get-group-teacher/{groupId}', [StudentReportController::class, 'getGroupTeacher'])->name('get.group.teacher');
+    Route::resource('courses', CourseController::class);
 
     Route::get('/reports/recitation', [ReportController::class, 'index'])->name('reports.memorization')->middleware('auth');
     Route::get('/reports/get-filters-data', [ReportController::class, 'getFiltersData'])->name('reports.filters.data');
@@ -73,6 +71,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports/attendance-filters', [AttendanceReportController::class, 'getFiltersData'])->name('reports.attendance.filters');
     Route::get('/reports/filters-data', [AttendanceReportController::class, 'getFiltersData'])->name('reports.filters.data');
     Route::resource('courses', CourseController::class);
+    Route::get('reports/teachers-courses', [TeacherReportController::class, 'index'])->name('reports.teachers_courses');
+
+    Route::get('/reports/students', [StudentReportController::class, 'index'])->name('reports.students')->middleware('auth');
+    Route::get('/get-groups-by-teacher/{teacherId}', [StudentReportController::class, 'getGroupsByTeacher'])->name('get.groups.by.teacher');
+    Route::get('/get-group-teacher/{groupId}', [StudentReportController::class, 'getGroupTeacher'])->name('get.group.teacher');
+
 
     Route::get('/logout', function (Request $request) {
         Auth::logout();

@@ -81,6 +81,15 @@
                         <p>تقرير التسميع </p>
                     </a>
                 </li>
+                {{-- تقرير دورات المحفظين - يظهر للجميع --}}
+                <li class="nav-item">
+                    <a href="{{ route('reports.teachers_courses') }}"
+                    class="nav-link {{ request()->routeIs('reports.teachers_courses') ? 'active' : '' }}">
+                        <i class="nav-icon bi bi-file-earmark-person-fill"></i>
+                        <p>تقرير دورات المحفظين</p>
+                    </a>
+                </li>
+                {{-- تقرير الطلاب - يظهر للجميع --}}
                 <li class="nav-item">
                     <a href="{{ route('reports.students') }}"
                         class="nav-link {{ request()->routeIs('reports.students') ? 'active' : '' }}">
