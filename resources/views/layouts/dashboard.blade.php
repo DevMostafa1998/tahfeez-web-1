@@ -90,7 +90,8 @@
                 </div>
             </div>
             <div class="row mt-4">
-                <div class="col-md-4">
+                {{-- مخطط توزيع الأعمار - يظهر للجميع --}}
+                <div class="{{ $isAdmin ? 'col-md-4' : 'col-md-6' }}">
                     <div class="card shadow-sm">
                         <div class="card-header border-0">
                             <h3 class="card-title text-bold">توزيع الطلاب حسب الأعمار</h3>
@@ -101,7 +102,8 @@
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                {{-- مخطط توزيع المجموعات - يظهر للجميع --}}
+                <div class="{{ $isAdmin ? 'col-md-4' : 'col-md-6' }}">
                     <div class="card shadow-sm">
                         <div class="card-header border-0">
                             <h3 class="card-title text-bold">عدد الطلاب في كل مجموعة</h3>
@@ -111,16 +113,20 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-4">
-                    <div class="card shadow-sm border-top-success">
-                        <div class="card-header border-0">
-                            <h3 class="card-title text-bold">توزيع المحفظين حسب التصنيف</h3>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="userCategoryChart" style="height: 300px;"></canvas>
+
+                {{-- مخطط توزيع المحفظين - يظهر للإدمن فقط --}}
+                @if ($isAdmin)
+                    <div class="col-md-4">
+                        <div class="card shadow-sm border-top-success">
+                            <div class="card-header border-0">
+                                <h3 class="card-title text-bold">توزيع المحفظين حسب التصنيف</h3>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="userCategoryChart" style="height: 300px;"></canvas>
+                            </div>
                         </div>
                     </div>
-                </div>
+                @endif
             </div>
         </div>
     </div>
