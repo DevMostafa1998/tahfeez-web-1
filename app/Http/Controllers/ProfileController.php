@@ -49,6 +49,14 @@ class ProfileController extends Controller
             'phone_number'  => ['sometimes', 'required', 'string', 'max:20'],
             'address'       => ['sometimes', 'required', 'string', 'max:500'],
             'password'      => ['nullable', 'confirmed', 'min:8'],
+            'birth_place'     => ['nullable', 'string', 'max:255'],
+            'wallet_number'   => ['nullable', 'string', 'max:50'],
+            'whatsapp_number' => ['nullable', 'string', 'max:20'],
+            'qualification'   => ['nullable', 'string', 'max:255'],
+            'specialization'  => ['nullable', 'string', 'max:255'],
+            'parts_memorized' => ['nullable', 'numeric', 'min:0', 'max:30'],
+            'mosque_name'     => ['nullable', 'string', 'max:255'],
+            'is_displaced'    => ['nullable', 'boolean'],
         ];
         $messages = [
             'id_number.unique'       => 'رقم الهوية هذا مسجل مسبقاً في النظام.',

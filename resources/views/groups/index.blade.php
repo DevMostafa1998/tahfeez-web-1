@@ -3,15 +3,11 @@
 @section('title', 'إدارة المجموعات')
 
 @push('css')
-
-    {{-- 1. تحميل المكتبات أولاً --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.bootstrap4.css">
     <link rel="stylesheet" href="{{ asset('assets/css/user_table.css') }}" />
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap4.min.css">
-    {{-- 2. التنسيقات المخصصة ثانياً --}}
     <style>
-        /* تنسيق الحاوية العلوية */
         .dataTables_wrapper .row:first-child {
             display: flex !important;
             flex-direction: row !important;
@@ -41,7 +37,6 @@
             border-radius: 4px;
         }
 
-        /* محاذاة البحث */
         .dataTables_filter {
             text-align: left !important;
         }
@@ -53,28 +48,29 @@
         .dataTables_length {
             text-align: right !important;
         }
+
         .btn-excel {
-        background-color: #1d6f42 !important;
-        color: white !important;
-        border-radius: 8px !important;
-        border: none !important;
-        margin-left: 10px !important;
-        padding: 5px 15px !important;
-        font-weight: bold !important;
-        display: flex !important;
-        align-items: center !important;
-        gap: 5px !important;
-    }
-    .btn-excel:hover {
-        background-color: #155231 !important;
-    }
+            background-color: #1d6f42 !important;
+            color: white !important;
+            border-radius: 8px !important;
+            border: none !important;
+            margin-left: 10px !important;
+            padding: 5px 15px !important;
+            font-weight: bold !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 5px !important;
+        }
+
+        .btn-excel:hover {
+            background-color: #155231 !important;
+        }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endpush
 @section('content')
     <div class="container-fluid p-4" dir="rtl">
-        {{-- تنبيهات النجاح --}}
         @if (session('success'))
             <script>
                 Swal.fire({
@@ -120,8 +116,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($groups as $group)
-                                {{-- ... (نفس محتوى الحلقة الحالي الخاص بك) ... --}}
+                            @foreach ($groups as $group)
                                 <tr>
                                     <td class="ps-4">
                                         <div class="d-flex align-items-center gap-3">
@@ -145,8 +140,7 @@
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-1">
                                             <a href="{{ route('attendance.index', ['group_id' => $group->id]) }}"
-                                            class="btn btn-action text-warning"
-                                            title="تسجيل الحضور والغياب">
+                                                class="btn btn-action text-warning" title="تسجيل الحضور والغياب">
                                                 <i class="bi bi-calendar-check-fill"></i>
                                             </a>
 
@@ -180,21 +174,13 @@
 
                                 @include('groups.edit_modal')
                                 @include('groups.manage_students_modal')
-
                             @endforeach
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            {{-- هنا إضافة الترقيم --}}
-            {{-- @if ($groups->hasPages())
-                <div class="card-footer bg-white border-top-0 py-3">
-                    <div class="d-flex justify-content-end">
-                        {{ $groups->links('pagination::bootstrap-5') }}
-                    </div>
-                </div>
-            @endif --}}
+
         </div>
     </div>
     {{-- مودال عرض تفاصيل المجموعة --}}
@@ -291,41 +277,41 @@
         $(document).ready(function() {
             // 1. تفعيل DataTable مع الإعدادات العربية (اليقظة والذكاء)
             let table = $('#groupsTable').DataTable({
-    "order": [[2, "desc"]],
-    "language": {
-        "sProcessing": "جاري التحميل...",
-        "sLengthMenu": "أظهر _MENU_ مجموعات",
-        "sZeroRecords": "لم يعثر على أية سجلات",
-        "sInfo": "إظهار _START_ إلى _END_ من أصل _TOTAL_ مدخل",
-        "sInfoEmpty": "يعرض 0 إلى 0 من أصل 0 سجل",
-        "sSearch": "بحث:",
-        "oPaginate": {
-            "sFirst": "الأول",
-            "sPrevious": "السابق",
-            "sNext": "التالي",
-            "sLast": "الأخير"
-        }
-    },
-    // إعدادات الأزرار
-    "buttons": [
-        {
-            extend: 'excelHtml5',
-            text: '<i class="bi bi-file-earmark-excel"></i> تصدير إكسل',
-            className: 'btn-excel',
-            title: 'قائمة مجموعات مركز التحفيظ - ' + new Date().toLocaleDateString('ar-EG'),
-            exportOptions: {
-                columns: [0, 1, 2, 3] // تصدير أول 4 أعمدة فقط (استثناء عمود الإجراءات)
-            }
-        }
-    ],
-    // تعديل الـ dom ليظهر زر الإكسل بجانب البحث
-    "dom": "<'row mb-3'<'col-md-4'l><'col-md-4 text-center'B><'col-md-4'f>>" +
-           "<'row'<'col-12'tr>>" +
-           "<'row mt-3'<'col-12 d-flex justify-content-between align-items-center'ip>>",
-    "columnDefs": [
-        { "orderable": false, "targets": 4 }
-    ]
-});
+                "order": [
+                    [2, "desc"]
+                ],
+                "language": {
+                    "sProcessing": "جاري التحميل...",
+                    "sLengthMenu": "أظهر _MENU_ مجموعات",
+                    "sZeroRecords": "لم يعثر على أية سجلات",
+                    "sInfo": "إظهار _START_ إلى _END_ من أصل _TOTAL_ مدخل",
+                    "sInfoEmpty": "يعرض 0 إلى 0 من أصل 0 سجل",
+                    "sSearch": "بحث:",
+                    "oPaginate": {
+                        "sFirst": "الأول",
+                        "sPrevious": "السابق",
+                        "sNext": "التالي",
+                        "sLast": "الأخير"
+                    }
+                },
+                // إعدادات الأزرار
+                "buttons": [{
+                    extend: 'excelHtml5',
+                    text: '<i class="bi bi-file-earmark-excel"></i> تصدير إكسل',
+                    className: 'btn-excel',
+                    title: 'قائمة مجموعات مركز التحفيظ - ' + new Date().toLocaleDateString('ar-EG'),
+                    exportOptions: {
+                        columns: [0, 1, 2, 3]
+                    }
+                }],
+                "dom": "<'row mb-3'<'col-md-4 text-right'l><'col-md-4 text-center'B><'col-md-4 text-left'f>>" +
+                    "<'row'<'col-12'tr>>" +
+                    "<'row mt-3'<'col-12 d-flex justify-content-between align-items-center'ip>>",
+                "columnDefs": [{
+                    "orderable": false,
+                    "targets": 4
+                }]
+            });
 
             // 2. معالجة نموذج إنشاء مجموعة جديدة عبر AJAX
             $('#createGroupForm').on('submit', function(e) {
@@ -357,8 +343,6 @@
                                 showConfirmButton: false
                             });
 
-                            // ذكاء برمجي: بدلاً من إضافة HTML يدوياً، نقوم بتحديث الصفحة
-                            // لضمان ظهور المودالات (تعديل، إدارة طلاب) المرتبطة بالصف الجديد
                             setTimeout(() => {
                                 location.reload();
                             }, 1000);
