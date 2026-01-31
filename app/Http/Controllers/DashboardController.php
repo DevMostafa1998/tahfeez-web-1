@@ -18,7 +18,6 @@ class DashboardController extends Controller
         $studentsQuery = DB::table('student')->whereNull('deleted_at');
 
         if (!$isAdmin) {
-            // جلب طلاب المجموعة
             $myStudentIds = DB::table('student_group')
                 ->join('group', 'student_group.group_id', '=', 'group.id')
                 ->where('group.UserId', $user->id)
@@ -52,7 +51,7 @@ class DashboardController extends Controller
         }
         $userCategoryData = DB::table('categorie')
             ->leftJoin('user', 'categorie.id', '=', 'user.category_id')
-            ->where('user.is_admin', 0) // التصفية للمحفظين فقط
+            ->where('user.is_admin', 0)
             ->whereNull('user.deleted_at')
             ->select('categorie.name as cat_name', DB::raw('count(user.id) as teacher_count'))
             ->groupBy('categorie.id', 'categorie.name')
@@ -62,28 +61,23 @@ class DashboardController extends Controller
             ->whereDate('date', $today);
 
         if (!$isAdmin) {
-            // نستخدم المصفوفة الجاهزة لضمان عدم وجود تكرار
             $memorizationQuery->whereIn('student_id', $currentStudentIds);
         }
 
         $students_who_memorized_today = $memorizationQuery->distinct('student_id')->count();
         $memorization_percentage = $students_count > 0 ? round(($students_who_memorized_today / $students_count) * 100) : 0;
 
-        // --- 4. إحصائية الحضور والغياب (حل مشكلة الزيادة +1) ---
+        // --- 4. إحصائية الحضور والغياب
         $attendanceBaseQuery = DB::table('student_attendances')
             ->whereDate('attendance_date', $today);
 
         if (!$isAdmin) {
-            // التصفية بمعرفات الطلاب المحددة مسبقاً يمنع احتساب أي سجل خارجي
             $attendanceBaseQuery->whereIn('student_id', $currentStudentIds);
         }
 
-        // نستخدم distinct لضمان عدم عد سجلين لنفس الطالب في نفس اليوم إن وجدا خطأً
         $present_count = (clone $attendanceBaseQuery)->where('status', 'حاضر')->distinct('student_id')->count();
         $absent_count = (clone $attendanceBaseQuery)->where('status', 'غائب')->distinct('student_id')->count();
-
-        // --- 5. بيانات المخططات ---
-        // مخطط الأعمار
+        //-----المخططات------
         $ageQuery = DB::table('student')
             ->selectRaw("TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) AS age, count(*) as count")
             ->whereNull('deleted_at');

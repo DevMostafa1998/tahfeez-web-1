@@ -1,7 +1,17 @@
 @extends('layouts.app')
 
 @section('title', 'الرئيسية')
+<style>
+    .custom-card-shadow {
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+        transition: transform 0.3s ease;
+    }
 
+    .custom-card-shadow:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15) !important;
+    }
+</style>
 @section('content')
     <div class="app-content-header">
         <div class="container-fluid">
@@ -90,10 +100,10 @@
                 </div>
             </div>
             <div class="row mt-4">
-                {{-- مخطط توزيع الأعمار - يظهر للجميع --}}
-                <div class="{{ $isAdmin ? 'col-md-4' : 'col-md-6' }}">
-                    <div class="card shadow-sm">
-                        <div class="card-header border-0">
+                {{-- مخطط توزيع الأعمار --}}
+                <div class=" col-md-4 ">
+                    <div class="card border-0 custom-card-shadow" style="border-radius: 15px;">
+                        <div class="card-header border-0 bg-transparent">
                             <h3 class="card-title text-bold">توزيع الطلاب حسب الأعمار</h3>
                         </div>
                         <div class="card-body">
@@ -102,10 +112,10 @@
                     </div>
                 </div>
 
-                {{-- مخطط توزيع المجموعات - يظهر للجميع --}}
-                <div class="{{ $isAdmin ? 'col-md-4' : 'col-md-6' }}">
-                    <div class="card shadow-sm">
-                        <div class="card-header border-0">
+                {{-- مخطط توزيع المجموعات --}}
+                <div class=" col-md-4 ">
+                    <div class="card border-0 custom-card-shadow" style="border-radius: 15px;">
+                        <div class="card-header border-0 bg-transparent">
                             <h3 class="card-title text-bold">عدد الطلاب في كل مجموعة</h3>
                         </div>
                         <div class="card-body">
@@ -114,15 +124,27 @@
                     </div>
                 </div>
 
-                {{-- مخطط توزيع المحفظين - يظهر للإدمن فقط --}}
+                {{-- مخطط توزيع المحفظين --}}
                 @if ($isAdmin)
                     <div class="col-md-4">
-                        <div class="card shadow-sm border-top-success">
-                            <div class="card-header border-0">
+                        <div class="card border-0 custom-card-shadow" style="border-radius: 15px;">
+                            <div class="card-header border-0 bg-transparent">
                                 <h3 class="card-title text-bold">توزيع المحفظين حسب التصنيف</h3>
                             </div>
                             <div class="card-body">
                                 <canvas id="userCategoryChart" style="height: 300px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (!$isAdmin)
+                    <div class="col-md-4">
+                        <div class="card border-0 custom-card-shadow" style="border-radius: 15px;">
+                            <div class="card-header border-0 bg-transparent">
+                                <h3 class="card-title text-bold">مجموع طلابي ومجموعاتي</h3>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="teacherSummaryChart" style="height: 300px;"></canvas>
                             </div>
                         </div>
                     </div>
@@ -136,25 +158,21 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // --- 1. دالة توليد ألوان عشوائية احترافية للمجموعات ---
             function generateSmartColors(count) {
                 const colors = [];
                 const hueStep = 360 / count;
                 for (let i = 0; i < count; i++) {
                     const hue = i * hueStep;
-                    // استخدام HSL لضمان ألوان زاهية (Saturation 70%) ومريحة للعين (Lightness 60%)
                     colors.push(`hsl(${hue}, 70%, 60%)`);
                 }
-                return colors.sort(() => Math.random() - 0.5); // خلط الألوان
+                return colors.sort(() => Math.random() - 0.5);
             }
 
-            // --- 2. إعدادات مخطط توزيع الأعمار (تصميم عصري متدرج) ---
             const ctxAge = document.getElementById('ageDistributionChart').getContext('2d');
 
-            // إنشاء تدرج لوني (Gradient) للأعمدة
             const ageGradient = ctxAge.createLinearGradient(0, 0, 0, 400);
-            ageGradient.addColorStop(0, 'rgba(13, 110, 253, 0.85)'); // أزرق براند
-            ageGradient.addColorStop(1, 'rgba(13, 110, 253, 0.05)'); // تلاشي شفاف
+            ageGradient.addColorStop(0, 'rgba(13, 110, 253, 0.85)');
+            ageGradient.addColorStop(1, 'rgba(13, 110, 253, 0.05)');
 
             new Chart(ctxAge, {
                 type: 'bar',
@@ -166,10 +184,10 @@
                         backgroundColor: ageGradient,
                         borderColor: '#0d6efd',
                         borderWidth: 2,
-                        borderRadius: 12, // حواف مستديرة عصرية
+                        borderRadius: 12,
                         borderSkipped: false,
                         hoverBackgroundColor: '#0d6efd',
-                        barPercentage: 0.5, // أعمدة أنيقة ونحيفة
+                        barPercentage: 0.5,
                     }]
                 },
                 options: {
@@ -220,7 +238,6 @@
                 }
             });
 
-            // --- 3. إعدادات مخطط المجموعات (ألوان عشوائية فريدة) ---
             const groupLabels = {!! json_encode($group_labels) !!};
             const groupData = {!! json_encode($group_students_counts) !!};
             const ctxGroup = document.getElementById('groupDistributionChart').getContext('2d');
@@ -234,20 +251,20 @@
                         backgroundColor: generateSmartColors(groupLabels.length),
                         borderColor: '#ffffff',
                         borderWidth: 3,
-                        hoverOffset: 15 // تأثير بروز عند التمرير
+                        hoverOffset: 15
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '70%', // جعل الدائرة أنحف وأجمل
+                    cutout: '70%',
                     plugins: {
                         legend: {
                             position: 'bottom',
                             rtl: true,
                             labels: {
                                 padding: 20,
-                                usePointStyle: true, // نقاط دائرية بدل المربعات في الليبل
+                                usePointStyle: true,
                                 font: {
                                     size: 12,
                                     family: 'sans-serif'
@@ -266,13 +283,83 @@
                     }
                 }
             });
+            @if (!$isAdmin)
+                const ctxTeacherSummary = document.getElementById('teacherSummaryChart').getContext('2d');
+                const summaryGradient = ctxTeacherSummary.createLinearGradient(0, 0, 0, 400);
+                summaryGradient.addColorStop(0, 'rgba(102, 16, 242, 0.85)'); // لون بنفسجي أساسي
+                summaryGradient.addColorStop(1, 'rgba(102, 16, 242, 0.05)');
+
+                new Chart(ctxTeacherSummary, {
+                    type: 'bar',
+                    data: {
+                        labels: ['إجمالي الطلاب', 'إجمالي المجموعات'],
+                        datasets: [{
+                            label: 'العدد',
+                            data: [{{ $students_count }}, {{ $groups_count }}],
+                            backgroundColor: summaryGradient,
+                            borderColor: '#6610f2',
+                            borderWidth: 2,
+                            borderRadius: 12,
+                            borderSkipped: false,
+                            hoverBackgroundColor: '#6610f2',
+                            barPercentage: 0.5,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                rtl: true,
+                                backgroundColor: '#1e293b',
+                                padding: 12,
+                                cornerRadius: 8,
+                                titleAlign: 'right',
+                                bodyAlign: 'right'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                position: 'right',
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.03)',
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    stepSize: 1,
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            }
+                        },
+                        animation: {
+                            duration: 1500,
+                            easing: 'easeOutQuart'
+                        }
+                    }
+                });
+            @endif
         });
         const ctxUserCat = document.getElementById('userCategoryChart').getContext('2d');
 
-        // 1. إنشاء تدرج لوني أخضر عصري (Modern Green Gradient)
         const gradientBg = ctxUserCat.createLinearGradient(0, 0, 0, 350);
-        gradientBg.addColorStop(0, 'rgba(0, 210, 0, 0.8)'); // أخضر زاهي (حسب طلبك)
-        gradientBg.addColorStop(1, 'rgba(0, 210, 0, 0.05)'); // تلاشي خفيف جداً للأخضر
+        gradientBg.addColorStop(0, 'rgba(0, 210, 0, 0.8)');
+        gradientBg.addColorStop(1, 'rgba(0, 210, 0, 0.05)');
 
         new Chart(ctxUserCat, {
             type: 'bar',
@@ -282,12 +369,12 @@
                     label: 'عدد المحفظين',
                     data: {!! json_encode($user_cat_counts) !!},
                     backgroundColor: gradientBg,
-                    borderColor: '#00d200', // لون الحدود أخضر صريح
+                    borderColor: '#00d200',
                     borderWidth: 2,
-                    borderRadius: 50, // حواف دائرية بالكامل لمظهر عصري
+                    borderRadius: 50,
                     borderSkipped: false,
-                    hoverBackgroundColor: '#00ff00', // توهج عند التمرير
-                    barPercentage: 0.4, // أعمدة نحيفة وأنيقة
+                    hoverBackgroundColor: '#00ff00',
+                    barPercentage: 0.4,
                 }]
             },
             options: {
