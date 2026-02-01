@@ -97,6 +97,13 @@
                         <p>تقرير الطلاب</p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ route('reports.attendance') }}"
+                        class="nav-link {{ request()->routeIs('reports.attendance') ? 'active' : '' }}">
+                        <i class="nav-icon bi bi-calendar-check-fill"></i>
+                        <p>تقرير الحضور والغياب</p>
+                    </a>
+                </li>
                 {{-- حضور وغياب الطلاب - تظهر للجميع --}}
                 <li class="nav-item">
                     <a href="{{ route('attendance.index') }}"

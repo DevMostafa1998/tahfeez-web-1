@@ -79,7 +79,6 @@
             <div id="excel_button_container"></div>
         </div>
 
-        {{-- بطاقة الفلاتر بنفس تصميم صفحة التسميع --}}
         <div class="card shadow-sm border-0 mb-3 no-print" style="border-radius: 10px;">
             <div class="card-body p-3">
                 <form id="filterForm">
@@ -206,9 +205,11 @@
                             $('#tableBody').html(html);
 
                             let table = $('#reportTable').DataTable({
-                                // 'i' للمعلومات، 'p' للتنقل. وضعناهما في حاوية واحدة للتحكم بهما
-                                "dom": 'rt<"d-flex justify-content-between align-items-center p-2"ip>',
+                                "dom": "<'row mb-3'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6 text-end'B>>" +
+                                    "<'row'<'col-sm-12'tr>>" +
+                                    "<'row mt-3'<'col-sm-12 d-flex justify-content-between align-items-center'ip>>",
                                 "language": {
+                                    "sSearch": "بحث سريع:",
                                     "emptyTable": "لا توجد سجلات",
                                     "info": "عرض _START_ إلى _END_ من أصل _TOTAL_ مدخل",
                                     "infoEmpty": "عرض 0 إلى 0 من أصل 0 مدخل",

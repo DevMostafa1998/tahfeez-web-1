@@ -21,7 +21,7 @@ class UserController extends Controller
     {
         $users = User::with('courses')->paginate(5);
         $categories = DB::table('categorie')->get();
-        $all_courses = Course::where(function($query) {
+        $all_courses = Course::where(function ($query) {
             $query->where('type', 'teachers')->orWhereNull('type');
         })->get();
 
@@ -75,7 +75,7 @@ class UserController extends Controller
         // التحقق  لباقي العمليات
         $request->validate([
             'full_name'    => 'required|string|max:255',
-            'id_number'    => 'required|unique:user,id_number,'.$id,
+            'id_number'    => 'required|unique:user,id_number,' . $id,
             'phone_number' => 'required',
             'address'      => 'required',
             'category_id'  => 'required',
@@ -88,17 +88,17 @@ class UserController extends Controller
         return redirect()->route('user')->with('success', 'تم تحديث البيانات بنجاح');
     }
 
-public function destroy($id)
-{
-    $user = User::findOrFail($id);
-    $this->userLogic->deleteUser($user);
-    return redirect()->route('user')->with('success', 'تم حذف المستخدم بنجاح');
-}
+    public function destroy($id)
+    {
+        $user = User::findOrFail($id);
+        $this->userLogic->deleteUser($user);
+        return redirect()->route('user')->with('success', 'تم حذف المستخدم بنجاح');
+    }
 
     public function create()
     {
         $categories = DB::table('categorie')->get();
-        $all_courses = Course::where(function($query) {
+        $all_courses = Course::where(function ($query) {
             $query->where('type', 'teachers')->orWhereNull('type');
         })->get();
         return view('users.create', compact('categories', 'all_courses'));

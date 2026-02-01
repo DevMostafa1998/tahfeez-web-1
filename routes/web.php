@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AttendanceReportController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GroupController;
@@ -65,6 +66,12 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/reports/recitation', [ReportController::class, 'index'])->name('reports.memorization')->middleware('auth');
     Route::get('/reports/get-filters-data', [ReportController::class, 'getFiltersData'])->name('reports.filters.data');
+
+    Route::get('/reports/attendance', [AttendanceReportController::class, 'index'])->name('reports.attendance');
+    Route::get('/reports/attendance-data', [AttendanceReportController::class, 'getAttendanceData'])->name('reports.attendance.data');
+    Route::get('/reports/attendance-filters', [AttendanceReportController::class, 'getFiltersData'])->name('reports.attendance.filters');
+    Route::get('/reports/filters-data', [AttendanceReportController::class, 'getFiltersData'])->name('reports.filters.data');
+    Route::resource('courses', CourseController::class);
     Route::get('reports/teachers-courses', [TeacherReportController::class, 'index'])->name('reports.teachers_courses');
 
     Route::get('/reports/students', [StudentReportController::class, 'index'])->name('reports.students')->middleware('auth');
