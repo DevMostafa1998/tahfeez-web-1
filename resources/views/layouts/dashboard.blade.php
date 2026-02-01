@@ -1,28 +1,26 @@
 @extends('layouts.app')
 
 @section('title', 'الرئيسية')
-<style>
-    .custom-card-shadow {
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
-        transition: transform 0.3s ease;
-    }
+<link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}">
 
-    .custom-card-shadow:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15) !important;
-    }
-</style>
 @section('content')
     <div class="app-content-header">
         <div class="container-fluid">
-            <div class="row">
+            <div class="row align-items-center">
                 <div class="col-sm-6">
-                    <h3 class="mb-0">لوحة التحكم</h3>
+                    <div class="d-flex align-items-center">
+                        <div class="title-icon-box me-3 shadow-sm"
+                            style="background: #fff; padding: 10px; border-radius: 12px;">
+                            <i class="bi bi-grid-1x2-fill text-primary fs-4"></i>
+                        </div>
+                        <h3 class="dashboard-title mb-0">لوحة التحكم</h3>
+                    </div>
                 </div>
                 <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-end">
-                        <li class="breadcrumb-item"><a href="#">الرئيسية</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">لوحة التحكم</li>
+                    <ol class="breadcrumb float-sm-end bg-white shadow-sm px-3 py-2" style="border-radius: 50px;">
+                        <li class="breadcrumb-item"><a href="#"><i class="bi bi-house-door-fill"></i> الرئيسية</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">الإحصائيات الحالية</li>
                     </ol>
                 </div>
             </div>
@@ -157,6 +155,27 @@
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // إضافة تأثير الإمالة الديناميكي
+        document.querySelectorAll('.small-box').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                let rect = card.getBoundingClientRect();
+                let x = e.clientX - rect.left;
+                let y = e.clientY - rect.top;
+
+                let centerX = rect.width / 2;
+                let centerY = rect.height / 2;
+
+                let rotateX = (centerY - y) / 10;
+                let rotateY = (x - centerX) / 10;
+
+                card.style.transform =
+                    `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)`;
+            });
+        });
         document.addEventListener('DOMContentLoaded', function() {
             function generateSmartColors(count) {
                 const colors = [];
