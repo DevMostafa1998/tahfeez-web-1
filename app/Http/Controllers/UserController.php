@@ -27,7 +27,14 @@ class UserController extends Controller
 
         return view('users.index', compact('users', 'categories', 'all_courses'));
     }
+    public function show($id)
+    {
+        $teacher = User::with(['courses', 'groups' => function($query) {
+            $query->withCount('students');
+        }])->findOrFail($id);
 
+        return view('profile.index', compact('teacher'));
+    }
     public function store(Request $request)
     {
         $request->validate([
@@ -45,6 +52,16 @@ class UserController extends Controller
         $this->userLogic->storeUser($request->all());
         return redirect()->route('user')->with('success', 'تم إضافة المستخدم والدورات بنجاح!');
     }
+        public function edit($id)
+        {
+            $user = User::findOrFail($id);
+            $categories = DB::table('categorie')->get();
+            $all_courses = Course::where(function($query) {
+                $query->where('type', 'teachers')->orWhereNull('type');
+            })->get();
+
+            return view('profile.edit', compact('user', 'categories', 'all_courses'));
+        }
 
     public function update(Request $request, $id)
     {

@@ -80,48 +80,59 @@
                                 </td>
 
                                 <td style="width: 150px;">
-                                    <div
-                                        style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; justify-items: center; align-items: center;">
+                                     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; justify-items: center; align-items: center;">
 
-                                        <div>
-                                            @if (!$user->is_admin)
-                                                <button
-                                                    class="btn btn-sm btn-outline-info rounded-circle action-btn course-btn"
-                                                    data-bs-toggle="modal" data-bs-target="#courseUserModal"
-                                                    data-user-id="{{ $user->id }}"
-                                                    data-user-name="{{ $user->full_name }}"
-                                                    data-user-courses="{{ json_encode($user->courses->pluck('id')) }}"
-                                                    title="إدارة الدورات">
-                                                    <i class="bi bi-journal-plus"></i>
-                                                </button>
-                                            @else
-                                                <div style="width: 35px;"></div>
-                                            @endif
-                                        </div>
 
-                                        <div>
-                                            <button class="btn btn-sm btn-outline-warning rounded-circle action-btn"
-                                                data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->id }}"
-                                                title="تعديل البيانات">
-                                                <i class="bi bi-pencil-square"></i>
+                                   {{-- زر إدارة الدورات --}}
+                                    <div>
+                                        @if (!$user->is_admin)
+                                            <button
+                                                class="btn btn-sm btn-outline-info rounded-circle action-btn course-btn"
+                                                data-bs-toggle="modal" data-bs-target="#courseUserModal"
+                                                data-user-id="{{ $user->id }}"
+                                                data-user-name="{{ $user->full_name }}"
+                                                data-user-courses="{{ json_encode($user->courses->pluck('id')) }}"
+                                                title="إدارة الدورات">
+                                                <i class="bi bi-journal-plus"></i>
                                             </button>
-                                        </div>
-
-                                        <div>
-                                            <form action="{{ route('user.destroy', $user->id) }}" method="POST"
-                                                class="delete-form">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="button"
-                                                    class="btn btn-sm btn-outline-danger rounded-circle action-btn delete-btn"
-                                                    style="width: 32px; height: 32px; padding: 0;">
-                                                    <i class="bi bi-trash3"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-
+                                        @else
+                                            <div style="width: 35px;"></div>
+                                        @endif
                                     </div>
-                                </td>
+
+                                        {{-- زر عرض الملف الشخصي ) --}}
+                                    <div>
+                                    <a href="{{ route('teachers.show', $user->id) }}"
+                                    class="btn btn-sm btn-outline-primary rounded-circle action-btn"
+                                    title="عرض الملف الشخصي">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </div>
+                                {{-- زر التعديل --}}
+                                <div>
+                                    <button class="btn btn-sm btn-outline-warning rounded-circle action-btn"
+                                        data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->id }}"
+                                        title="تعديل البيانات">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                </div>
+
+                                {{-- زر الحذف --}}
+                                <div>
+                                    <form action="{{ route('user.destroy', $user->id) }}" method="POST"
+                                        class="delete-form">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button"
+                                            class="btn btn-sm btn-outline-danger rounded-circle action-btn delete-btn"
+                                            style="width: 32px; height: 32px; padding: 0;">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </form>
+                                </div>
+
+                            </div>
+                        </td>
                             </tr>
                             @include('users.edit_modal', ['user' => $user])
                         @empty

@@ -46,161 +46,13 @@
                                     </div>
                                 @endif
 
-                                {{-- القسم الأول: المعلومات الشخصية --}}
-                                <div class="mb-5">
-                                    <div class="d-flex align-items-center mb-3 text-primary">
-                                        <span
-                                            class="badge rounded-pill bg-primary bg-opacity-10 text-primary px-3 py-2 fw-bold">
-                                            <i class="bi bi-info-circle-fill me-1"></i> 1. المعلومات الشخصية
-                                        </span>
-                                        <hr class="flex-grow-1 ms-3 my-0 opacity-10">
-                                    </div>
-                                    <div class="row g-3 text-start">
-                                        <div class="col-md-4">
-                                            <label class="form-label small fw-bold text-secondary mb-1">
-                                                <i class="bi bi-person text-primary me-1"></i>الاسم رباعي
-                                            </label>
-                                            <input type="text" name="full_name"
-                                                class="form-control form-control-sm border-0 bg-light px-3 py-2 only-text"
-                                                placeholder="أدخل الاسم رباعي" value="{{ old('full_name') }}" required>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-bold text-secondary mb-1">
-                                                <i class="bi bi-card-heading text-primary me-1"></i>رقم الهوية
-                                            </label>
-                                            <input type="text" name="id_number"
-                                                class="form-control form-control-sm border-0 bg-light px-3 py-2 only-numbers"
-                                                placeholder="رقم الهوية" value="{{ old('id_number') }}" required>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label class="form-label small fw-bold text-secondary mb-1">
-                                                <i class="bi bi-calendar3 text-primary me-1"></i>تاريخ الميلاد
-                                            </label>
-                                            <input type="date" name="date_of_birth"
-                                                class="form-control form-control-sm border-0 bg-light px-3 py-2"
-                                                value="{{ old('date_of_birth') }}" required>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-bold text-secondary mb-1">
-                                                <i class="bi bi-geo text-primary me-1"></i>مكان الميلاد
-                                            </label>
-                                            <input type="text" name="birth_place"
-                                                class="form-control form-control-sm border-0 bg-light px-3 py-2"
-                                                placeholder="مدينة الميلاد" value="{{ old('birth_place') }}">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- القسم الثاني: التواصل والعنوان --}}
-                                <div class="mb-5">
-                                    <div class="d-flex align-items-center mb-3 text-success">
-                                        <span
-                                            class="badge rounded-pill bg-success bg-opacity-10 text-success px-3 py-2 fw-bold">
-                                            <i class="bi bi-telephone-fill me-1"></i> 2. بيانات التواصل والعنوان
-                                        </span>
-                                        <hr class="flex-grow-1 ms-3 my-0 opacity-10">
-                                    </div>
-                                    <div class="row g-3 text-start">
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-bold text-secondary mb-1">
-                                                <i class="bi bi-telephone text-success me-1"></i>رقم الهاتف
-                                            </label>
-                                            <input type="tel" name="phone_number"
-                                                class="form-control form-control-sm border-0 bg-light px-3 py-2 only-numbers"
-                                                placeholder="05XXXXXXXX" value="{{ old('phone_number') }}" required>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-bold text-secondary mb-1">
-                                                <i class="bi bi-whatsapp text-success me-1 "></i>رقم الواتساب
-                                            </label>
-                                            <input type="tel" name="whatsapp_number"
-                                                class="form-control form-control-sm border-0 bg-light px-3 py-2 only-numbers"
-                                                placeholder="05XXXXXXXX" value="{{ old('whatsapp_number') }}">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-bold text-secondary mb-1">
-                                                <i class="bi bi-wallet2 text-success me-1"></i>رقم المحفظة
-                                            </label>
-                                            <input type="text" name="wallet_number"
-                                                class="form-control form-control-sm border-0 bg-light px-3 py-2 only-numbers"
-                                                placeholder="رقم المحفظة الإلكترونية" value="{{ old('wallet_number') }}">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-bold text-secondary mb-1">
-                                                <i class="bi bi-house-door-fill text-success me-1"></i>حالة السكن
-                                            </label>
-                                            <select name="is_displaced"
-                                                class="form-select form-select-sm border-0 bg-light px-3 py-2 fw-bold"
-                                                required>
-                                                <option value="0" {{ old('is_displaced') == '0' ? 'selected' : '' }}>
-                                                    مقيم</option>
-                                                <option value="1" {{ old('is_displaced') == '1' ? 'selected' : '' }}>
-                                                    نازح</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label small fw-bold text-secondary mb-1">
-                                                <i class="bi bi-geo-alt text-success me-1"></i>العنوان الحالي
-                                            </label>
-                                            <input type="text" name="address"
-                                                class="form-control form-control-sm border-0 bg-light px-3 py-2"
-                                                placeholder="المدينة، الحي" value="{{ old('address') }}" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label small fw-bold text-secondary mb-1">
-                                                <i class="bi bi-mosque text-success me-1"></i>اسم المسجد
-                                            </label>
-                                            <input type="text" name="mosque_name"
-                                                class="form-control form-control-sm border-0 bg-light px-3 py-2 only-text"
-                                                placeholder="اسم المسجد" value="{{ old('mosque_name') }}">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- القسم الثالث: البيانات العلمية --}}
-                                <div class="mb-5">
-                                    <div class="d-flex align-items-center mb-3 text-dark">
-                                        <span class="badge rounded-pill bg-dark bg-opacity-10 text-dark px-3 py-2 fw-bold">
-                                            <i class="bi bi-mortarboard-fill me-1"></i> 3. البيانات العلمية والقرآنية
-                                        </span>
-                                        <hr class="flex-grow-1 ms-3 my-0 opacity-10">
-                                    </div>
-                                    <div class="row g-3 text-start">
-                                        <div class="col-md-4">
-                                            <label class="form-label small fw-bold text-secondary mb-1">
-                                                <i class="bi bi-award text-dark me-1"></i>المؤهل العلمي
-                                            </label>
-                                            <input type="text" name="qualification"
-                                                class="form-control form-control-sm border-0 bg-light px-3 py-2 only-text"
-                                                placeholder="مثلاً: بكالوريوس" value="{{ old('qualification') }}">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label small fw-bold text-secondary mb-1">
-                                                <i class="bi bi-book text-dark me-1"></i>التخصص
-                                            </label>
-                                            <input type="text" name="specialization"
-                                                class="form-control form-control-sm border-0 bg-light px-3 py-2 only-text"
-                                                placeholder="التخصص الجامعي" value="{{ old('specialization') }}">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label small fw-bold text-secondary mb-1">
-                                                <i class="bi bi-journal-check text-dark me-1"></i>عدد الأجزاء المحفوظة
-                                            </label>
-                                            <input type="number" name="parts_memorized"
-                                                class="form-control form-control-sm border-0 bg-light px-3 py-2"
-                                                placeholder="0" min="0" max="30"
-                                                value="{{ old('parts_memorized', 0) }}">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- القسم الرابع: إعدادات الحساب --}}
-                                <div class="mb-2 p-3 rounded-4"
+                                {{-- القسم الأول: إعدادات الحساب والصلاحيات (تم نقله للأعلى) --}}
+                                <div class="mb-5 p-3 rounded-4"
                                     style="background-color: #f8f9fa; border: 1px dashed #dee2e6;">
                                     <div class="d-flex align-items-center mb-3 text-danger">
                                         <span
                                             class="badge rounded-pill bg-danger bg-opacity-10 text-danger px-3 py-2 fw-bold">
-                                            <i class="bi bi-shield-lock-fill me-1"></i> 4. إعدادات الحساب والصلاحيات
+                                            <i class="bi bi-shield-lock-fill me-1"></i> 1. إعدادات الحساب والصلاحيات
                                         </span>
                                         <hr class="flex-grow-1 ms-3 my-0 opacity-10">
                                     </div>
@@ -209,11 +61,11 @@
                                             <label class="form-label small fw-bold text-secondary mb-1">
                                                 <i class="bi bi-tags text-danger me-1"></i>تصنيف المستخدم
                                             </label>
-                                            <select name="is_admin"
+                                            <select name="is_admin" id="userRoleSelect"
                                                 class="form-select form-select-sm border-0 bg-white px-3 py-2 fw-bold shadow-sm"
                                                 required>
-                                                <option value="" selected disabled>اختر التصنيف...</option>
-                                                <option value="محفظ" {{ old('is_admin') == 'محفظ' ? 'selected' : '' }}>
+                                                {{-- تم جعل "محفظ" هو الخيار الافتراضي --}}
+                                                <option value="محفظ" {{ old('is_admin') == 'محفظ' || !old('is_admin') ? 'selected' : '' }}>
                                                     محفظ</option>
                                                 <option value="مسؤول" {{ old('is_admin') == 'مسؤول' ? 'selected' : '' }}>
                                                     مسؤول</option>
@@ -255,8 +107,158 @@
                                                 <input type="password" id="password_confirmation"
                                                     name="password_confirmation"
                                                     class="form-control border-0 bg-white px-3 py-2" required>
-
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- القسم الثاني: المعلومات الشخصية --}}
+                                <div class="mb-5">
+                                    <div class="d-flex align-items-center mb-3 text-primary">
+                                        <span
+                                            class="badge rounded-pill bg-primary bg-opacity-10 text-primary px-3 py-2 fw-bold">
+                                            <i class="bi bi-info-circle-fill me-1"></i> 2. المعلومات الشخصية
+                                        </span>
+                                        <hr class="flex-grow-1 ms-3 my-0 opacity-10">
+                                    </div>
+                                    <div class="row g-3 text-start">
+                                        <div class="col-md-4">
+                                            <label class="form-label small fw-bold text-secondary mb-1">
+                                                <i class="bi bi-person text-primary me-1"></i>الاسم رباعي
+                                            </label>
+                                            <input type="text" name="full_name"
+                                                class="form-control form-control-sm border-0 bg-light px-3 py-2 only-text"
+                                                placeholder="أدخل الاسم رباعي" value="{{ old('full_name') }}" required>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label small fw-bold text-secondary mb-1">
+                                                <i class="bi bi-card-heading text-primary me-1"></i>رقم الهوية
+                                            </label>
+                                            <input type="text" name="id_number"
+                                                class="form-control form-control-sm border-0 bg-light px-3 py-2 only-numbers"
+                                                placeholder="رقم الهوية" value="{{ old('id_number') }}" required>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label small fw-bold text-secondary mb-1">
+                                                <i class="bi bi-calendar3 text-primary me-1"></i>تاريخ الميلاد
+                                            </label>
+                                            <input type="date" name="date_of_birth"
+                                                class="form-control form-control-sm border-0 bg-light px-3 py-2"
+                                                value="{{ old('date_of_birth') }}" required>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label small fw-bold text-secondary mb-1">
+                                                <i class="bi bi-geo text-primary me-1"></i>مكان الميلاد
+                                            </label>
+                                            <input type="text" name="birth_place"
+                                                class="form-control form-control-sm border-0 bg-light px-3 py-2"
+                                                placeholder="مدينة الميلاد" value="{{ old('birth_place') }}">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- القسم الثالث: التواصل والعنوان --}}
+                                <div class="mb-5">
+                                    <div class="d-flex align-items-center mb-3 text-success">
+                                        <span
+                                            class="badge rounded-pill bg-success bg-opacity-10 text-success px-3 py-2 fw-bold">
+                                            <i class="bi bi-telephone-fill me-1"></i> 3. بيانات التواصل والعنوان
+                                        </span>
+                                        <hr class="flex-grow-1 ms-3 my-0 opacity-10">
+                                    </div>
+                                    <div class="row g-3 text-start">
+                                        <div class="col-md-3">
+                                            <label class="form-label small fw-bold text-secondary mb-1">
+                                                <i class="bi bi-telephone text-success me-1"></i>رقم الهاتف
+                                            </label>
+                                            <input type="tel" name="phone_number"
+                                                class="form-control form-control-sm border-0 bg-light px-3 py-2 only-numbers"
+                                                placeholder="05XXXXXXXX" value="{{ old('phone_number') }}" required>
+                                        </div>
+
+                                        {{-- حقول سيتم إخفاؤها للمسؤول --}}
+                                        <div class="col-md-3 toggle-for-admin">
+                                            <label class="form-label small fw-bold text-secondary mb-1">
+                                                <i class="bi bi-whatsapp text-success me-1 "></i>رقم الواتساب
+                                            </label>
+                                            <input type="tel" name="whatsapp_number"
+                                                class="form-control form-control-sm border-0 bg-light px-3 py-2 only-numbers"
+                                                placeholder="05XXXXXXXX" value="{{ old('whatsapp_number') }}">
+                                        </div>
+                                        <div class="col-md-3 toggle-for-admin">
+                                            <label class="form-label small fw-bold text-secondary mb-1">
+                                                <i class="bi bi-wallet2 text-success me-1"></i>رقم المحفظة
+                                            </label>
+                                            <input type="text" name="wallet_number"
+                                                class="form-control form-control-sm border-0 bg-light px-3 py-2 only-numbers"
+                                                placeholder="رقم المحفظة الإلكترونية" value="{{ old('wallet_number') }}">
+                                        </div>
+                                        <div class="col-md-3 toggle-for-admin">
+                                            <label class="form-label small fw-bold text-secondary mb-1">
+                                                <i class="bi bi-mosque text-success me-1"></i>اسم المسجد
+                                            </label>
+                                            <input type="text" name="mosque_name"
+                                                class="form-control form-control-sm border-0 bg-light px-3 py-2 only-text"
+                                                placeholder="اسم المسجد" value="{{ old('mosque_name') }}">
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="form-label small fw-bold text-secondary mb-1">
+                                                <i class="bi bi-house-door-fill text-success me-1"></i>حالة السكن
+                                            </label>
+                                            <select name="is_displaced"
+                                                class="form-select form-select-sm border-0 bg-light px-3 py-2 fw-bold"
+                                                required>
+                                                <option value="0" {{ old('is_displaced') == '0' ? 'selected' : '' }}>
+                                                    مقيم</option>
+                                                <option value="1" {{ old('is_displaced') == '1' ? 'selected' : '' }}>
+                                                    نازح</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold text-secondary mb-1">
+                                                <i class="bi bi-geo-alt text-success me-1"></i>العنوان الحالي
+                                            </label>
+                                            <input type="text" name="address"
+                                                class="form-control form-control-sm border-0 bg-light px-3 py-2"
+                                                placeholder="المدينة، الحي" value="{{ old('address') }}" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- القسم الرابع: البيانات العلمية (يختفي بالكامل عند اختيار مسؤول) --}}
+                                <div class="mb-5" id="scientificSection">
+                                    <div class="d-flex align-items-center mb-3 text-dark">
+                                        <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold shadow-sm">
+                                            <i class="bi bi-mortarboard-fill me-1"></i> 4. البيانات العلمية والقرآنية
+                                        </span>
+                                        <hr class="flex-grow-1 ms-3 my-0 opacity-25" style="border-top: 2px solid #ffc107;">
+                                    </div>
+                                    <div class="row g-3 text-start">
+                                        <div class="col-md-4">
+                                            <label class="form-label small fw-bold text-secondary mb-1">
+                                                <i class="bi bi-award text-dark me-1"></i>المؤهل العلمي
+                                            </label>
+                                            <input type="text" name="qualification"
+                                                class="form-control form-control-sm border-0 bg-light px-3 py-2 only-text"
+                                                placeholder="مثلاً: بكالوريوس" value="{{ old('qualification') }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label small fw-bold text-secondary mb-1">
+                                                <i class="bi bi-book text-dark me-1"></i>التخصص
+                                            </label>
+                                            <input type="text" name="specialization"
+                                                class="form-control form-control-sm border-0 bg-light px-3 py-2 only-text"
+                                                placeholder="التخصص الجامعي" value="{{ old('specialization') }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label small fw-bold text-secondary mb-1">
+                                                <i class="bi bi-journal-check text-dark me-1"></i>عدد الأجزاء المحفوظة
+                                            </label>
+                                            <input type="number" name="parts_memorized"
+                                                class="form-control form-control-sm border-0 bg-light px-3 py-2"
+                                                placeholder="0" min="0" max="30"
+                                                value="{{ old('parts_memorized', 0) }}">
                                         </div>
                                     </div>
                                 </div>
@@ -280,8 +282,33 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('createUserForm');
 
+            // 1. التحكم في إخفاء الحقول بناءً على الصلاحية
+            const roleSelect = document.getElementById('userRoleSelect');
+            const scientificSection = document.getElementById('scientificSection');
+            const fieldsToToggle = document.querySelectorAll('.toggle-for-admin');
+
+            function toggleFields() {
+                if (roleSelect.value === 'مسؤول') {
+                    scientificSection.style.display = 'none';
+
+                    fieldsToToggle.forEach(el => el.style.display = 'none');
+                } else {
+                    // إظهار القسم العلمي
+                    scientificSection.style.display = 'block';
+                    // إظهار الحقول المخفية
+                    fieldsToToggle.forEach(el => el.style.display = 'block');
+                }
+            }
+
+
+            if (roleSelect) {
+                toggleFields();
+                roleSelect.addEventListener('change', toggleFields);
+            }
+
+     
+            const form = document.getElementById('createUserForm');
             const requiredInputs = document.querySelectorAll('[required]');
             requiredInputs.forEach(input => {
                 input.addEventListener('invalid', function() {
@@ -293,30 +320,22 @@
                         this.setCustomValidity('يرجى التحقق من القيمة المدخلة');
                     }
                 });
-
-
             });
 
-            // 2. منع الأرقام والرموز في حقول "النصوص فقط
             document.querySelectorAll('.only-text').forEach(input => {
                 input.addEventListener('input', function() {
-                    // يسمح فقط بالحروف العربية والإنجليزية والمسافات
                     this.value = this.value.replace(/[^a-zA-Z\u0600-\u06FF\s]/g, '');
                 });
             });
 
-            // 3. منع الحروف والرموز في حقول "الأرقام فقط
             document.querySelectorAll('.only-numbers').forEach(input => {
                 input.addEventListener('input', function() {
-                    // يسمح فقط بالأرقام
                     this.value = this.value.replace(/[^0-9]/g, '');
                 });
             });
 
-            // 4. التحقق من تطابق كلمة المرور (إضافي لضمان الأمان)
             const password = document.getElementById('password');
             const confirmPassword = document.getElementById('password_confirmation');
-
             if (password && confirmPassword) {
                 confirmPassword.addEventListener('input', function() {
                     if (this.value !== password.value) {
@@ -327,7 +346,6 @@
                 });
             }
 
-            // 5. منع التركيز التلقائي عند تحميل الصفحة (إزالة التحديد الأزرق)
             if (document.activeElement) {
                 document.activeElement.blur();
             }

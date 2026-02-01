@@ -42,6 +42,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/user/store', [UserController::class, 'store'])->name('user.store');
     Route::put('/user/{id}', [UserController::class, 'update'])->name('user.update');
     Route::delete('/user/{id}', [UserController::class, 'destroy'])->name('user.destroy');
+    Route::get('/users/{id}/edit', [App\Http\Controllers\UserController::class, 'edit'])->name('teachers.edit');
 
     Route::get('/teachers-attendance', [AttendanceController::class, 'teachersAttendance'])->name('teachers.attendance');
     Route::post('/teachers-attendance', [AttendanceController::class, 'storeTeachersAttendance'])->name('teachers.attendance.store');
@@ -60,7 +61,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('memorization', MemorizationController::class);
     Route::resource('profile', ProfileController::class);
     Route::resource('quran_tests', QuranMemTestController::class);
-     Route::resource('courses', CourseController::class);
+    Route::resource('courses', CourseController::class);
 
     Route::get('/reports/recitation', [ReportController::class, 'index'])->name('reports.memorization')->middleware('auth');
     Route::get('/reports/get-filters-data', [ReportController::class, 'getFiltersData'])->name('reports.filters.data');
@@ -70,6 +71,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/get-groups-by-teacher/{teacherId}', [StudentReportController::class, 'getGroupsByTeacher'])->name('get.groups.by.teacher');
     Route::get('/get-group-teacher/{groupId}', [StudentReportController::class, 'getGroupTeacher'])->name('get.group.teacher');
 
+    Route::get('/teachers/{id}/profile', [App\Http\Controllers\UserController::class, 'show'])->name('teachers.show');
+    Route::get('/teachers/{id}/edit', [App\Http\Controllers\UserController::class, 'edit'])->name('teachers.edit');
 
     Route::get('/logout', function (Request $request) {
         Auth::logout();

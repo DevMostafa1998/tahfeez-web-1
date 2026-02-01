@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 // use Illuminate\Container\Attributes\DB;
@@ -15,12 +16,18 @@ class ProfileController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        //
-    }
+public function index()
+{
+    $userId = Auth::id();
 
+    $teacher = User::with(['courses', 'groups' => function($query) {
+        $query->withCount('students');
+    }])->findOrFail($userId);
 
+    return view('profile.index', [
+        'teacher' => $teacher
+    ]);
+}
     /**
      * Show the form for editing the specified resource.
      */

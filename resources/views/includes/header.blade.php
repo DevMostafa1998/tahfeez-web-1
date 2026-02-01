@@ -44,10 +44,11 @@
                     </li>
 
                     <li class="user-footer">
-                        <a href="{{ route('profile.edit', auth()->user()->id) }}"
-                            class="btn btn-default btn-flat border">
+                        <a href="{{ route('profile.index') }}" class="btn btn-default btn-flat border">
                             الملف الشخصي
-                        </a> <a href="{{ route('logout') }}" class="btn btn-default btn-flat float-end border">
+                        </a>
+
+                        <a href="{{ route('logout') }}" class="btn btn-default btn-flat float-end border">
                             تسجيل الخروج
                         </a>
                     </li>
