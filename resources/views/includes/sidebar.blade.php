@@ -20,7 +20,7 @@
                 @if (auth()->user()->is_admin)
                     {{-- المستخدمين --}}
                     <li class="nav-item">
-                        <a href="{{ route('user') }}" class="nav-link {{ request()->routeIs('user') ? 'active' : '' }}">
+                        <a href="{{ route('user.index') }}" class="nav-link {{ request()->routeIs('user') ? 'active' : '' }}">
                             <i class="nav-icon bi bi-palette"></i>
                             <p>المستخدمين</p>
                         </a>

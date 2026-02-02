@@ -1,85 +1,77 @@
 <?php
-
-use App\Http\Controllers\AttendanceController;
-use App\Http\Controllers\AttendanceReportController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\GroupController;
-use App\Http\Controllers\MemorizationController;
-use App\Http\Controllers\StudentController;
-use App\Http\Controllers\CourseController;
-use App\Http\Controllers\StudentgroupController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\TeacherReportController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\QuranMemTestController;
-use App\Http\Controllers\ReportController;
-use App\Http\Controllers\StudentReportController;
-use App\Models\Student;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\{
+    AttendanceController, AttendanceReportController, AuthController,
+    DashboardController, GroupController, MemorizationController,
+    StudentController, CourseController, StudentgroupController,
+    UserController, TeacherReportController, CategoryController,
+    ProfileController, QuranMemTestController, ReportController,
+    StudentReportController
+};
 
-Route::get('/', function (Request $request) {
-    if (Auth::check()) {
-        return redirect()->route('dashboard');
-    }
-    return redirect()->route('login');
-});
+// --- الراوتات العامة ---
+Route::get('/', fn() => Auth::check() ? redirect()->route('dashboard') : redirect()->route('login'));
 
-Route::middleware(['guest'])->group(function () {
+Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 });
 
-Route::middleware(['auth'])->group(function () {
+// --- راوتات المسجلين دخول (أدمن ومحفظ) ---
+Route::middleware('auth')->group(function () {
 
-    //Route::get('/dashboard', function () {return view('layouts.dashboard');})->name('dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/user', [UserController::class, 'index'])->name('user');
-    Route::get('/user/create', [UserController::class, 'create'])->name('user.create');
-    Route::post('/user/store', [UserController::class, 'store'])->name('user.store');
-    Route::put('/user/{id}', [UserController::class, 'update'])->name('user.update');
-    Route::delete('/user/{id}', [UserController::class, 'destroy'])->name('user.destroy');
-    Route::get('/users/{id}/edit', [App\Http\Controllers\UserController::class, 'edit'])->name('teachers.edit');
+    Route::resources([
+        'profile'      => ProfileController::class,
+        'group'        => GroupController::class,
+        'memorization' => MemorizationController::class,
+    ]);
 
-    Route::get('/teachers-attendance', [AttendanceController::class, 'teachersAttendance'])->name('teachers.attendance');
-    Route::post('/teachers-attendance', [AttendanceController::class, 'storeTeachersAttendance'])->name('teachers.attendance.store');
+    Route::controller(AttendanceController::class)->group(function () {
+        Route::get('/attendance', 'index')->name('attendance.index');
+        Route::post('/attendance', 'store')->name('attendance.store');
+    });
 
-    Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
-    Route::post('/attendance', [AttendanceController::class, 'store'])->name('attendance.store');
+    // التقارير والـ AJAX والملفات الشخصية
+    Route::controller(UserController::class)->group(function () {
+        Route::get('/teachers/{id}/profile', 'show')->name('teachers.show');
+        Route::get('/teachers/{id}/edit', 'edit')->name('teachers.edit');
+    });
 
-    Route::get('/category', [CategoryController::class, 'index'])->name('category.index');
-    Route::post('/category/store', [CategoryController::class, 'store'])->name('category.store');
-    Route::put('/category/{id}', [CategoryController::class, 'update'])->name('category.update');
-    Route::delete('/category/{id}', [CategoryController::class, 'destroy'])->name('category.destroy');
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/recitation', [ReportController::class, 'index'])->name('memorization');
+        Route::get('/attendance', [AttendanceReportController::class, 'index'])->name('attendance');
+        Route::get('/students', [StudentReportController::class, 'index'])->name('students');
+        Route::get('/teachers-courses', [TeacherReportController::class, 'index'])->name('teachers_courses');
+        Route::get('/get-filters-data', [ReportController::class, 'getFiltersData'])->name('filters.data');
+        Route::get('/attendance-data', [AttendanceReportController::class, 'getAttendanceData'])->name('attendance.data');
+    });
 
-    Route::resource('student', StudentController::class);
-    Route::resource('group', GroupController::class);
-    Route::resource('studentgroup', StudentgroupController::class);
-    Route::resource('memorization', MemorizationController::class);
-    Route::resource('profile', ProfileController::class);
-    Route::resource('quran_tests', QuranMemTestController::class);
-    Route::resource('courses', CourseController::class);
+    // روابط AJAX المختصرة
+    Route::controller(StudentReportController::class)->group(function () {
+        Route::get('/get-groups-by-teacher/{teacherId}', 'getGroupsByTeacher')->name('get.groups.by.teacher');
+        Route::get('/get-group-teacher/{groupId}', 'getGroupTeacher')->name('get.group.teacher');
+    });
 
-    Route::get('/reports/recitation', [ReportController::class, 'index'])->name('reports.memorization')->middleware('auth');
-    Route::get('/reports/get-filters-data', [ReportController::class, 'getFiltersData'])->name('reports.filters.data');
+    // --- منطقة حماية المسؤول فقط ---
+    Route::middleware('admin')->group(function () {
+        Route::resources([
+            'user'         => UserController::class,
+            'category'     => CategoryController::class,
+            'student'      => StudentController::class,
+            'studentgroup' => StudentgroupController::class,
+            'courses'      => CourseController::class,
+            'quran_tests'  => QuranMemTestController::class,
+        ]);
 
-    Route::get('/reports/attendance', [AttendanceReportController::class, 'index'])->name('reports.attendance');
-    Route::get('/reports/attendance-data', [AttendanceReportController::class, 'getAttendanceData'])->name('reports.attendance.data');
-    Route::get('/reports/attendance-filters', [AttendanceReportController::class, 'getFiltersData'])->name('reports.attendance.filters');
-    Route::get('/reports/filters-data', [AttendanceReportController::class, 'getFiltersData'])->name('reports.filters.data');
-    Route::resource('courses', CourseController::class);
-    Route::get('reports/teachers-courses', [TeacherReportController::class, 'index'])->name('reports.teachers_courses');
-
-    Route::get('/reports/students', [StudentReportController::class, 'index'])->name('reports.students')->middleware('auth');
-    Route::get('/get-groups-by-teacher/{teacherId}', [StudentReportController::class, 'getGroupsByTeacher'])->name('get.groups.by.teacher');
-    Route::get('/get-group-teacher/{groupId}', [StudentReportController::class, 'getGroupTeacher'])->name('get.group.teacher');
-
-    Route::get('/teachers/{id}/profile', [App\Http\Controllers\UserController::class, 'show'])->name('teachers.show');
-    Route::get('/teachers/{id}/edit', [App\Http\Controllers\UserController::class, 'edit'])->name('teachers.edit');
+        Route::controller(AttendanceController::class)->group(function () {
+            Route::get('/teachers-attendance', 'teachersAttendance')->name('teachers.attendance');
+            Route::post('/teachers-attendance', 'storeTeachersAttendance')->name('teachers.attendance.store');
+        });
+    });
 
     Route::get('/logout', function (Request $request) {
         Auth::logout();
