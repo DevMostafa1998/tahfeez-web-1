@@ -20,7 +20,8 @@
                 @if (auth()->user()->is_admin)
                     {{-- المستخدمين --}}
                     <li class="nav-item">
-                        <a href="{{ route('user.index') }}" class="nav-link {{ request()->routeIs('user') ? 'active' : '' }}">
+                        <a href="{{ route('user.index') }}"
+                            class="nav-link {{ request()->routeIs('user') ? 'active' : '' }}">
                             <i class="nav-icon bi bi-palette"></i>
                             <p>المستخدمين</p>
                         </a>
@@ -84,7 +85,7 @@
                 {{-- تقرير دورات المحفظين - يظهر للجميع --}}
                 <li class="nav-item">
                     <a href="{{ route('reports.teachers_courses') }}"
-                    class="nav-link {{ request()->routeIs('reports.teachers_courses') ? 'active' : '' }}">
+                        class="nav-link {{ request()->routeIs('reports.teachers_courses') ? 'active' : '' }}">
                         <i class="nav-icon bi bi-file-earmark-person-fill"></i>
                         <p>تقرير دورات المحفظين</p>
                     </a>

@@ -277,6 +277,10 @@
                         type: 'GET',
                         success: function(response) {
                             if (response.UserId) {
+                                teacherSelect.empty();
+                                teacherSelect.append(
+                                    `<option value="${response.UserId}">${response.teacher_name}</option>`
+                                );
                                 teacherSelect.val(response.UserId);
                             }
                             fetchStudents();
@@ -287,7 +291,7 @@
                         }
                     });
                 } else {
-                    fetchStudents();
+                    location.reload();
                 }
             });
 

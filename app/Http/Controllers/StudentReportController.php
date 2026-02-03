@@ -43,9 +43,12 @@ class StudentReportController extends Controller
 
     public function getGroupTeacher($groupId)
     {
-        $group = Group::find($groupId);
+        $group = Group::with('teacher')->find($groupId);
         if ($group) {
-            return response()->json(['UserId' => $group->UserId]);
+            return response()->json([
+                'UserId' => $group->UserId,
+                'teacher_name' => $group->teacher ? $group->teacher->full_name : 'غير محدد'
+            ]);
         }
         return response()->json(['error' => 'Not found'], 404);
     }
