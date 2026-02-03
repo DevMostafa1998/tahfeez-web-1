@@ -48,7 +48,6 @@
                             <th>المسجد</th>
                             <th>العنوان</th>
                             <th>الحالة</th>
-                            <th>ID الدورة</th>
                             <th>اسم الدورة</th>
                         </tr>
                     </thead>
@@ -115,7 +114,7 @@ $(document).ready(function() {
                 <td>${item.parts_memorized || '0'}</td>
                 <td>${item.mosque_name || '-'}</td>
                 <td>${item.address || '-'}</td>
-                <td>${residencyStatus}</td> <td>${item.course_id || '-'}</td>
+                <td>${residencyStatus}</td> 
                 <td class="text-success fw-bold">${item.course_name || 'لا يوجد'}</td>
             </tr>`;
         });
