@@ -124,7 +124,7 @@
                         <li class="nav-item">
                             <a href="{{ route('reports.teachers_courses') }}" class="nav-link {{ request()->routeIs('reports.teachers_courses') ? 'active' : '' }}">
                                 <i class="nav-icon bi {{ request()->routeIs('reports.teachers_courses') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
-                                <p>تقرير دورات المحفظين</p>
+                                <p>تقرير بيانات المحفظين</p>
                             </a>
                         </li>
                     </ul>
