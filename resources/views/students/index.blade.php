@@ -117,17 +117,20 @@
                                         </div>
                                     </td>
                                     <td class="text-center">
-                                        <span
-                                            class="badge bg-light text-dark border px-3 py-2 fw-bold">{{ $student->id_number }}</span>
+                                        <span class="badge bg-light text-dark border px-4 py-2 fw-bold fs-7"
+                                            style="letter-spacing: 1.5px; min-width: 110px; display: inline-block;">
+                                            {{ $student->id_number }}
+                                        </span>
                                     </td>
-                                    <td class="text-center">
-                                        <span
-                                            class="badge rounded-pill {{ $student->is_displaced ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success' }} border px-3">
+                                  <td class="text-center">
+                                        <span class="badge rounded-pill border {{ $student->is_displaced ? 'bg-warning-subtle text-dark' : 'bg-success-subtle text-success' }}"
+                                            style="padding: 5px 12px; font-size: 0.85rem; font-weight: 600;">
                                             {{ $student->is_displaced ? 'نازح' : 'مقيم' }}
                                         </span>
                                     </td>
                                     <td class="text-center">
-                                        <span class="badge bg-warning-subtle text-warning border px-3">
+                                        <span class="badge bg-warning text-dark rounded-pill shadow-sm px-3"
+                                            style="padding-top: 6px; padding-bottom: 6px; font-size: 0.70rem;">
                                             {{ $student->courses_count ?? 0 }} دورات
                                         </span>
                                     </td>
@@ -183,14 +186,17 @@
                     <div class="modal-body p-4 text-start">
                         <input type="hidden" name="update_courses_only" value="1">
                         <div class="row g-2">
-                            @foreach (\DB::table('courses')->whereIn('type', ['students', null])->orWhereNull('type')->get() as $course)
-                                <div class="col-6">
-                                    <div class="form-check p-2 bg-light rounded border d-flex align-items-center">
-                                        <input class="form-check-input course-checkbox ms-2" type="checkbox"
+                           @foreach (\DB::table('courses')->whereIn('type', ['students', null])->orWhereNull('type')->get() as $course)
+                                <div class="col-6 mb-2">
+                                    <div class="p-2 bg-light rounded border d-flex align-items-center justify-content-start" style="cursor: pointer;">
+                                        <input class="form-check-input course-checkbox m-0" type="checkbox"
                                             name="courses[]" value="{{ $course->id }}"
-                                            id="student_course_{{ $course->id }}">
-                                        <label class="form-check-label fw-bold w-100 cursor-pointer"
-                                            for="student_course_{{ $course->id }}">
+                                            id="student_course_{{ $course->id }}"
+                                            style="position: relative; margin-left: 10px !important;">
+
+                                        <label class="form-check-label fw-bold mb-0 flex-grow-1 cursor-pointer"
+                                            for="student_course_{{ $course->id }}"
+                                            style="text-align: right; padding-right: 10px;">
                                             {{ $course->name }}
                                         </label>
                                     </div>
@@ -237,12 +243,14 @@
         }
 
         $(document).ready(function() {
+            var d = new Date();
+            var dateString = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
             if (!$.fn.dataTable.isDataTable('#studentsTable')) {
                 $('#studentsTable').DataTable({
                     "language": {
                         "sProcessing": "جاري التحميل...",
                         "sLengthMenu": "أظهر _MENU_ طلاب",
-                        "sSearch": "بحث:",
+                        "sSearch": "بحث سريع:",
                         "sInfo": "عرض _START_ إلى _END_ من أصل _TOTAL_ طالب",
                         "oPaginate": {
                             "sPrevious": "السابق",
@@ -256,6 +264,8 @@
                         extend: 'excelHtml5',
                         text: '<i class="bi bi-file-earmark-excel-fill ms-1"></i> تصدير إكسل',
                         className: 'btn btn-excel',
+                        title: 'قائمة الطلاب - تاريخ ' + dateString,
+                        filename: 'تقرير_الطلاب_' + dateString,
                         exportOptions: {
                             columns: [0, 1, 2, 3]
                         }

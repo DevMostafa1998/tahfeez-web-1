@@ -17,16 +17,17 @@ class UserController extends Controller
         $this->userLogic = $userLogic;
     }
 
-    public function index()
-    {
-        $users = User::with('courses')->paginate(5);
-        $categories = DB::table('categorie')->get();
-        $all_courses = Course::where(function ($query) {
-            $query->where('type', 'teachers')->orWhereNull('type');
-        })->get();
+   public function index()
+{
+    $users = User::with('courses')->latest()->get();
 
-        return view('users.index', compact('users', 'categories', 'all_courses'));
-    }
+    $categories = DB::table('categorie')->get();
+    $all_courses = Course::where(function ($query) {
+        $query->where('type', 'teachers')->orWhereNull('type');
+    })->get();
+
+    return view('users.index', compact('users', 'categories', 'all_courses'));
+}
     public function show($id)
     {
         $teacher = User::with(['courses', 'groups' => function($query) {
@@ -50,7 +51,7 @@ class UserController extends Controller
         ]);
 
         $this->userLogic->storeUser($request->all());
-        return redirect()->route('user')->with('success', 'تم إضافة المستخدم والدورات بنجاح!');
+        return redirect()->route('user.index')->with('success', 'تم إضافة المستخدم والدورات بنجاح!');
     }
         public function edit($id)
         {
@@ -69,7 +70,7 @@ class UserController extends Controller
 
         if ($request->has('update_courses_only')) {
             $this->userLogic->updateUser($user, $request->all());
-            return redirect()->route('user')->with('success', 'تم تحديث الدورات بنجاح');
+            return redirect()->route('user.index')->with('success', 'تم تحديث الدورات بنجاح');
         }
 
         // التحقق  لباقي العمليات
@@ -85,14 +86,14 @@ class UserController extends Controller
         ]);
 
         $this->userLogic->updateUser($user, $request->all());
-        return redirect()->route('user')->with('success', 'تم تحديث البيانات بنجاح');
+        return redirect()->route('user.index')->with('success', 'تم تحديث البيانات بنجاح');
     }
 
     public function destroy($id)
     {
         $user = User::findOrFail($id);
         $this->userLogic->deleteUser($user);
-        return redirect()->route('user')->with('success', 'تم حذف المستخدم بنجاح');
+        return redirect()->route('user.index')->with('success', 'تم حذف المستخدم بنجاح');
     }
 
     public function create()
