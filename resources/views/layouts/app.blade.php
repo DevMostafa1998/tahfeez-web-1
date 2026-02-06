@@ -28,7 +28,87 @@
         body {
             font-size: 15px !important;
         }
+        .app-sidebar .nav-header {
+            text-align: right !important;
+            padding: 1.5rem 1rem 0.5rem !important;
+            font-size: 1rem !important;
+            font-weight: 700 !important;
+            color: #6c757d !important;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            background: transparent;
+        }
 
+        /* الخط  بعد الكلمة */
+        .app-sidebar .nav-header::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin-right: 10px;
+        }
+
+        /*  تحسين شكل الروابط  */
+        .app-sidebar .nav-link.active {
+            background-color: rgba(13, 110, 253, 0.2) !important;
+            border-right: 4px solid #0d6efd !important;
+            color: #fff !important;
+        }
+
+        .sidebar-menu .nav-link:hover:not(.active) {
+            background-color: rgba(13, 110, 253, 0.1) !important;
+            color: #fff !important;
+            transition: all 0.3s ease;
+        }
+
+
+        .sidebar-menu .nav-link:hover .nav-icon {
+            color: #0d6efd !important;
+            transition: color 0.3s ease;
+        }
+
+        /*  تنسيق الدوائر */
+        .nav-treeview .nav-icon.bi-circle,
+        .nav-treeview .nav-icon.bi-circle-fill {
+            font-size: 0.5rem !important;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link.active .bi-circle-fill {
+            color: #0d6efd !important;
+        }
+
+        /*  ضبط اتجاه الأسهم  */
+        .app-sidebar .nav-arrow {
+            margin-right: auto !important;
+            margin-left: 0 !important;
+            display: inline-block !important;
+            line-height: 1 !important;
+            vertical-align: middle !important;
+            margin-top: -3px !important;
+            transform: rotate(180deg) !important;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .sidebar-menu .menu-open > .nav-link .nav-arrow {
+            transform: rotate(90deg) !important;
+            margin-top: -3px !important;
+        }
+
+        .sidebar-menu .nav-link p {
+            display: inline-block !important;
+            margin: 0 !important;
+            line-height: 1.5 !important;
+            vertical-align: middle !important;
+        }
+
+        /* مسافة للأيقونات */
+        .nav-icon {
+            margin-left: 8px;
+            vertical-align: middle;
+        }
         .app-main .form-control,
         .app-main .form-select,
         .app-main .input-group-text {

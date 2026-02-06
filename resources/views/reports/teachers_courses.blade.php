@@ -48,7 +48,6 @@
                             <th>المسجد</th>
                             <th>العنوان</th>
                             <th>الحالة</th>
-                            <th>ID الدورة</th>
                             <th>اسم الدورة</th>
                         </tr>
                     </thead>
@@ -98,35 +97,65 @@ $(document).ready(function() {
             success: function(response) {
                 let html = '';
                 if (response && response.length > 0) {
+
+                    let groupedData = {};
+
                     $.each(response, function(i, item) {
-        let residencyStatus = item.is_displaced == 1
-            ? '<span class="badge bg-warning text-dark">نازح</span>'
-            : '<span class="badge bg-success text-white">مقيم</span>';
-            html += `<tr>
-                <td class="fw-bold">${item.full_name || '-'}</td>
-                <td>${item.id_number || '-'}</td>
-                <td>${item.date_of_birth || '-'}</td>
-                <td>${item.birth_place || '-'}</td>
-                <td>${item.phone_number || '-'}</td>
-                <td>${item.wallet_number || '-'}</td>
-                <td>${item.whatsapp_number || '-'}</td>
-                <td>${item.qualification || '-'}</td>
-                <td>${item.specialization || '-'}</td>
-                <td>${item.parts_memorized || '0'}</td>
-                <td>${item.mosque_name || '-'}</td>
-                <td>${item.address || '-'}</td>
-                <td>${residencyStatus}</td> <td>${item.course_id || '-'}</td>
-                <td class="text-success fw-bold">${item.course_name || 'لا يوجد'}</td>
-            </tr>`;
-        });
-                    $('#tableBody').html(html);
-                } else {
-                    $('#tableBody').html('<tr><td colspan="15" class="py-5 text-center text-muted">لا توجد بيانات</td></tr>');
-                }
-                initDataTable();
+                        let key = item.id_number; // نستخدم رقم الهوية كمفتاح فريد للمحفظ
+
+                        if (!groupedData[key]) {
+                            // إذا كان المحفظ غير موجود في القائمة نقوم بإضافته
+                            groupedData[key] = {
+                                ...item,
+                                courses: [] // مصفوفة لتخزين أسماء الدورات
+                            };
+                            if (item.course_name) {
+                                groupedData[key].courses.push(item.course_name);
+                            }
+                        } else {
+                            if (item.course_name && !groupedData[key].courses.includes(item.course_name)) {
+                                groupedData[key].courses.push(item.course_name);
+                            }
+                        }
+                    });
+
+                    // بناء صفوف الجدول من البيانات المدمجة
+                    $.each(groupedData, function(key, item) {
+                        let residencyStatus = item.is_displaced == 1
+                            ? '<span class="badge bg-warning text-dark">نازح</span>'
+                            : '<span class="badge bg-success text-white">مقيم</span>';
+
+                    let separator = ' <span style="color: #ff8c00; font-weight: 900; margin: 0 8px;">-</span> ';
+                    let coursesList = item.courses.length > 0 ? item.courses.join(separator) : 'لا يوجد';
+                    html += `<tr>
+                        <td class="fw-bold">${item.full_name || '-'}</td>
+                        <td>${item.id_number || '-'}</td>
+                        <td>${item.date_of_birth || '-'}</td>
+                        <td>${item.birth_place || '-'}</td>
+                        <td>${item.phone_number || '-'}</td>
+                        <td>${item.wallet_number || '-'}</td>
+                        <td>${item.whatsapp_number || '-'}</td>
+                        <td>${item.qualification || '-'}</td>
+                        <td>${item.specialization || '-'}</td>
+                        <td>${item.parts_memorized || '0'}</td>
+                        <td>${item.mosque_name || '-'}</td>
+                        <td>${item.address || '-'}</td>
+                        <td>${residencyStatus}</td>
+                        <td class="text-success fw-bold">${coursesList}</td>
+                    </tr>`;
+                });
+
+                $('#tableBody').html(html);
+            } else {
+                $('#tableBody').html('<tr><td colspan="15" class="py-5 text-center text-muted">لا توجد بيانات</td></tr>');
             }
-        });
-    }
+            initDataTable();
+        },
+        error: function() {
+            $('#tableBody').html('<tr><td colspan="15" class="py-5 text-center text-danger">حدث خطأ أثناء تحميل البيانات</td></tr>');
+        }
+    });
+}
 
 function initDataTable() {
         let today = new Date().toISOString().slice(0, 10);
