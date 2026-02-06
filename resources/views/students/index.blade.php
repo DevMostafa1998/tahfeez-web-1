@@ -68,6 +68,64 @@
             align-items: center !important;
             gap: 5px !important;
         }
+
+        /* تحسين استجابة الجدول على الشاشات الصغيرة */
+        @media (max-width: 768px) {
+
+            /* جعل الهيدر عمودياً */
+            .page-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start !important;
+            }
+
+            /* ضبط أزرار الـ DataTables لتكون تحت بعضها أو متراصة بشكل أفضل */
+            .dataTables_wrapper .row:first-child {
+                flex-direction: column !important;
+                gap: 10px;
+            }
+
+            .dataTables_length,
+            .dataTables_filter,
+            .dt-buttons {
+                text-align: center !important;
+                width: 100%;
+            }
+
+            /* جعل الجدول يدعم التمرير الأفقي بوضوح */
+            .card-table .p-3 {
+                padding: 5px !important;
+            }
+
+            /* تصغير حجم الخط والأيقونات في الأكشن */
+            .action-btn {
+                width: 30px;
+                height: 30px;
+            }
+
+            /* تحسين شكل المودال على الجوال */
+            .modal-dialog {
+                margin: 10px;
+            }
+
+            .col-6 {
+                width: 100% !important;
+                /* جعل خيارات الدورات تأخذ العرض الكامل */
+            }
+        }
+
+        /* حل مشكلة تداخل الأزرار في الجدول */
+        .table-responsive {
+            border: none;
+        }
+
+        /* تنسيق إضافي لزر الإكسل ليكون بعرض كامل على الجوال */
+        @media (max-width: 576px) {
+            .btn-excel {
+                width: 100%;
+                justify-content: center;
+            }
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endpush
@@ -93,85 +151,89 @@
         <div class="card card-table shadow-sm border-0 overflow-hidden">
             <div class="card-body p-0">
                 <div class="p-3">
-                    <table id="studentsTable" class="table table-striped table-bordered align-middle mb-0"
-                        style="width:100%">
-                        <thead class="bg-light text-secondary">
-                            <tr>
-                                <th class="text-center">اسم الطالب</th>
-                                <th class="text-center">رقم الهوية</th>
-                                <th class="text-center">الحالة</th>
-                                <th class="text-center">الدورات</th>
-                                <th class="text-center">الإجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($students as $student)
+                    <div class="table-responsive">
+                        <table id="studentsTable" class="table table-striped table-bordered align-middle mb-0"
+                            style="width:100%">
+                            <thead class="bg-light text-secondary">
                                 <tr>
-                                    <td class="ps-4">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div class="avatar-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center rounded-3"
-                                                style="width: 40px; height: 40px;">
-                                                <i class="bi bi-person"></i>
-                                            </div>
-                                            <span class="fw-bold">{{ $student->full_name }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge bg-light text-dark border px-4 py-2 fw-bold fs-7"
-                                            style="letter-spacing: 1.5px; min-width: 110px; display: inline-block;">
-                                            {{ $student->id_number }}
-                                        </span>
-                                    </td>
-                                  <td class="text-center">
-                                        <span class="badge rounded-pill border {{ $student->is_displaced ? 'bg-warning-subtle text-dark' : 'bg-success-subtle text-success' }}"
-                                            style="padding: 5px 12px; font-size: 0.85rem; font-weight: 600;">
-                                            {{ $student->is_displaced ? 'نازح' : 'مقيم' }}
-                                        </span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge bg-warning text-dark rounded-pill shadow-sm px-3"
-                                            style="padding-top: 6px; padding-bottom: 6px; font-size: 0.70rem;">
-                                            {{ $student->courses_count ?? 0 }} دورات
-                                        </span>
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="d-flex justify-content-center gap-2">
-                                            <a href="{{ route('parents.index') }}"
-                                                class="btn btn-sm btn-outline-secondary rounded-circle action-btn"
-                                                title="عرض ولي الأمر">
-                                                <i class="bi bi-person-vcard"></i>
-                                            </a>
-                                            <button class="btn btn-sm btn-outline-info rounded-circle action-btn course-btn"
-                                                data-bs-toggle="modal" data-bs-target="#courseStudentModal"
-                                                data-student-id="{{ $student->id }}"
-                                                data-student-name="{{ $student->full_name }}"
-                                                data-student-courses="{{ isset($student->course_ids) ? json_encode(explode(',', $student->course_ids)) : '[]' }}"
-                                                title="إدارة الدورات">
-                                                <i class="bi bi-journal-plus"></i>
-                                            </button>
-
-                                            <button class="btn btn-sm btn-outline-warning rounded-circle action-btn"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#editStudentModal{{ $student->id }}" title="تعديل">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </button>
-
-                                            <form action="{{ route('student.destroy', $student->id) }}" method="POST"
-                                                id="deleteForm{{ $student->id }}" class="d-inline">
-                                                @csrf @method('DELETE')
-                                                <button type="button" onclick="confirmDelete({{ $student->id }})"
-                                                    class="btn btn-sm btn-outline-danger rounded-circle action-btn"
-                                                    title="حذف">
-                                                    <i class="bi bi-trash3"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
+                                    <th class="text-center">اسم الطالب</th>
+                                    <th class="text-center">رقم الهوية</th>
+                                    <th class="text-center">الحالة</th>
+                                    <th class="text-center">الدورات</th>
+                                    <th class="text-center">الإجراءات</th>
                                 </tr>
-                                @include('students.edit_modal', ['student' => $student])
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach ($students as $student)
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="avatar-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center rounded-3"
+                                                    style="width: 40px; height: 40px;">
+                                                    <i class="bi bi-person"></i>
+                                                </div>
+                                                <span class="fw-bold">{{ $student->full_name }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-light text-dark border px-4 py-2 fw-bold fs-7"
+                                                style="letter-spacing: 1.5px; min-width: 110px; display: inline-block;">
+                                                {{ $student->id_number }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span
+                                                class="badge rounded-pill border {{ $student->is_displaced ? 'bg-warning-subtle text-dark' : 'bg-success-subtle text-success' }}"
+                                                style="padding: 5px 12px; font-size: 0.85rem; font-weight: 600;">
+                                                {{ $student->is_displaced ? 'نازح' : 'مقيم' }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-warning text-dark rounded-pill shadow-sm px-3"
+                                                style="padding-top: 6px; padding-bottom: 6px; font-size: 0.70rem;">
+                                                {{ $student->courses_count ?? 0 }} دورات
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="d-flex justify-content-center gap-2">
+                                                <a href="{{ route('parents.index') }}"
+                                                    class="btn btn-sm btn-outline-secondary rounded-circle action-btn"
+                                                    title="عرض ولي الأمر">
+                                                    <i class="bi bi-person-vcard"></i>
+                                                </a>
+                                                <button
+                                                    class="btn btn-sm btn-outline-info rounded-circle action-btn course-btn"
+                                                    data-bs-toggle="modal" data-bs-target="#courseStudentModal"
+                                                    data-student-id="{{ $student->id }}"
+                                                    data-student-name="{{ $student->full_name }}"
+                                                    data-student-courses="{{ isset($student->course_ids) ? json_encode(explode(',', $student->course_ids)) : '[]' }}"
+                                                    title="إدارة الدورات">
+                                                    <i class="bi bi-journal-plus"></i>
+                                                </button>
+
+                                                <button class="btn btn-sm btn-outline-warning rounded-circle action-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#editStudentModal{{ $student->id }}" title="تعديل">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </button>
+
+                                                <form action="{{ route('student.destroy', $student->id) }}" method="POST"
+                                                    id="deleteForm{{ $student->id }}" class="d-inline">
+                                                    @csrf @method('DELETE')
+                                                    <button type="button" onclick="confirmDelete({{ $student->id }})"
+                                                        class="btn btn-sm btn-outline-danger rounded-circle action-btn"
+                                                        title="حذف">
+                                                        <i class="bi bi-trash3"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @include('students.edit_modal', ['student' => $student])
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -191,9 +253,10 @@
                     <div class="modal-body p-4 text-start">
                         <input type="hidden" name="update_courses_only" value="1">
                         <div class="row g-2">
-                           @foreach (\DB::table('courses')->whereIn('type', ['students', null])->orWhereNull('type')->get() as $course)
+                            @foreach (\DB::table('courses')->whereIn('type', ['students', null])->orWhereNull('type')->get() as $course)
                                 <div class="col-6 mb-2">
-                                    <div class="p-2 bg-light rounded border d-flex align-items-center justify-content-start" style="cursor: pointer;">
+                                    <div class="p-2 bg-light rounded border d-flex align-items-center justify-content-start"
+                                        style="cursor: pointer;">
                                         <input class="form-check-input course-checkbox m-0" type="checkbox"
                                             name="courses[]" value="{{ $course->id }}"
                                             id="student_course_{{ $course->id }}"
@@ -252,6 +315,7 @@
             var dateString = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
             if (!$.fn.dataTable.isDataTable('#studentsTable')) {
                 $('#studentsTable').DataTable({
+                    "responsive": true, // تفعيل الاستجابة
                     "language": {
                         "sProcessing": "جاري التحميل...",
                         "sLengthMenu": "أظهر _MENU_ طلاب",
@@ -262,9 +326,9 @@
                             "sNext": "التالي"
                         }
                     },
-                    "dom": "<'row mb-3'<'col-md-4 text-right'l><'col-md-4 text-center'B><'col-md-4 text-left'f>>" +
+                    "dom": "<'row mb-3 align-items-center'<'col-md-4 text-right'l><'col-md-4 text-center'B><'col-md-4 text-left'f>>" +
                         "<'row'<'col-12'tr>>" +
-                        "<'row mt-3'<'col-12 d-flex justify-content-between align-items-center'ip>>",
+                        "<'row mt-3 align-items-center'<'col-md-6 text-right'i><'col-md-6 d-flex justify-content-end'p>>",
                     "buttons": [{
                         extend: 'excelHtml5',
                         text: '<i class="bi bi-file-earmark-excel-fill ms-1"></i> تصدير إكسل',

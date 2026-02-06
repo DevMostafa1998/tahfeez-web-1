@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ asset('assets/css/table_responsive.css') }}">
+
     <style>
         .select2-container .select2-selection--single {
             height: 45px;
@@ -113,189 +115,200 @@
             </div>
             <div class="card-body p-0 text-end">
                 <div class="card-body p-3">
-                    {{-- إضافة كلاس table-bordered لرسم الخطوط --}}
-                    <table id="studentsTable" class="table table-bordered table-hover align-middle mb-0 shadow-sm">
-                        <thead class="bg-light"> {{-- ضروري جداً لتثبيت الأسهم --}}
-                            <tr>
-                                <th class="text-center py-3">اسم الطالب</th>
-                                <th class="text-center py-3">العمر</th>
-                                <th class="text-center py-3">آخر سورة</th>
-                                <th class="text-center py-3">آخر آية</th>
-                                <th class="text-center py-3">رقم الهوية</th>
-                                <th class="text-center py-3">الإجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {{-- تكرار الطلاب المرتبطين بالمجموعة --}}
-                            @foreach ($students as $student)
-                                <tr id="row-student-{{ $student->id }}">
-                                    <td class="ps-4">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div class="bg-secondary-subtle rounded-circle d-flex align-items-center justify-content-center fw-bold text-secondary shadow-sm"
-                                                style="width: 40px; height: 40px;">
-                                                {{ mb_substr($student->full_name, 0, 1) }}
-                                            </div>
-                                            <div>
-                                                {{-- اسم الطالب من مودل Student --}}
-                                                <div class="fw-bold text-dark">{{ $student->full_name }}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="text-center">
-                                        {{-- حساب العمر برمجياً من تاريخ الميلاد --}}
-                                        <span class="badge bg-info-subtle text-info border px-3">
-                                            {{ \Carbon\Carbon::parse($student->date_of_birth)->age }} سنة
-                                        </span>
-                                    </td>
-                                    <td class="text-center fw-bold text-success sura-cell">
-                                        {{ $student->latestMemorization->sura_name ?? '---' }}
-                                    </td>
-
-                                    <td class="text-center verse-cell">
-                                        <span class="badge bg-light text-dark border">
-                                            {{ $student->latestMemorization->verses_to ?? '-' }}
-                                        </span>
-                                    </td>
-                                    <td class="text-center text-muted">
-                                        {{ $student->id_number }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{-- زر فتح مودال تسجيل الحفظ --}}
-                                        <button
-                                            class="btn btn-success btn-sm px-3 rounded-pill d-inline-flex align-items-center gap-1 shadow-sm"
-                                            data-bs-toggle="modal" data-bs-target="#memorizeModal{{ $student->id }}">
-                                            <i class="bi bi-journal-plus"></i> تسجيل حفظ
-                                        </button>
-                                        <div class="modal fade" id="memorizeModal{{ $student->id }}" tabindex="-1"
-                                            aria-hidden="true" dir="rtl">
-                                            <div class="modal-dialog modal-dialog-centered">
-                                                <div class="modal-content border-0 shadow-lg"
-                                                    style="border-radius: 15px; text-align: right;">
-                                                    <form class="memorizationForm"
-                                                        action="{{ route('memorization.store') }}" method="POST">
-                                                        @csrf
-                                                        <input type="hidden" name="student_id"
-                                                            value="{{ $student->id }}">
-
-                                                        {{-- رأس المودال --}}
-                                                        <div class="modal-header border-0 bg-primary text-white"
-                                                            style="border-radius: 15px 15px 0 0; flex-direction: row-reverse;">
-                                                            <h5 class="modal-title fw-bold m-0"
-                                                                style="text-align: right; width: 100%;">
-                                                                <i class="bi bi-journal-plus ms-2"></i>تسجيل حفظ:
-                                                                {{ $student->full_name }}
-                                                            </h5>
-                                                            <button type="button" class="btn-close btn-close-white m-0"
-                                                                data-bs-dismiss="modal" aria-label="Close"
-                                                                style="margin-right: auto !important; margin-left: 0 !important;"></button>
-                                                        </div>
-
-                                                        <div class="modal-body p-4">
-                                                            <div class="row g-4">
-
-                                                                {{-- تاريخ اليوم --}}
-                                                                <div class="col-12" style="text-align: right;">
-                                                                    <label class="form-label fw-bold text-secondary mb-2"
-                                                                        style="display: block; width: 100%;">
-                                                                        <i
-                                                                            class="bi bi-calendar-event ms-1 text-primary"></i>
-                                                                        تاريخ
-                                                                        اليوم
-                                                                    </label>
-                                                                    <input type="date" name="date"
-                                                                        class="form-control form-control-lg border-2"
-                                                                        value="{{ date('Y-m-d') }}" required
-                                                                        style="border-radius: 10px; text-align: right; direction: rtl;">
-                                                                </div>
-
-                                                                {{-- اسم السورة --}}
-                                                                <div class="col-12" style="text-align: right;">
-                                                                    <label class="form-label fw-bold text-secondary mb-2"
-                                                                        style="display: block; width: 100%;">
-                                                                        <i class="bi bi-book ms-1 text-primary"></i> اسم
-                                                                        السورة
-                                                                    </label>
-                                                                    {{-- تحويل الحقل إلى select مع كلاس surah-select --}}
-                                                                    <select name="sura_name"
-                                                                        class="form-select surah-select" required
-                                                                        style="width: 100%;">
-                                                                        <option value="">ابحث عن اسم السورة...
-                                                                        </option>
-                                                                        @foreach ($surahs as $surah)
-                                                                            <option value="{{ $surah->name_ar }}"
-                                                                                {{ isset($student->latestMemorization->sura_name) && $student->latestMemorization->sura_name == $surah->name_ar ? 'selected' : '' }}>
-                                                                                {{ $surah->number }}.
-                                                                                {{ $surah->name_ar }}
-                                                                            </option>
-                                                                        @endforeach
-                                                                    </select>
-                                                                </div>
-
-                                                                {{-- الحقول الجانبية --}}
-                                                                <div class="col-6" style="text-align: right;">
-                                                                    <label class="form-label fw-bold text-secondary mb-2"
-                                                                        style="display: block; width: 100%;">
-                                                                        <i class="bi bi-hash ms-1 text-primary"></i> من آية
-                                                                    </label>
-                                                                    <input type="number" name="verses_from"
-                                                                        {{-- المنطق: إذا وجد حفظ سابق، ابدأ من الآية التالية مباشرة --}}
-                                                                        value="{{ isset($student->latestMemorization->verses_to) ? $student->latestMemorization->verses_to + 1 : 1 }}"
-                                                                        class="form-control form-control-lg border-2"
-                                                                        min="1" required
-                                                                        style="border-radius: 10px; text-align: right; direction: rtl;">
-                                                                </div>
-
-                                                                <div class="col-6" style="text-align: right;">
-                                                                    <label class="form-label fw-bold text-secondary mb-2"
-                                                                        style="display: block; width: 100%;">
-                                                                        <i class="bi bi-hash ms-1 text-primary"></i> إلى
-                                                                        آية
-                                                                    </label>
-                                                                    {{-- حقل "إلى آية" نتركه فارغاً دائماً ليبدأ المعلم بالإدخال --}}
-                                                                    <input type="number" name="verses_to" value=""
-                                                                        class="form-control form-control-lg border-2"
-                                                                        min="1" required
-                                                                        style="border-radius: 10px; text-align: right; direction: rtl;">
-                                                                </div>
-
-                                                                {{-- الملاحظات --}}
-                                                                <div class="col-12" style="text-align: right;">
-                                                                    <label class="form-label fw-bold text-secondary mb-2"
-                                                                        style="display: block; width: 100%;">
-                                                                        <i
-                                                                            class="bi bi-chat-left-text ms-1 text-primary"></i>
-                                                                        ملاحظات المعلم
-                                                                    </label>
-                                                                    <textarea name="note" class="form-control border-2" rows="3" placeholder="أضف ملاحظاتك هنا..."
-                                                                        style="border-radius: 10px; text-align: right; direction: rtl;"></textarea>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="modal-footer border-0 bg-light p-3 d-flex"
-                                                            style="border-radius: 0 0 15px 15px; justify-content: flex-start; flex-direction: row-reverse;">
-                                                            <button type="submit"
-                                                                class="btn btn-primary px-5 py-2 fw-bold shadow-sm"
-                                                                style="border-radius: 10px;">
-                                                                حفظ البيانات
-                                                            </button>
-                                                            <button type="button"
-                                                                class="btn btn-outline-secondary px-4 py-2 fw-bold ms-2"
-                                                                data-bs-dismiss="modal" style="border-radius: 10px;">
-                                                                إلغاء
-                                                            </button>
-                                                        </div>
-                                                    </form>
+                    <div class="table-responsive">
+                        {{-- إضافة كلاس table-bordered لرسم الخطوط --}}
+                        <table id="studentsTable" class="table table-bordered table-hover align-middle mb-0 shadow-sm">
+                            <thead class="bg-light"> {{-- ضروري جداً لتثبيت الأسهم --}}
+                                <tr>
+                                    <th class="text-center py-3">اسم الطالب</th>
+                                    <th class="text-center py-3">العمر</th>
+                                    <th class="text-center py-3">آخر سورة</th>
+                                    <th class="text-center py-3">آخر آية</th>
+                                    <th class="text-center py-3">رقم الهوية</th>
+                                    <th class="text-center py-3">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{-- تكرار الطلاب المرتبطين بالمجموعة --}}
+                                @foreach ($students as $student)
+                                    <tr id="row-student-{{ $student->id }}">
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="bg-secondary-subtle rounded-circle d-flex align-items-center justify-content-center fw-bold text-secondary shadow-sm"
+                                                    style="width: 40px; height: 40px;">
+                                                    {{ mb_substr($student->full_name, 0, 1) }}
+                                                </div>
+                                                <div>
+                                                    {{-- اسم الطالب من مودل Student --}}
+                                                    <div class="fw-bold text-dark">{{ $student->full_name }}</div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                </tr>
+                                        </td>
+                                        <td class="text-center">
+                                            {{-- حساب العمر برمجياً من تاريخ الميلاد --}}
+                                            <span class="badge bg-info-subtle text-info border px-3">
+                                                {{ \Carbon\Carbon::parse($student->date_of_birth)->age }} سنة
+                                            </span>
+                                        </td>
+                                        <td class="text-center fw-bold text-success sura-cell">
+                                            {{ $student->latestMemorization->sura_name ?? '---' }}
+                                        </td>
 
-                                {{-- مودال تسجيل الحفظ لكل طالب --}}
-                            @endforeach
-                        </tbody>
-                    </table>
+                                        <td class="text-center verse-cell">
+                                            <span class="badge bg-light text-dark border">
+                                                {{ $student->latestMemorization->verses_to ?? '-' }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center text-muted">
+                                            {{ $student->id_number }}
+                                        </td>
+                                        <td class="text-center">
+                                            {{-- زر فتح مودال تسجيل الحفظ --}}
+                                            <button
+                                                class="btn btn-success btn-sm px-3 rounded-pill d-inline-flex align-items-center gap-1 shadow-sm"
+                                                data-bs-toggle="modal" data-bs-target="#memorizeModal{{ $student->id }}">
+                                                <i class="bi bi-journal-plus"></i> تسجيل حفظ
+                                            </button>
+                                            <div class="modal fade" id="memorizeModal{{ $student->id }}" tabindex="-1"
+                                                aria-hidden="true" dir="rtl">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content border-0 shadow-lg"
+                                                        style="border-radius: 15px; text-align: right;">
+                                                        <form class="memorizationForm"
+                                                            action="{{ route('memorization.store') }}" method="POST">
+                                                            @csrf
+                                                            <input type="hidden" name="student_id"
+                                                                value="{{ $student->id }}">
+
+                                                            {{-- رأس المودال --}}
+                                                            <div class="modal-header border-0 bg-primary text-white"
+                                                                style="border-radius: 15px 15px 0 0; flex-direction: row-reverse;">
+                                                                <h5 class="modal-title fw-bold m-0"
+                                                                    style="text-align: right; width: 100%;">
+                                                                    <i class="bi bi-journal-plus ms-2"></i>تسجيل حفظ:
+                                                                    {{ $student->full_name }}
+                                                                </h5>
+                                                                <button type="button" class="btn-close btn-close-white m-0"
+                                                                    data-bs-dismiss="modal" aria-label="Close"
+                                                                    style="margin-right: auto !important; margin-left: 0 !important;"></button>
+                                                            </div>
+
+                                                            <div class="modal-body p-4">
+                                                                <div class="row g-4">
+
+                                                                    {{-- تاريخ اليوم --}}
+                                                                    <div class="col-12" style="text-align: right;">
+                                                                        <label
+                                                                            class="form-label fw-bold text-secondary mb-2"
+                                                                            style="display: block; width: 100%;">
+                                                                            <i
+                                                                                class="bi bi-calendar-event ms-1 text-primary"></i>
+                                                                            تاريخ
+                                                                            اليوم
+                                                                        </label>
+                                                                        <input type="date" name="date"
+                                                                            class="form-control form-control-lg border-2"
+                                                                            value="{{ date('Y-m-d') }}" required
+                                                                            style="border-radius: 10px; text-align: right; direction: rtl;">
+                                                                    </div>
+
+                                                                    {{-- اسم السورة --}}
+                                                                    <div class="col-12" style="text-align: right;">
+                                                                        <label
+                                                                            class="form-label fw-bold text-secondary mb-2"
+                                                                            style="display: block; width: 100%;">
+                                                                            <i class="bi bi-book ms-1 text-primary"></i>
+                                                                            اسم
+                                                                            السورة
+                                                                        </label>
+                                                                        {{-- تحويل الحقل إلى select مع كلاس surah-select --}}
+                                                                        <select name="sura_name"
+                                                                            class="form-select surah-select" required
+                                                                            style="width: 100%;">
+                                                                            <option value="">ابحث عن اسم السورة...
+                                                                            </option>
+                                                                            @foreach ($surahs as $surah)
+                                                                                <option value="{{ $surah->name_ar }}"
+                                                                                    {{ isset($student->latestMemorization->sura_name) && $student->latestMemorization->sura_name == $surah->name_ar ? 'selected' : '' }}>
+                                                                                    {{ $surah->number }}.
+                                                                                    {{ $surah->name_ar }}
+                                                                                </option>
+                                                                            @endforeach
+                                                                        </select>
+                                                                    </div>
+
+                                                                    {{-- الحقول الجانبية --}}
+                                                                    <div class="col-6" style="text-align: right;">
+                                                                        <label
+                                                                            class="form-label fw-bold text-secondary mb-2"
+                                                                            style="display: block; width: 100%;">
+                                                                            <i class="bi bi-hash ms-1 text-primary"></i> من
+                                                                            آية
+                                                                        </label>
+                                                                        <input type="number" name="verses_from"
+                                                                            {{-- المنطق: إذا وجد حفظ سابق، ابدأ من الآية التالية مباشرة --}}
+                                                                            value="{{ isset($student->latestMemorization->verses_to) ? $student->latestMemorization->verses_to + 1 : 1 }}"
+                                                                            class="form-control form-control-lg border-2"
+                                                                            min="1" required
+                                                                            style="border-radius: 10px; text-align: right; direction: rtl;">
+                                                                    </div>
+
+                                                                    <div class="col-6" style="text-align: right;">
+                                                                        <label
+                                                                            class="form-label fw-bold text-secondary mb-2"
+                                                                            style="display: block; width: 100%;">
+                                                                            <i class="bi bi-hash ms-1 text-primary"></i>
+                                                                            إلى
+                                                                            آية
+                                                                        </label>
+                                                                        {{-- حقل "إلى آية" نتركه فارغاً دائماً ليبدأ المعلم بالإدخال --}}
+                                                                        <input type="number" name="verses_to"
+                                                                            value=""
+                                                                            class="form-control form-control-lg border-2"
+                                                                            min="1" required
+                                                                            style="border-radius: 10px; text-align: right; direction: rtl;">
+                                                                    </div>
+
+                                                                    {{-- الملاحظات --}}
+                                                                    <div class="col-12" style="text-align: right;">
+                                                                        <label
+                                                                            class="form-label fw-bold text-secondary mb-2"
+                                                                            style="display: block; width: 100%;">
+                                                                            <i
+                                                                                class="bi bi-chat-left-text ms-1 text-primary"></i>
+                                                                            ملاحظات المعلم
+                                                                        </label>
+                                                                        <textarea name="note" class="form-control border-2" rows="3" placeholder="أضف ملاحظاتك هنا..."
+                                                                            style="border-radius: 10px; text-align: right; direction: rtl;"></textarea>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="modal-footer border-0 bg-light p-3 d-flex"
+                                                                style="border-radius: 0 0 15px 15px; justify-content: flex-start; flex-direction: row-reverse;">
+                                                                <button type="submit"
+                                                                    class="btn btn-primary px-5 py-2 fw-bold shadow-sm"
+                                                                    style="border-radius: 10px;">
+                                                                    حفظ البيانات
+                                                                </button>
+                                                                <button type="button"
+                                                                    class="btn btn-outline-secondary px-4 py-2 fw-bold ms-2"
+                                                                    data-bs-dismiss="modal" style="border-radius: 10px;">
+                                                                    إلغاء
+                                                                </button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    {{-- مودال تسجيل الحفظ لكل طالب --}}
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 {{-- @if ($students->hasPages())
                     <div class="card-footer bg-white border-top-0 py-3">
@@ -349,9 +362,9 @@
                     }
                 },
                 // ضبط توزيع العناصر (f: البحث، l: الطول، tr: الجدول، i: المعلومات، p: الترقيم)
-                "dom": "<'row mb-3 align-items-center'<'col-md-6 d-flex justify-content-start'l><'col-md-6 d-flex justify-content-end'f>>" +
-                    "tr" +
-                    "<'row mt-3'<'col-12 d-flex justify-content-between align-items-center'ip>>", // الجزء السفلي (المعلومات i والتنقل p)
+                "dom": "<'row mb-3 align-items-center'<'col-md-6 text-right'l><'col-md-6 text-left'f>>" +
+                    "<'row'<'col-12'tr>>" +
+                    "<'row mt-3 align-items-center'<'col-md-6 text-right'i><'col-md-6 d-flex justify-content-end'p>>", // الجزء السفلي (المعلومات i والتنقل p)
                 "columnDefs": [{
                         "orderable": false,
                         "targets": 5

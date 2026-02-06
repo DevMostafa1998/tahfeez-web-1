@@ -8,6 +8,82 @@
     <link rel="stylesheet" href="{{ asset('assets/css/user_table.css') }}" />
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap4.min.css">
     <style>
+        /* التنسيقات العامة للجدول */
+        .dataTables_wrapper .row:first-child {
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: center;
+            width: 100%;
+            margin: 0 0 1rem 0;
+            padding: 0 15px;
+        }
+
+        #groupsTable {
+            width: 100% !important;
+            margin: 0 !important;
+        }
+
+        /* تحسين شكل الجدول على الجوال */
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            /* جعل الأزرار تأخذ العرض الكامل */
+            .btn-primary {
+                width: 100%;
+                justify-content: center;
+            }
+
+            /* تحويل عناصر التحكم في الجدول (البحث والعدد) لتكون تحت بعضها */
+            .dataTables_wrapper .row:first-child {
+                flex-direction: column !important;
+                gap: 10px;
+            }
+
+            .dataTables_length,
+            .dataTables_filter {
+                text-align: center !important;
+                width: 100%;
+            }
+
+            .btn-excel {
+                margin: 10px 0 !important;
+                width: 100%;
+                justify-content: center;
+            }
+
+            /* جعل الجدول قابل للتمرير عرضياً بشكل أفضل */
+            .card-table {
+                border-radius: 0;
+                margin: 0 -1.5rem;
+                /* إزالة الهوامش الجانبية للاستفادة من المساحة */
+            }
+
+            .table thead {
+                display: none;
+                /* إخفاء الرأس في الشاشات الصغيرة جداً إذا كنت تفضل عرض الكروت */
+            }
+
+            /* اختيارياً: تصغير الخطوط في الجوال */
+            .table td {
+                font-size: 0.85rem;
+                padding: 10px 5px !important;
+            }
+        }
+
+        select.custom-select {
+            direction: ltr !important;
+            text-align: center !important;
+            background-image: none !important;
+            appearance: menulist !important;
+            -webkit-appearance: menulist !important;
+            padding: 4px 30px 4px 10px !important;
+        }
+
         .dataTables_wrapper .row:first-child {
             display: flex !important;
             flex-direction: row !important;
@@ -104,7 +180,7 @@
         {{-- جدول البيانات --}}
         <div class="card card-table shadow-sm border-0 overflow-hidden">
             <div class="card-body p-0">
-                <div>
+                <div class="table-responsive">
                     <table id="groupsTable" class="table table-striped table-bordered align-middle mb-0" style="width:100%">
                         <thead class="bg-light text-secondary">
                             <tr>
@@ -222,7 +298,8 @@
                     </div>
                 </div>
                 <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-secondary px-4 rounded-3" data-bs-dismiss="modal">إغلاق</button>
+                    <button type="button" class="btn btn-secondary px-4 rounded-3"
+                        data-bs-dismiss="modal">إغلاق</button>
                 </div>
             </div>
         </div>
@@ -280,6 +357,8 @@
                 "order": [
                     [2, "desc"]
                 ],
+                "responsive": true, // تفعيل الاستجابة
+
                 "language": {
                     "sProcessing": "جاري التحميل...",
                     "sLengthMenu": "أظهر _MENU_ مجموعات",
@@ -304,9 +383,9 @@
                         columns: [0, 1, 2, 3]
                     }
                 }],
-                "dom": "<'row mb-3'<'col-md-4 text-right'l><'col-md-4 text-center'B><'col-md-4 text-left'f>>" +
+                "dom": "<'row mb-4 align-items-center'<'col-md-4 text-right'l><'col-md-4 text-center'B><'col-md-4 text-left'f>>" +
                     "<'row'<'col-12'tr>>" +
-                    "<'row mt-3'<'col-12 d-flex justify-content-between align-items-center'ip>>",
+                    "<'row mt-4 align-items-center'<'col-md-6 text-right'i><'col-md-6 d-flex justify-content-end'p>>",
                 "columnDefs": [{
                     "orderable": false,
                     "targets": 4

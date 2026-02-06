@@ -1,0 +1,55 @@
+
+    /* تحسينات عامة للجوال */
+    @media (max-width: 768px) {
+        .container-fluid {
+            padding: 10px !important;
+        }
+
+        /* جعل البطاقة العلوية عمودية */
+        .card-body.bg-primary .d-flex {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .bg-white.text-primary.p-3.rounded-circle {
+            margin: 0 auto 15px auto;
+        }
+
+        /* تنسيق الجدول للجوال: تفعيل السكرول الأفقي ومنع تداخل النصوص */
+        .table-responsive {
+            border: 0;
+        }
+
+        #studentsTable {
+            font-size: 13px; /* تصغير الخط قليلاً ليناسب المساحة */
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        /* ضبط الـ Modal لتأخذ مساحة أكبر على الشاشة الصغيرة */
+        .modal-dialog {
+            margin: 10px;
+        }
+    }
+
+    /* إصلاح تداخل عناصر DataTable */
+    .dataTables_wrapper .row {
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+    }
+
+    /* تنسيق خاص لـ Select2 ليناسب اللمس */
+    .select2-container--default .select2-selection--single {
+        height: 45px !important;
+        display: flex;
+        align-items: center;
+    }
+
+    /* جعل الجدول يدعم التمرير الجانبي بنعومة */
+    .card-body.p-0 {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
