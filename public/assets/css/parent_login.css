@@ -76,18 +76,6 @@
             background-color: #fff;
         }
 
-        .input-group-text {
-            background: none;
-            border: none;
-            color: #28a745;
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 10;
-            cursor: pointer;
-        }
-
         .btn-login {
             background: var(--primary-gradient);
             border: none;
@@ -106,11 +94,19 @@
             filter: brightness(1.1);
         }
 
-        .form-check-input:checked {
-            background-color: #28a745;
-            border-color: #28a745;
-        }
-
+        /* أنميشن مخصص للحاوية */
         .animate-float {
             animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
