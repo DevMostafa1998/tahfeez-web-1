@@ -1,13 +1,24 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\{
-    AttendanceController, AttendanceReportController, AuthController,
-    DashboardController, GroupController, MemorizationController,
-    StudentController, CourseController, StudentgroupController,
-    UserController, TeacherReportController, CategoryController,
-    ProfileController, QuranMemTestController, ReportController,
+    AttendanceController,
+    AttendanceReportController,
+    AuthController,
+    DashboardController,
+    GroupController,
+    MemorizationController,
+    StudentController,
+    CourseController,
+    StudentgroupController,
+    UserController,
+    TeacherReportController,
+    CategoryController,
+    ProfileController,
+    QuranMemTestController,
+    ReportController,
     StudentReportController
 };
 
@@ -18,7 +29,12 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 });
-
+Route::get('/parent-login', function () {
+    return view('auth/parent-login');
+})->name('parent.login');
+Route::get('/parents', function () {
+    return view('parents.index');
+})->name('parents.index');
 // --- راوتات المسجلين دخول (أدمن ومحفظ) ---
 Route::middleware('auth')->group(function () {
 
@@ -72,6 +88,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/teachers-attendance', 'storeTeachersAttendance')->name('teachers.attendance.store');
         });
     });
+
 
     Route::get('/logout', function (Request $request) {
         Auth::logout();

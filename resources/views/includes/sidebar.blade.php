@@ -45,6 +45,13 @@
                         <p>المجموعات</p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ route('parent.login') }}"
+                        class="nav-link {{ request()->routeIs('parents.*') ? 'active' : '' }}">
+                        <i class="nav-icon bi bi-people"></i>
+                        <p>ولي الأمر</p>
+                    </a>
+                </li>
 
                 @if (auth()->user()->is_admin)
                     {{-- إدارة الدورات العلمية --}}

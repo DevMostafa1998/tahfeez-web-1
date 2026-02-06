@@ -64,11 +64,11 @@
 
 <body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
     <div class="app-wrapper">
+        @auth
+            @include('includes.header')
 
-        @include('includes.header')
-
-        @include('includes.sidebar')
-
+            @include('includes.sidebar')
+        @endauth
         <main class="app-main">
             @yield('content')
         </main>

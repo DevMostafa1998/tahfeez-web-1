@@ -158,8 +158,7 @@
     </div>
 </div>
 
-<style>
-    /* تنسيقات مخصصة لضغط المساحة */
+{{-- <style>
     .label-style {
         font-size: 0.78rem;
         color: #4a4a4a;
@@ -187,4 +186,4 @@
     .modal-body hr {
         opacity: 0.1;
     }
-</style>
+</style> --}}

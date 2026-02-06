@@ -133,6 +133,11 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-2">
+                                            <a href="{{ route('parents.index') }}"
+                                                class="btn btn-sm btn-outline-secondary rounded-circle action-btn"
+                                                title="عرض ولي الأمر">
+                                                <i class="bi bi-person-vcard"></i>
+                                            </a>
                                             <button class="btn btn-sm btn-outline-info rounded-circle action-btn course-btn"
                                                 data-bs-toggle="modal" data-bs-target="#courseStudentModal"
                                                 data-student-id="{{ $student->id }}"
