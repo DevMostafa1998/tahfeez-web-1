@@ -2,74 +2,7 @@
 @push('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.bootstrap4.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap4.min.css">
-    <style>
-        .custom-compact-table {
-            width: 100% !important;
-            table-layout: fixed;
-            font-size: 11px !important;
-        }
-
-        .dataTables_paginate {
-            float: left !important;
-        }
-
-        .dataTables_info {
-            float: right !important;
-            font-size: 12px;
-            color: #6c757d;
-        }
-
-        .dataTables_wrapper::after {
-            content: "";
-            clear: both;
-            display: table;
-        }
-
-        .custom-compact-table th,
-        .custom-compact-table td {
-            padding: 4px 2px !important;
-            word-wrap: break-word;
-            overflow: hidden;
-        }
-
-        .custom-compact-table th {
-            font-size: 11.5px !important;
-        }
-
-        .badge-custom {
-            display: inline-block;
-            padding: 2px 4px;
-            font-size: 10px;
-            color: #0d6efd;
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-        }
-
-        .status-badge {
-            padding: 2px 5px;
-            border-radius: 4px;
-            color: white;
-            font-size: 10px;
-        }
-
-        .btn-excel {
-            background-color: #1d6f42 !important;
-            color: white !important;
-            border-radius: 5px !important;
-            padding: 4px 12px !important;
-            font-size: 12px !important;
-            font-weight: bold !important;
-            border: none !important;
-            display: flex !important;
-            align-items: center !important;
-            gap: 5px !important;
-        }
-
-        .dataTables_filter {
-            display: none;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('assets/css/student_report.css') }}">
 @endpush
 @section('content')
     <div class="container-fluid p-2" dir="rtl text-right">
@@ -112,7 +45,7 @@
         {{-- جدول البيانات بالتنسيق المضغوط --}}
         <div class="card shadow-sm border-0" style="border-radius: 10px;">
             <div class="card-body p-1">
-                <div class="table-responsive-none">
+                <div class="table-wrapper">
                     <table id="reportTable"
                         class="table table-sm table-bordered table-hover align-middle text-center m-0 custom-compact-table">
                         <thead class="bg-primary text-white">
@@ -205,8 +138,9 @@
                             $('#tableBody').html(html);
 
                             let table = $('#reportTable').DataTable({
-                                "responsive": true, // تفعيل الاستجابة
-
+                                "responsive": false, // اجعله false لأننا نعتمد على السكرول الخاص بالحاوية (overflow-x)
+                                "scrollX": false, // نفضل استخدام CSS overflow للتحكم الأفضل
+                                "autoWidth": false,
                                 "dom": "<'row mb-3'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6 text-end'B>>" +
                                     "<'row'<'col-sm-12'tr>>" +
                                     "<'row mt-3'<'col-sm-12 d-flex justify-content-between align-items-center'ip>>",
