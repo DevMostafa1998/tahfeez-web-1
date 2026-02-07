@@ -71,9 +71,9 @@ class User extends Authenticatable
     }
     public function courses()
     {
-
         return $this->belongsToMany(Course::class, 'course_user', 'user_id', 'course_id')
-            ->withTimestamps();
+                    ->using(CourseUser::class) // الربط بالموديل الجديد
+                    ->withTimestamps();
     }
     public function username()
     {

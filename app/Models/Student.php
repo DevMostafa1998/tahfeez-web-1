@@ -4,6 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\QuranTest;
+use App\Models\Memorization;
+use App\Models\Group;
+use App\Models\Course;
 
 class Student extends Model
 {
@@ -34,11 +38,13 @@ class Student extends Model
     ];
 
     // العلاقة مع الدورات
-
-    public function courses()
-    {
-        return $this->belongsToMany(Course::class, 'course_student', 'student_id', 'course_id');
-    }
+public function courses()
+{
+    return $this->belongsToMany(Course::class, 'course_student', 'student_id', 'course_id')
+                ->using(CourseStudent::class) // الربط بالموديل الجديد
+                ->withPivot('created_at')
+                ->withTimestamps();
+}
 
     public function group()
     {
@@ -46,7 +52,15 @@ class Student extends Model
     }
     public function groups()
     {
-        return $this->belongsToMany(Group::class, 'student_group', 'student_id', 'group_id');
+        return $this->belongsToMany(Group::class, 'student_group', 'student_id', 'group_id')
+                    ->withPivot('creation_at')
+                    ->orderByPivot('creation_at', 'desc');
+    }
+      // جلب المعلم الحالي من خلال أحدث مجموعة
+    public function getCurrentTeacherAttribute()
+    {
+        $latestGroup = $this->groups->first();
+        return $latestGroup ? $latestGroup->teacher : null;
     }
     public function teacher()
     {
@@ -59,6 +73,10 @@ class Student extends Model
     public function latestMemorization()
     {
         // هذه العلاقة تجلب آخر سجل مضاف للطالب في جدول الحفظ اليومي
-        return $this->hasOne(StudentDailyMemorization::class, 'student_id')->latestOfMany('date');
+        return $this->hasOne(StudentDailyMemorization::class, 'student_id')->latest('date');
+    }
+    public function quranTests()
+    {
+        return $this->hasMany(QuranMemTest::class, 'studentId');
     }
 }
