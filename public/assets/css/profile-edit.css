@@ -212,3 +212,70 @@ body {
     border: 1px dashed rgba(255, 255, 255, 0.3);
     font-weight: 500;
 }
+/* تحسينات الشاشات الصغيرة (الجوال) */
+@media (max-width: 991px) {
+    .ultra-card {
+        flex-direction: column; /* تحويل التوزيع من أفقي إلى عمودي */
+        margin: 10px;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .hero-sidebar {
+        width: 100% !important; /* جعل القائمة الجانبية بعرض كامل */
+        padding: 20px 15px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .form-display {
+        width: 100% !important;
+        padding: 20px;
+    }
+
+    .nav-list {
+        display: flex;
+        overflow-x: auto; /* السماح بالتمرير الأفقي للأزرار */
+        gap: 10px;
+        padding-bottom: 10px;
+        scrollbar-width: none; /* إخفاء شريط التمرير لـ Firefox */
+    }
+
+    .nav-list::-webkit-scrollbar {
+        display: none; /* إخفاء شريط التمرير لـ Chrome/Safari */
+    }
+
+    .nav-item-fancy {
+        white-space: nowrap; /* منع انكسار نص الزر */
+        flex: 0 0 auto;
+        margin-bottom: 0 !important;
+        font-size: 0.9rem;
+        padding: 10px 15px;
+    }
+
+    .avatar-container {
+        margin-bottom: 20px;
+    }
+
+    .avatar-glow {
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
+    }
+
+    .glow-button {
+        width: 100%; /* زر التحديث بعرض كامل على الجوال */
+        justify-content: center;
+    }
+}
+
+/* تحسين شكل المدخلات على الشاشات الصغيرة جداً */
+@media (max-width: 576px) {
+    .content-tab h2 {
+        font-size: 1.25rem;
+        text-align: center;
+    }
+
+    .fancy-input-group label {
+        font-size: 0.85rem;
+    }
+}
