@@ -337,6 +337,7 @@
             var dateString = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
             if (!$.fn.dataTable.isDataTable('#studentsTable')) {
                 $('#studentsTable').DataTable({
+
                     "responsive": true, // تفعيل الاستجابة
                     "language": {
                         "sProcessing": "جاري التحميل...",

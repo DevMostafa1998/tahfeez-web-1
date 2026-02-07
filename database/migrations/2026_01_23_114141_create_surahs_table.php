@@ -61,19 +61,19 @@ return new class extends Migration
             (109, 'الكافرون', 'Al-Kafirun'), (110, 'النصر', 'An-Nasr'), (111, 'المسد', 'Al-Masad'),
             (112, 'الإخلاص', 'Al-Ikhlas'), (113, 'الفلق', 'Al-Falaq'), (114, 'الناس', 'An-Nas')
         ");
-        DB::unprepared("
-            CREATE TRIGGER prevent_surahs_update BEFORE UPDATE ON surahs
-            FOR EACH ROW BEGIN
-                SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Forbidden: Update not allowed on Surahs table';
-            END;
-        ");
+        // DB::unprepared("
+        //     CREATE TRIGGER prevent_surahs_update BEFORE UPDATE ON surahs
+        //     FOR EACH ROW BEGIN
+        //         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Forbidden: Update not allowed on Surahs table';
+        //     END;
+        // ");
 
-        DB::unprepared("
-            CREATE TRIGGER prevent_surahs_delete BEFORE DELETE ON surahs
-            FOR EACH ROW BEGIN
-                SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Forbidden: Delete not allowed on Surahs table';
-            END;
-        ");
+        // DB::unprepared("
+        //     CREATE TRIGGER prevent_surahs_delete BEFORE DELETE ON surahs
+        //     FOR EACH ROW BEGIN
+        //         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Forbidden: Delete not allowed on Surahs table';
+        //     END;
+        // ");
     }
 
     /**

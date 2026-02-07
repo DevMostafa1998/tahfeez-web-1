@@ -61,8 +61,7 @@ class StudentController extends Controller
         }
 
         // 4. تنفيذ الاستعلام مع التقسيم لصفحات والحفاظ على روابط الفلتر
-        $students = $query->paginate(10)->withQueryString();
-
+        $students = $query->get(); // جلب كافة العناصر
         $groups = Group::all();
         $student_courses = Course::where(function ($q) {
             $q->where('type', 'students')

@@ -42,7 +42,7 @@ class StudentLogic
 
     public function getAllStudents()
     {
-        return Student::whereNull('deleted_at')->latest()->paginate(10);
+        return Student::whereNull('deleted_at')->latest();
     }
 
 

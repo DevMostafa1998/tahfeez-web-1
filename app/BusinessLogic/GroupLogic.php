@@ -87,8 +87,8 @@ class GroupLogic
     {
         $group = Group::with('teacher')->findOrFail($id);
         $students = $group->students()
-            ->with('latestMemorization')
-            ->paginate(5); // عرض 10 طلاب في الصفحة
+            ->with('latestMemorization');
+        // ->paginate(5); // عرض 10 طلاب في الصفحة
         // إضافة students.latestMemorization لجلب آخر تسميع لكل طالب
         // return Group::with(['students.latestMemorization', 'teacher'])->findOrFail($id);
         $surahs = DB::table('surahs')->orderBy('number')->get();
