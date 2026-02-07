@@ -41,7 +41,8 @@ class User extends Authenticatable
         'specialization',
         'parts_memorized',
         'mosque_name',
-        'is_displaced'
+        'is_displaced',
+        'gender',
 
     ];
     protected $dates = ['deleted_at'];
@@ -68,11 +69,11 @@ class User extends Authenticatable
             'is_admin' => 'boolean',
         ];
     }
-     public function courses()
+    public function courses()
     {
 
         return $this->belongsToMany(Course::class, 'course_user', 'user_id', 'course_id')
-                ->withTimestamps(); 
+            ->withTimestamps();
     }
     public function username()
     {
@@ -84,7 +85,6 @@ class User extends Authenticatable
     }
     public function groups()
     {
-        return $this->hasMany(Group::class, 'UserId','id');
+        return $this->hasMany(Group::class, 'UserId', 'id');
     }
-
 }

@@ -13,19 +13,23 @@ class StudentgroupLogic
     /**
      * جلب البيانات اللازمة لعرض مجموعات الطلاب
      */
+    // داخل ملف StudentgroupLogic.php
+
     public function getIndexData()
     {
         return [
-            'groups' => Group::with('students')->withCount('students')
+            'groups' => Group::with(['students', 'teacher']) // تأكد من وجود علاقة teacher في مودل Group
+                ->withCount('students')
                 ->whereNull('deleted_at')
                 ->orderBy('creation_at', 'desc')
                 ->get(),
 
             'teachers' => DB::table('user')
-                ->select('id', 'full_name')
+                ->select('id', 'full_name', 'gender') // أضفنا الجنس هنا
                 ->where('is_admin', 0)
                 ->get(),
 
+            // جلب جميع الطلاب غير المسجلين حالياً (سنفلترهم في الـ Blade حسب الجنس)
             'availableStudents' => Student::whereDoesntHave('groups')->get(),
         ];
     }

@@ -25,7 +25,8 @@ class Student extends Model
         'center_name',
         'mosque_name',
         'mosque_address',
-        'whatsapp_number'
+        'whatsapp_number',
+        'gender',
     ];
     protected $casts = [
         'date_of_birth' => 'date',

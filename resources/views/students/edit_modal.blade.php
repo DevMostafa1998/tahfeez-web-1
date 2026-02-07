@@ -35,17 +35,17 @@
                                     <i class="bi bi-person-bounding-box text-warning ms-2"></i>
                                 </label>
                                 <input type="text" name="full_name"
-                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-end"
+                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
                                     value="{{ $student->full_name }}" required>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label
                                     class="label-style fw-bold mb-1 d-flex flex-row-reverse justify-content-end align-items-center">
                                     <span>رقم الهوية</span>
                                     <i class="bi bi-person-vcard text-warning ms-2"></i>
                                 </label>
                                 <input type="text" name="id_number"
-                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-end"
+                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
                                     value="{{ $student->id_number }}" required>
                             </div>
                             <div class="col-md-2">
@@ -55,7 +55,7 @@
                                     <i class="bi bi-calendar-check text-warning ms-2"></i>
                                 </label>
                                 <input type="date" name="date_of_birth"
-                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-end"
+                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
                                     value="{{ \Carbon\Carbon::parse($student->date_of_birth)->format('Y-m-d') }}"
                                     required>
                             </div>
@@ -66,8 +66,21 @@
                                     <i class="bi bi-geo-alt text-warning ms-2"></i>
                                 </label>
                                 <input type="text" name="birth_place"
-                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-end"
+                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
                                     value="{{ $student->birth_place }}">
+                            </div>
+                            <div class="col-md-1">
+                                <label
+                                    class="label-style fw-bold mb-1 d-flex flex-row-reverse justify-content-end align-items-right">
+                                    <span>الجنس</span>
+                                    <i class="bi bi-gender-ambiguous text-warning ms-2"></i>
+                                </label>
+                                <select name="gender" class="form-select bg-light border-0 py-2">
+                                    <option value="male" {{ $student->gender == 'male' ? 'selected' : '' }}>ذكر
+                                    </option>
+                                    <option value="female" {{ $student->gender == 'female' ? 'selected' : '' }}>أنثى
+                                    </option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -87,7 +100,7 @@
                                     <i class="bi bi-phone-vibrate text-warning ms-2"></i>
                                 </label>
                                 <input type="text" name="phone_number"
-                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-end"
+                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
                                     value="{{ $student->phone_number }}" required>
                             </div>
                             <div class="col-md-2">
@@ -97,7 +110,7 @@
                                     <i class="bi bi-whatsapp text-success ms-2"></i>
                                 </label>
                                 <input type="text" name="whatsapp_number"
-                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-end"
+                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
                                     value="{{ $student->whatsapp_number }}">
                             </div>
                             <div class="col-md-5">
@@ -107,7 +120,7 @@
                                     <i class="bi bi-map text-warning ms-2"></i>
                                 </label>
                                 <input type="text" name="address"
-                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-end"
+                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
                                     value="{{ $student->address }}" required>
                             </div>
                             <div class="col-md-3">
@@ -140,7 +153,7 @@
                                     <i class="bi bi-building-gear text-warning ms-2"></i>
                                 </label>
                                 <input type="text" name="center_name"
-                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-end"
+                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
                                     value="{{ $student->center_name }}">
                             </div>
                             <div class="col-md-3">
@@ -150,7 +163,7 @@
                                     <i class="bi bi-moon-stars-fill text-warning ms-2"></i>
                                 </label>
                                 <input type="text" name="mosque_name"
-                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-end"
+                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
                                     value="{{ $student->mosque_name }}">
                             </div>
                             <div class="col-md-6">
@@ -160,7 +173,7 @@
                                     <i class="bi bi-pin-map-fill text-warning ms-2"></i>
                                 </label>
                                 <input type="text" name="mosque_address"
-                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-end"
+                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
                                     value="{{ $student->mosque_address }}">
                             </div>
                         </div>

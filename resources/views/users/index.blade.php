@@ -13,6 +13,7 @@
             margin-bottom: 1.5rem;
             padding: 0 15px;
         }
+
         .btn-excel {
             background-color: #1d6f42 !important;
             color: white !important;
@@ -21,13 +22,33 @@
             font-weight: bold !important;
             border: none;
         }
+
+        .bg-blue-subtle {
+            background-color: #e7f1ff !important;
+            color: #0d6efd !important;
+        }
+
+        .bg-pink-subtle {
+            background-color: #fff0f3 !important;
+            color: #d63384 !important;
+        }
+
         .action-btn {
-            width: 34px; height: 34px;
-            display: flex; align-items: center; justify-content: center;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: transform 0.2s;
         }
-        .action-btn:hover { transform: scale(1.1); }
-        .cursor-pointer { cursor: pointer; }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
 
         /* تنسيق الأرقام والهوية */
         .id-badge {
@@ -37,8 +58,17 @@
         }
 
         /* تحسين شكل خانة البحث وعدد الصفوف */
-        .dataTables_filter input { border-radius: 20px; padding: 5px 15px; border: 1px solid #ddd; }
-        .custom-select { border-radius: 8px !important; height: auto !important; padding: 5px !important; }
+        .dataTables_filter input {
+            border-radius: 20px;
+            padding: 5px 15px;
+            border: 1px solid #ddd;
+        }
+
+        .custom-select {
+            border-radius: 8px !important;
+            height: auto !important;
+            padding: 5px !important;
+        }
     </style>
 @endpush
 
@@ -55,103 +85,126 @@
         </div>
 
         <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
-    <div class="card-body p-0">
-        <div class="p-3">
-            <div class="table-responsive">
-                <table id="usersTable" class="table table-striped table-bordered align-middle mb-0 text-center">
-                    <thead class="bg-light text-secondary">
-                        <tr>
-                            <th class="text-start ps-4">اسم المستخدم</th>
-                            <th class="text-center">رقم الهوية</th> <th class="text-center">رقم الجوال</th> <th>التصنيف</th>
-                            <th>الصلاحية</th>
-                            <th>الدورات</th>
-                            <th style="width: 150px;">الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($users as $user)
-                            <tr>
-                                <td class="text-start ps-4">
-                                    <strong>{{ $user->full_name }}</strong>
-                                </td>
+            <div class="card-body p-0">
+                <div class="p-3">
+                    <div class="table-responsive">
+                        <table id="usersTable" class="table table-striped table-bordered align-middle mb-0 text-center">
+                            <thead class="bg-light text-secondary">
+                                <tr>
+                                    <th class="text-start ps-4">اسم المستخدم</th>
+                                    <th class="text-center">رقم الهوية</th>
+                                    <th class="text-center">رقم الجوال</th>
+                                    <th class="text-center">الجنس</th>
 
-                                <td class="text-center">
-                                    <span class="badge bg-light text-dark border px-4 py-2 fw-bold fs-7 id-badge"
-                                          style="display: inline-block; min-width: 110px;">
-                                        {{ $user->id_number }}
-                                    </span>
-                                </td>
+                                    <th>التصنيف</th>
+                                    <th>الصلاحية</th>
+                                    <th>الدورات</th>
+                                    <th style="width: 150px;">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($users as $user)
+                                    <tr>
+                                        <td class="text-start ps-4">
+                                            <strong>{{ $user->full_name }}</strong>
+                                        </td>
 
-                                <td dir="ltr" class="fw-bold fs-6 text-primary-emphasis text-center">
-                                    {{ $user->phone_number }}
-                                </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-light text-dark border px-4 py-2 fw-bold fs-7 id-badge"
+                                                style="display: inline-block; min-width: 110px;">
+                                                {{ $user->id_number }}
+                                            </span>
+                                        </td>
 
-                                <td>
-                                    <span class="badge rounded-pill bg-info bg-opacity-10 text-info border border-info px-3 py-1" style="font-size: 0.85rem;">
-                                        {{ $user->category->name ?? '---' }}
-                                    </span>
-                                </td>
+                                        <td dir="ltr" class="fw-bold fs-6 text-primary-emphasis text-center">
+                                            {{ $user->phone_number }}
+                                        </td>
+                                        <td class="text-center">
+                                            @if ($user->gender == 'male' || $user->gender == 'ذكر')
+                                                <span class="badge bg-blue-subtle text-primary border px-3">
+                                                    <i class="bi bi-person-fill ms-1"></i> ذكر </span>
+                                                </span>
+                                            @else
+                                                <span class="badge bg-pink-subtle text-danger border px-3">
+                                                    <i class="bi bi-person ms-1"></i> أنثى </span>
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <span
+                                                class="badge rounded-pill bg-info bg-opacity-10 text-info border border-info px-3 py-1"
+                                                style="font-size: 0.85rem;">
+                                                {{ $user->category->name ?? '---' }}
+                                            </span>
+                                        </td>
 
-                                <td>
-                                    <span class="badge rounded-pill {{ $user->is_admin ? 'bg-primary' : 'bg-success' }} px-3 py-1" style="font-size: 0.85rem;">
-                                        {{ $user->is_admin ? 'مسؤول' : 'محفظ' }}
-                                    </span>
-                                </td>
+                                        <td>
+                                            <span
+                                                class="badge rounded-pill {{ $user->is_admin ? 'bg-primary' : 'bg-success' }} px-3 py-1"
+                                                style="font-size: 0.85rem;">
+                                                {{ $user->is_admin ? 'مسؤول' : 'محفظ' }}
+                                            </span>
+                                        </td>
 
-                                <td>
-                                    @if (!$user->is_admin)
-                                        <span class="badge bg-warning text-dark rounded-pill shadow-sm px-3"
-                                              style="padding-top: 5px; padding-bottom: 5px; font-size: 0.85rem;">
-                                            {{ $user->courses->count() }} دورات
-                                        </span>
-                                    @else
-                                        <span class="text-muted small">--</span>
-                                    @endif
-                                </td>
+                                        <td>
+                                            @if (!$user->is_admin)
+                                                <span class="badge bg-warning text-dark rounded-pill shadow-sm px-3"
+                                                    style="padding-top: 5px; padding-bottom: 5px; font-size: 0.85rem;">
+                                                    {{ $user->courses->count() }} دورات
+                                                </span>
+                                            @else
+                                                <span class="text-muted small">--</span>
+                                            @endif
+                                        </td>
 
-                                <td>
-                                    <div class="d-flex justify-content-center gap-2">
-                                        @if (!$user->is_admin)
-                                            <button class="btn btn-sm btn-outline-info rounded-circle action-btn course-btn"
-                                                data-bs-toggle="modal" data-bs-target="#courseUserModal"
-                                                data-user-id="{{ $user->id }}"
-                                                data-user-name="{{ $user->full_name }}"
-                                                data-user-courses="{{ json_encode($user->courses->pluck('id')) }}"
-                                                title="إدارة الدورات">
-                                                <i class="bi bi-journal-plus"></i>
-                                            </button>
-                                        @else
-                                            <div style="width: 34px;"></div>
-                                        @endif
+                                        <td>
+                                            <div class="d-flex justify-content-center gap-2">
+                                                @if (!$user->is_admin)
+                                                    <button
+                                                        class="btn btn-sm btn-outline-info rounded-circle action-btn course-btn"
+                                                        data-bs-toggle="modal" data-bs-target="#courseUserModal"
+                                                        data-user-id="{{ $user->id }}"
+                                                        data-user-name="{{ $user->full_name }}"
+                                                        data-user-courses="{{ json_encode($user->courses->pluck('id')) }}"
+                                                        title="إدارة الدورات">
+                                                        <i class="bi bi-journal-plus"></i>
+                                                    </button>
+                                                @else
+                                                    <div style="width: 34px;"></div>
+                                                @endif
 
-                                        <a href="{{ route('teachers.show', $user->id) }}"
-                                           class="btn btn-sm btn-outline-primary rounded-circle action-btn" title="عرض">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
+                                                <a href="{{ route('teachers.show', $user->id) }}"
+                                                    class="btn btn-sm btn-outline-primary rounded-circle action-btn"
+                                                    title="عرض">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
 
-                                        <button class="btn btn-sm btn-outline-warning rounded-circle action-btn"
-                                            data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->id }}" title="تعديل">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </button>
+                                                <button class="btn btn-sm btn-outline-warning rounded-circle action-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#editUserModal{{ $user->id }}" title="تعديل">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </button>
 
-                                        <form action="{{ route('user.destroy', $user->id) }}" method="POST" id="deleteForm{{ $user->id }}" class="d-inline">
-                                            @csrf @method('DELETE')
-                                            <button type="button" onclick="confirmDelete({{ $user->id }})"
-                                                class="btn btn-sm btn-outline-danger rounded-circle action-btn" title="حذف">
-                                                <i class="bi bi-trash3"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                            @include('users.edit_modal', ['user' => $user])
-                        @endforeach
-                    </tbody>
-                </table>
+                                                <form action="{{ route('user.destroy', $user->id) }}" method="POST"
+                                                    id="deleteForm{{ $user->id }}" class="d-inline">
+                                                    @csrf @method('DELETE')
+                                                    <button type="button" onclick="confirmDelete({{ $user->id }})"
+                                                        class="btn btn-sm btn-outline-danger rounded-circle action-btn"
+                                                        title="حذف">
+                                                        <i class="bi bi-trash3"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @include('users.edit_modal', ['user' => $user])
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
     </div>
 
@@ -170,12 +223,14 @@
                         <div class="row g-2">
                             @foreach ($all_courses as $course)
                                 <div class="col-6 mb-2">
-                                    <div class="p-2 bg-light rounded border d-flex align-items-center justify-content-start cursor-pointer">
+                                    <div
+                                        class="p-2 bg-light rounded border d-flex align-items-center justify-content-start cursor-pointer">
                                         <input class="form-check-input course-checkbox m-0" type="checkbox" name="courses[]"
                                             value="{{ $course->id }}" id="user_course_{{ $course->id }}"
                                             style="position: relative; margin-left: 10px !important;">
                                         <label class="form-check-label fw-bold cursor-pointer mb-0 flex-grow-1"
-                                               for="user_course_{{ $course->id }}" style="text-align: right; padding-right: 5px;">
+                                            for="user_course_{{ $course->id }}"
+                                            style="text-align: right; padding-right: 5px;">
                                             {{ $course->name }}
                                         </label>
                                     </div>
@@ -184,7 +239,8 @@
                         </div>
                     </div>
                     <div class="modal-footer border-0">
-                        <button type="submit" class="btn btn-info text-white px-5 rounded-pill fw-bold">حفظ التغييرات</button>
+                        <button type="submit" class="btn btn-info text-white px-5 rounded-pill fw-bold">حفظ
+                            التغييرات</button>
                     </div>
                 </div>
             </form>
@@ -220,33 +276,36 @@
             });
         }
 
-       $(document).ready(function() {
-        var d = new Date();
-        var dateString = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+        $(document).ready(function() {
+            var d = new Date();
+            var dateString = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
 
-        if (!$.fn.dataTable.isDataTable('#usersTable')) {
-            $('#usersTable').DataTable({
-                "pageLength": 10,
-                "language": {
-                    "sProcessing": "جاري التحميل...",
-                    "sLengthMenu": "أظهر _MENU_ سجلات",
-                    "sSearch": "بحث سريع:",
-                    "sInfo": "عرض _START_ إلى _END_ من أصل _TOTAL_ مستخدم",
-                    "oPaginate": { "sPrevious": "السابق", "sNext": "التالي" }
-                },
-                "dom": "<'row mb-3'<'col-md-4 text-right'l><'col-md-4 text-center'B><'col-md-4 text-left d-flex justify-content-end'f>>t<'row'<'col-12 d-flex justify-content-between'ip>>",
-                "buttons": [{
-                    extend: 'excelHtml5',
-                    text: '<i class="bi bi-file-earmark-excel-fill ms-1"></i> تصدير إكسل',
-                    className: 'btn-excel',
-                    title: 'بيانات المستخدمين - تاريخ ' + dateString,
-                    filename: 'تقرير_المستخدمين_' + dateString,
-                    exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5]
-                    }
-                }]
-            });
-        }
+            if (!$.fn.dataTable.isDataTable('#usersTable')) {
+                $('#usersTable').DataTable({
+                    "pageLength": 10,
+                    "language": {
+                        "sProcessing": "جاري التحميل...",
+                        "sLengthMenu": "أظهر _MENU_ سجلات",
+                        "sSearch": "بحث سريع:",
+                        "sInfo": "عرض _START_ إلى _END_ من أصل _TOTAL_ مستخدم",
+                        "oPaginate": {
+                            "sPrevious": "السابق",
+                            "sNext": "التالي"
+                        }
+                    },
+                    "dom": "<'row mb-3'<'col-md-4 text-right'l><'col-md-4 text-center'B><'col-md-4 text-left d-flex justify-content-end'f>>t<'row'<'col-12 d-flex justify-content-between'ip>>",
+                    "buttons": [{
+                        extend: 'excelHtml5',
+                        text: '<i class="bi bi-file-earmark-excel-fill ms-1"></i> تصدير إكسل',
+                        className: 'btn-excel',
+                        title: 'بيانات المستخدمين - تاريخ ' + dateString,
+                        filename: 'تقرير_المستخدمين_' + dateString,
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5, 6]
+                        }
+                    }]
+                });
+            }
 
             $(document).on('click', '.course-btn', function() {
                 const userId = $(this).data('user-id');
@@ -265,13 +324,13 @@
             });
         });
         @if (session('success'))
-                Swal.fire({
-                    icon: 'success',
-                    title: 'تم بنجاح',
-                    text: "{{ session('success') }}",
-                    confirmButtonColor: '#0dcaf0',
-                    timer: 2500
-                });
-            @endif
+            Swal.fire({
+                icon: 'success',
+                title: 'تم بنجاح',
+                text: "{{ session('success') }}",
+                confirmButtonColor: '#0dcaf0',
+                timer: 2500
+            });
+        @endif
     </script>
 @endpush

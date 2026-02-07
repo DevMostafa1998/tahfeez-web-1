@@ -65,7 +65,8 @@
                                                 class="form-select form-select-sm border-0 bg-white px-3 py-2 fw-bold shadow-sm"
                                                 required>
                                                 {{-- تم جعل "محفظ" هو الخيار الافتراضي --}}
-                                                <option value="محفظ" {{ old('is_admin') == 'محفظ' || !old('is_admin') ? 'selected' : '' }}>
+                                                <option value="محفظ"
+                                                    {{ old('is_admin') == 'محفظ' || !old('is_admin') ? 'selected' : '' }}>
                                                     محفظ</option>
                                                 <option value="مسؤول" {{ old('is_admin') == 'مسؤول' ? 'selected' : '' }}>
                                                     مسؤول</option>
@@ -130,7 +131,7 @@
                                                 class="form-control form-control-sm border-0 bg-light px-3 py-2 only-text"
                                                 placeholder="أدخل الاسم رباعي" value="{{ old('full_name') }}" required>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-2">
                                             <label class="form-label small fw-bold text-secondary mb-1">
                                                 <i class="bi bi-card-heading text-primary me-1"></i>رقم الهوية
                                             </label>
@@ -153,6 +154,20 @@
                                             <input type="text" name="birth_place"
                                                 class="form-control form-control-sm border-0 bg-light px-3 py-2"
                                                 placeholder="مدينة الميلاد" value="{{ old('birth_place') }}">
+                                        </div>
+                                        <div class="col-md-1 text-start">
+                                            <label class="form-label small fw-bold text-secondary mb-1">
+                                                <i class="bi bi-gender-ambiguous text-primary me-1"></i>الجنس
+                                            </label>
+                                            <select name="gender"
+                                                class="form-select form-select-sm border-0 bg-light px-3 py-2 fw-bold"
+                                                required>
+                                                <option value="" selected disabled>اختر</option>
+                                                <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>ذكر
+                                                </option>
+                                                <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>
+                                                    أنثى</option>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
@@ -232,7 +247,8 @@
                                         <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold shadow-sm">
                                             <i class="bi bi-mortarboard-fill me-1"></i> 4. البيانات العلمية والقرآنية
                                         </span>
-                                        <hr class="flex-grow-1 ms-3 my-0 opacity-25" style="border-top: 2px solid #ffc107;">
+                                        <hr class="flex-grow-1 ms-3 my-0 opacity-25"
+                                            style="border-top: 2px solid #ffc107;">
                                     </div>
                                     <div class="row g-3 text-start">
                                         <div class="col-md-4">
@@ -307,7 +323,7 @@
                 roleSelect.addEventListener('change', toggleFields);
             }
 
-     
+
             const form = document.getElementById('createUserForm');
             const requiredInputs = document.querySelectorAll('[required]');
             requiredInputs.forEach(input => {

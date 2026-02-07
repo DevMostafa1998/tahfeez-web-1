@@ -63,7 +63,7 @@
                                                 class="form-control form-control-sm border-0 bg-light px-3 py-2"
                                                 placeholder="الاسم الكامل" value="{{ old('full_name') }}" required>
                                         </div>
-                                        <div class="col-md-3 text-start">
+                                        <div class="col-md-2 text-start">
                                             <label class="form-label small fw-bold text-secondary mb-1">
                                                 <i class="bi bi-person-vcard text-primary me-1"></i>رقم الهوية
                                             </label>
@@ -73,6 +73,7 @@
                                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                                 value="{{ old('id_number') }}" required>
                                         </div>
+
                                         <div class="col-md-2 text-start">
                                             <label class="form-label small fw-bold text-secondary mb-1">
                                                 <i class="bi bi-calendar-event text-primary me-1"></i>تاريخ الميلاد
@@ -88,6 +89,20 @@
                                             <input type="text" name="birth_place"
                                                 class="form-control form-control-sm border-0 bg-light px-3 py-2"
                                                 placeholder="المدينة/القرية" value="{{ old('birth_place') }}" required>
+                                        </div>
+                                        <div class="col-md-1 text-start">
+                                            <label class="form-label small fw-bold text-secondary mb-1">
+                                                <i class="bi bi-gender-ambiguous text-primary me-1"></i>الجنس
+                                            </label>
+                                            <select name="gender"
+                                                class="form-select form-select-sm border-0 bg-light px-3 py-2 fw-bold"
+                                                required>
+                                                <option value="" selected disabled>اختر</option>
+                                                <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>ذكر
+                                                </option>
+                                                <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>
+                                                    أنثى</option>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>

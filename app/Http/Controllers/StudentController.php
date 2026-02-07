@@ -22,23 +22,23 @@ class StudentController extends Controller
     }
     public function index(Request $request)
     {
-         $query = Student::with(['courses', 'group']); // جلب الطلاب مع دوراتهم ومجموعاتهم
+        $query = Student::with(['courses', 'group']); // جلب الطلاب مع دوراتهم ومجموعاتهم
         $user = Auth::user();
         $isAdmin = $user->is_admin == 1;
         $today = \Carbon\Carbon::today();
 
         // 1. نبدأ باستعلام جدول الطلاب (مع تحديد الأعمدة لتجنب تضارب الـ IDs)
-$query = DB::table('student')
-    ->select('student.*')
-    ->addSelect([
-        'courses_count' => DB::table('course_student')
-            ->whereColumn('student_id', 'student.id')
-            ->selectRaw('count(*)'),
-        'course_ids' => DB::table('course_student')
-            ->whereColumn('student_id', 'student.id')
-            ->selectRaw("GROUP_CONCAT(course_id)")
-    ])
-    ->whereNull('student.deleted_at');
+        $query = DB::table('student')
+            ->select('student.*')
+            ->addSelect([
+                'courses_count' => DB::table('course_student')
+                    ->whereColumn('student_id', 'student.id')
+                    ->selectRaw('count(*)'),
+                'course_ids' => DB::table('course_student')
+                    ->whereColumn('student_id', 'student.id')
+                    ->selectRaw("GROUP_CONCAT(course_id)")
+            ])
+            ->whereNull('student.deleted_at');
 
         // 2. إذا كان المستخدم "محفظ" (ليس أدمن)، نعرض طلابه فقط من خلال المجموعات
         if (!$isAdmin) {
@@ -55,7 +55,7 @@ $query = DB::table('student')
             $who_memorized = DB::table('student_daily_memorizations')
                 ->whereDate('date', $today)
                 ->pluck('student_id');
-           $query->whereNotIn('id', $who_memorized);
+            $query->whereNotIn('id', $who_memorized);
             // استبعاد من قاموا بالتسميع من النتائج
             $query->whereNotIn('student.id', $who_memorized);
         }
@@ -63,10 +63,10 @@ $query = DB::table('student')
         // 4. تنفيذ الاستعلام مع التقسيم لصفحات والحفاظ على روابط الفلتر
         $students = $query->paginate(10)->withQueryString();
 
-                $groups = Group::all();
-                $student_courses = Course::where(function($q) {
+        $groups = Group::all();
+        $student_courses = Course::where(function ($q) {
             $q->where('type', 'students')
-              ->orWhereNull('type');
+                ->orWhereNull('type');
         })->get();
 
         // 5. العودة للملف (تأكد من اسم الملف هل هو student.index أم students.index)
@@ -77,14 +77,15 @@ $query = DB::table('student')
      */
     public function create()
     {
-$groups = Group::all();
+        $groups = Group::all();
 
-        $student_courses = Course::where(function($q) {
+        $student_courses = Course::where(function ($q) {
             $q->where('type', 'students')
-              ->orWhereNull('type');
+                ->orWhereNull('type');
         })->get();
 
-        return view('students.create', compact('student_courses', 'groups'));    }
+        return view('students.create', compact('student_courses', 'groups'));
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -107,11 +108,12 @@ $groups = Group::all();
             'mosque_name'   => 'required|string|max:255',
             'mosque_address' => 'required|string|max:255',
             'whatsapp_number' => 'required|string|max:15',
+            'gender'       => 'sometimes|in:male,female',
 
         ]);
-$this->studentLogic->storeStudent($validated);        if ($request->ajax()) {
-                        return response()->json(['success' => true, 'message' => 'تم إضافة الطالب']);
-
+        $this->studentLogic->storeStudent($validated);
+        if ($request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'تم إضافة الطالب']);
         }
         return redirect()->route('student.index')->with('success', 'تم إضافة الطالب والدورات بنجاح');
     }
@@ -135,33 +137,34 @@ $this->studentLogic->storeStudent($validated);        if ($request->ajax()) {
     /**
      * Update the specified resource in storage.
      */
-public function update(Request $request, $id)
-{
-    if ($request->has('update_courses_only')) {
-        $student = \App\Models\Student::findOrFail($id);
-        $student->courses()->sync($request->input('courses', []));
-        return redirect()->back()->with('success', 'تم تحديث الدورات بنجاح');
+    public function update(Request $request, $id)
+    {
+        if ($request->has('update_courses_only')) {
+            $student = \App\Models\Student::findOrFail($id);
+            $student->courses()->sync($request->input('courses', []));
+            return redirect()->back()->with('success', 'تم تحديث الدورات بنجاح');
+        }
+
+        // تعديل الطالب: جعلنا الحقول التي قد تكون فارغة nullable
+        $validatedData = $request->validate([
+            'full_name'      => 'required|string|max:255',
+            'id_number'      => 'required|string|digits:9',
+            'date_of_birth'  => 'required|date',
+            'phone_number'   => 'required|string|max:15',
+            'address'        => 'required|string',
+            'is_displaced'   => 'required',
+            'birth_place'    => 'nullable|string|max:255',
+            'center_name'    => 'nullable|string|max:255',
+            'mosque_name'    => 'nullable|string|max:255',
+            'mosque_address' => 'nullable|string|max:255',
+            'whatsapp_number' => 'nullable|string|max:15',
+            'gender'       => 'sometimes|in:male,female',
+        ]);
+
+        $this->studentLogic->updateStudent($id, $validatedData);
+
+        return redirect()->route('student.index')->with('success', 'تم تحديث بيانات الطالب بنجاح');
     }
-
-    // تعديل الطالب: جعلنا الحقول التي قد تكون فارغة nullable
-    $validatedData = $request->validate([
-        'full_name'      => 'required|string|max:255',
-        'id_number'      => 'required|string|digits:9',
-        'date_of_birth'  => 'required|date',
-        'phone_number'   => 'required|string|max:15',
-        'address'        => 'required|string',
-        'is_displaced'   => 'required',
-        'birth_place'    => 'nullable|string|max:255',
-        'center_name'    => 'nullable|string|max:255',
-        'mosque_name'    => 'nullable|string|max:255',
-        'mosque_address' => 'nullable|string|max:255',
-        'whatsapp_number' => 'nullable|string|max:15',
-    ]);
-
-    $this->studentLogic->updateStudent($id, $validatedData);
-
-    return redirect()->route('student.index')->with('success', 'تم تحديث بيانات الطالب بنجاح');
-}
     /**
      * Remove the specified resource from storage.
      */

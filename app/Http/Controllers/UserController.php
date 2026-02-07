@@ -17,20 +17,20 @@ class UserController extends Controller
         $this->userLogic = $userLogic;
     }
 
-   public function index()
-{
-    $users = User::with('courses')->latest()->get();
+    public function index()
+    {
+        $users = User::with('courses')->latest()->get();
 
-    $categories = DB::table('categorie')->get();
-    $all_courses = Course::where(function ($query) {
-        $query->where('type', 'teachers')->orWhereNull('type');
-    })->get();
+        $categories = DB::table('categorie')->get();
+        $all_courses = Course::where(function ($query) {
+            $query->where('type', 'teachers')->orWhereNull('type');
+        })->get();
 
-    return view('users.index', compact('users', 'categories', 'all_courses'));
-}
+        return view('users.index', compact('users', 'categories', 'all_courses'));
+    }
     public function show($id)
     {
-        $teacher = User::with(['courses', 'groups' => function($query) {
+        $teacher = User::with(['courses', 'groups' => function ($query) {
             $query->withCount('students');
         }])->findOrFail($id);
 
@@ -48,21 +48,22 @@ class UserController extends Controller
             'category_id'   => 'required',
             'courses'       => 'nullable|array',
             'is_displaced'  => 'required|boolean',
+            'gender'       => 'sometimes|in:male,female',
         ]);
 
         $this->userLogic->storeUser($request->all());
         return redirect()->route('user.index')->with('success', 'تم إضافة المستخدم والدورات بنجاح!');
     }
-        public function edit($id)
-        {
-            $user = User::findOrFail($id);
-            $categories = DB::table('categorie')->get();
-            $all_courses = Course::where(function($query) {
-                $query->where('type', 'teachers')->orWhereNull('type');
-            })->get();
+    public function edit($id)
+    {
+        $user = User::findOrFail($id);
+        $categories = DB::table('categorie')->get();
+        $all_courses = Course::where(function ($query) {
+            $query->where('type', 'teachers')->orWhereNull('type');
+        })->get();
 
-            return view('profile.edit', compact('user', 'categories', 'all_courses'));
-        }
+        return view('profile.edit', compact('user', 'categories', 'all_courses'));
+    }
 
     public function update(Request $request, $id)
     {
@@ -83,6 +84,7 @@ class UserController extends Controller
             'password'     => 'nullable|string|min:6|confirmed',
             'courses'      => 'nullable|array',
             'is_displaced' => 'required|boolean',
+            'gender'       => 'sometimes|in:male,female',
         ]);
 
         $this->userLogic->updateUser($user, $request->all());

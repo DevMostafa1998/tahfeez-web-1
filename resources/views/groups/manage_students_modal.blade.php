@@ -34,21 +34,23 @@
                                 </div>
                             @endforeach
                             @foreach ($availableStudents as $st)
-                                <div class="col-md-6 student-item">
-                                    <div class="form-check card p-2 border shadow-sm">
-                                        <input class="form-check-input ms-2" type="checkbox" name="student_ids[]"
-                                            value="{{ $st->id }}"
-                                            id="st_av{{ $group->id }}{{ $st->id }}">
-                                        <label class="form-check-label"
-                                            for="st_av{{ $group->id }}{{ $st->id }}">
-                                            <span class="fw-bold d-block">{{ $st->full_name }}</span>
-                                            <small class="text-muted">غير مسجل</small>
-                                            <span class="badge bg-success-subtle text-success border-0 fw-normal">
-                                                {{ \Carbon\Carbon::parse($st->date_of_birth)->age }} سنة
-                                            </span>
-                                        </label>
+                                @if ($st->gender === $group->teacher->gender)
+                                    <div class="col-md-6 student-item">
+                                        <div class="form-check card p-2 border shadow-sm">
+                                            <input class="form-check-input ms-2" type="checkbox" name="student_ids[]"
+                                                value="{{ $st->id }}"
+                                                id="st_av{{ $group->id }}{{ $st->id }}">
+                                            <label class="form-check-label"
+                                                for="st_av{{ $group->id }}{{ $st->id }}">
+                                                <span class="fw-bold d-block">{{ $st->full_name }}</span>
+                                                <small class="text-muted">غير مسجل</small>
+                                                <span class="badge bg-success-subtle text-success border-0 fw-normal">
+                                                    {{ \Carbon\Carbon::parse($st->date_of_birth)->age }} سنة
+                                                </span>
+                                            </label>
+                                        </div>
                                     </div>
-                                </div>
+                                @endif
                             @endforeach
                         </div>
                     </div>

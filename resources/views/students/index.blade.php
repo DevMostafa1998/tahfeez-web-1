@@ -19,6 +19,16 @@
             padding: 0 15px;
         }
 
+        .bg-blue-subtle {
+            background-color: #e7f1ff !important;
+            color: #0d6efd !important;
+        }
+
+        .bg-pink-subtle {
+            background-color: #fff0f3 !important;
+            color: #d63384 !important;
+        }
+
         #studentsTable {
             width: 100% !important;
             margin: 0 !important;
@@ -158,6 +168,8 @@
                                 <tr>
                                     <th class="text-center">اسم الطالب</th>
                                     <th class="text-center">رقم الهوية</th>
+                                    <th class="text-center">الجنس</th>
+
                                     <th class="text-center">الحالة</th>
                                     <th class="text-center">الدورات</th>
                                     <th class="text-center">الإجراءات</th>
@@ -175,11 +187,21 @@
                                                 <span class="fw-bold">{{ $student->full_name }}</span>
                                             </div>
                                         </td>
+
                                         <td class="text-center">
                                             <span class="badge bg-light text-dark border px-4 py-2 fw-bold fs-7"
                                                 style="letter-spacing: 1.5px; min-width: 110px; display: inline-block;">
                                                 {{ $student->id_number }}
                                             </span>
+                                        </td>
+                                        <td class="text-center">
+                                            @if ($student->gender == 'male')
+                                                <span class="badge bg-blue-subtle text-primary border px-3">
+                                                    <i class="bi bi-person-fill ms-1"></i> ذكر </span>
+                                            @else
+                                                <span class="badge bg-pink-subtle text-danger border px-3">
+                                                    <i class="bi bi-person ms-1"></i> أنثى </span>
+                                            @endif
                                         </td>
                                         <td class="text-center">
                                             <span
@@ -336,7 +358,7 @@
                         title: 'قائمة الطلاب - تاريخ ' + dateString,
                         filename: 'تقرير_الطلاب_' + dateString,
                         exportOptions: {
-                            columns: [0, 1, 2, 3]
+                            columns: [0, 1, 2, 3, 4]
                         }
                     }]
                 });

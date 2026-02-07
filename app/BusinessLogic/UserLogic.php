@@ -19,7 +19,7 @@ class UserLogic
 
     public function storeUser($data)
     {
-       $user = User::create([
+        $user = User::create([
             'full_name'     => $data['full_name'],
             'id_number'     => $data['id_number'],
             'password'      => Hash::make($data['password']),
@@ -37,6 +37,7 @@ class UserLogic
             'parts_memorized' => $data['parts_memorized'] ?? 0,
             'mosque_name'     => $data['mosque_name'] ?? null,
             'is_displaced'    => $data['is_displaced'] ?? false,
+            'gender'          => $data['gender'],
         ]);
 
         if (isset($data['courses']) && is_array($data['courses'])) {
@@ -63,6 +64,7 @@ class UserLogic
             'parts_memorized' => $data['parts_memorized'] ?? $user->parts_memorized,
             'mosque_name'     => $data['mosque_name'] ?? $user->mosque_name,
             'is_displaced'    => $data['is_displaced'] ?? $user->is_displaced,
+            'gender'          => $data['gender'] ?? $user->gender,
         ];
 
         if (isset($data['is_admin'])) {

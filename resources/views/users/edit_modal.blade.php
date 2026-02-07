@@ -144,6 +144,16 @@
                                 <input type="text" name="birth_place" class="form-control bg-light border-0 py-2"
                                     value="{{ $user->birth_place }}">
                             </div>
+                            <div class="col-md-2 text-start">
+                                <label class="fw-bold small"><i class="bi bi-map"></i> الجنس</label>
+
+                                <select name="gender" class="form-select bg-light border-0 py-2">
+                                    <option value="male" {{ $user->gender == 'male' ? 'selected' : '' }}>ذكر
+                                    </option>
+                                    <option value="female" {{ $user->gender == 'female' ? 'selected' : '' }}>أنثى
+                                    </option>
+                                </select>
+                            </div>
                         </div>
                     @endif
 
