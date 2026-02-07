@@ -175,7 +175,8 @@
                                                     <div class="modal-content border-0 shadow-lg"
                                                         style="border-radius: 15px; text-align: right;">
                                                         <form class="memorizationForm"
-                                                            action="{{ route('memorization.store') }}" method="POST">
+                                                            action="{{ route('memorization.store') }}" method="POST"
+                                                            novalidate>
                                                             @csrf
                                                             <input type="hidden" name="student_id"
                                                                 value="{{ $student->id }}">
@@ -229,6 +230,8 @@
                                                                             </option>
                                                                             @foreach ($surahs as $surah)
                                                                                 <option value="{{ $surah->name_ar }}"
+                                                                                    data-verses="{{ $surah->verses_count }}"
+                                                                                    {{-- إضافة عدد الآيات هنا --}}
                                                                                     {{ isset($student->latestMemorization->sura_name) && $student->latestMemorization->sura_name == $surah->name_ar ? 'selected' : '' }}>
                                                                                     {{ $surah->number }}.
                                                                                     {{ $surah->name_ar }}
@@ -335,13 +338,12 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
-            // 1. تفعيل DataTable مع معالجة مشاكل التنسيق الظاهرة في الصورة
             if ($.fn.DataTable.isDataTable('#studentsTable')) {
                 $('#studentsTable').DataTable().destroy();
             }
 
             let table = $('#studentsTable').DataTable({
-                "autoWidth": false, // منع الحساب التلقائي للعرض الذي يسبب السكرول
+                "autoWidth": false,
                 "responsive": true,
                 "searching": true,
                 "ordering": true,
@@ -361,14 +363,13 @@
                         "sLast": "الأخير"
                     }
                 },
-                // ضبط توزيع العناصر (f: البحث، l: الطول، tr: الجدول، i: المعلومات، p: الترقيم)
                 "dom": "<'row mb-3 align-items-center'<'col-md-6 text-right'l><'col-md-6 text-left'f>>" +
                     "<'row'<'col-12'tr>>" +
-                    "<'row mt-3 align-items-center'<'col-md-6 text-right'i><'col-md-6 d-flex justify-content-end'p>>", // الجزء السفلي (المعلومات i والتنقل p)
+                    "<'row mt-3 align-items-center'<'col-md-6 text-right'i><'col-md-6 d-flex justify-content-end'p>>",
                 "columnDefs": [{
                         "orderable": false,
                         "targets": 5
-                    }, // منع الترتيب لعمود الإجراءات
+                    },
                     {
                         "searchable": false,
                         "targets": 5
@@ -376,14 +377,20 @@
                     {
                         "className": "text-center",
                         "targets": "_all"
-                    } // توحيد المحاذاة للوسط
+                    }
                 ]
             });
 
-            // 2. تفعيل Select2 داخل المودالات (إصلاح مشكلة البحث داخل القائمة)
             $('.modal').on('shown.bs.modal', function() {
-                $(this).find('.surah-select').select2({
-                    dropdownParent: $(this),
+                let modal = $(this);
+                let surahSelect = modal.find('.surah-select');
+                let vFromInput = modal.find('input[name="verses_from"]');
+                let vToInput = modal.find('input[name="verses_to"]');
+
+                modal.find('form').attr('novalidate', true);
+
+                surahSelect.select2({
+                    dropdownParent: modal,
                     dir: "rtl",
                     width: '100%',
                     language: {
@@ -392,22 +399,83 @@
                         }
                     }
                 });
+
+                surahSelect.on('change', function() {
+                    let selectedOption = $(this).find(':selected');
+                    let maxVerses = selectedOption.data('verses');
+
+                    if (maxVerses) {
+                        [vFromInput, vToInput].forEach(input => {
+                            input.attr('max', maxVerses);
+                            input.attr('placeholder', 'أقصى آية: ' + maxVerses);
+
+                            if (parseInt(input.val()) > maxVerses) {
+                                input.val('');
+                                input.addClass('is-invalid');
+                            } else {
+                                input.removeClass('is-invalid');
+                                $('#' + input.attr('name') + '_error').remove();
+                            }
+                        });
+                    }
+                });
+
+                surahSelect.trigger('change');
             });
+
+            $(document).on('input', 'input[name="verses_to"], input[name="verses_from"]', function() {
+                let max = parseInt($(this).attr('max'));
+                let val = parseInt($(this).val());
+                let errorId = $(this).attr('name') + '_error';
+
+                $('#' + errorId).remove();
+
+                if (max && val > max) {
+                    $(this).addClass('is-invalid');
+                    $(this).after(
+                        `<div id="${errorId}" class="text-danger small mt-1 fw-bold" style="display:block; width:100%;">يجب أن يكون ${max} أو أقل</div>`
+                    );
+                } else {
+                    $(this).removeClass('is-invalid');
+                }
+            });
+
             $('.modal').on('hide.bs.modal', function() {
-                // استهداف حقل الملاحظات ومسحه فوراً
                 $(this).find('textarea[name="note"]').val('');
+                $(this).find('input').removeClass('is-invalid');
+                $('.text-danger.small').remove(); // حذف رسائل الخطأ النصية
             });
-            // 3. معالجة إرسال نموذج الحفظ عبر AJAX (تحديث الجدول لحظياً)
+
+            //  معالجة إرسال نموذج الحفظ عبر AJAX
             $(document).on('submit', '.memorizationForm', function(e) {
                 e.preventDefault();
                 let form = $(this);
                 let btn = form.find('button[type="submit"]');
                 let modalId = form.closest('.modal').attr('id');
 
-                // جلب البيانات قبل الإرسال لتحديث الواجهة
+                // --- منطق التحقق من عدد الآيات قبل الإرسال ---
+                let vFromInput = form.find('input[name="verses_from"]');
+                let vToInput = form.find('input[name="verses_to"]');
+                let max = parseInt(vToInput.attr('max'));
+
+                let vFromVal = parseInt(vFromInput.val());
+                let vToVal = parseInt(vToInput.val());
+
+                if (max) {
+                    if (vFromVal > max || vToVal > max) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'خطأ في عدد الآيات',
+                            text: 'السورة المختارة تحتوي على ' + max + ' آية فقط.',
+                            confirmButtonText: 'حسناً'
+                        });
+                        return false;
+                    }
+                }
+
                 let studentId = form.find('input[name="student_id"]').val();
                 let newSura = form.find('select[name="sura_name"] option:selected').val();
-                let newVerseTo = form.find('input[name="verses_to"]').val();
+                let newVerseTo = vToInput.val();
                 let originalText = btn.text();
 
                 btn.prop('disabled', true).html(
@@ -423,24 +491,21 @@
                         Swal.fire({
                             icon: 'success',
                             title: 'تم بنجاح',
-                            text: 'تم تحديث سجل الطالب بنجاح',
+                            text: 'تم تسجيل الحفظ وتحديث السجل',
                             timer: 1500,
                             showConfirmButton: false
                         });
 
-                        // تحديث خلايا الجدول دون الحاجة لتحديث الصفحة
                         let row = $('#row-student-' + studentId);
                         if (row.length > 0) {
                             row.find('.sura-cell').text(newSura);
                             row.find('.verse-cell span').text(newVerseTo);
 
-                            // تأثير بصري (وميض) لتأكيد التغيير
                             row.addClass('table-warning');
                             setTimeout(() => {
                                 row.removeClass('table-warning');
                             }, 2000);
 
-                            // إعداد المودال للإدخال القادم تلقائياً
                             let nextStart = parseInt(newVerseTo) + 1;
                             form.find('input[name="verses_from"]').val(nextStart);
                             form.find('input[name="verses_to"]').val('');
