@@ -178,13 +178,13 @@
                                                     title="عرض">
                                                     <i class="bi bi-eye"></i>
                                                 </a>
-
-                                                <button class="btn btn-sm btn-outline-warning rounded-circle action-btn"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#editUserModal{{ $user->id }}" title="تعديل">
-                                                    <i class="bi bi-pencil-square"></i>
-                                                </button>
                                                 @if ($user->id !== 1)
+                                                    <button class="btn btn-sm btn-outline-warning rounded-circle action-btn"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#editUserModal{{ $user->id }}" title="تعديل">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </button>
+
                                                     <form action="{{ route('user.destroy', $user->id) }}" method="POST"
                                                         id="deleteForm{{ $user->id }}" class="d-inline">
                                                         @csrf @method('DELETE')

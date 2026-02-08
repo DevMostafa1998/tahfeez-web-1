@@ -38,13 +38,13 @@ class Student extends Model
     ];
 
     // العلاقة مع الدورات
-public function courses()
-{
-    return $this->belongsToMany(Course::class, 'course_student', 'student_id', 'course_id')
-                ->using(CourseStudent::class) // الربط بالموديل الجديد
-                ->withPivot('created_at')
-                ->withTimestamps();
-}
+    public function courses()
+    {
+        return $this->belongsToMany(Course::class, 'course_student', 'student_id', 'course_id')
+            ->using(CourseStudent::class) // الربط بالموديل الجديد
+            ->withPivot('created_at')
+            ->withTimestamps();
+    }
 
     public function group()
     {
@@ -53,10 +53,10 @@ public function courses()
     public function groups()
     {
         return $this->belongsToMany(Group::class, 'student_group', 'student_id', 'group_id')
-                    ->withPivot('creation_at')
-                    ->orderByPivot('creation_at', 'desc');
+            ->withPivot('creation_at')
+            ->orderByPivot('creation_at', 'desc');
     }
-      // جلب المعلم الحالي من خلال أحدث مجموعة
+    // جلب المعلم الحالي من خلال أحدث مجموعة
     public function getCurrentTeacherAttribute()
     {
         $latestGroup = $this->groups->first();
@@ -73,7 +73,7 @@ public function courses()
     public function latestMemorization()
     {
         // هذه العلاقة تجلب آخر سجل مضاف للطالب في جدول الحفظ اليومي
-        return $this->hasOne(StudentDailyMemorization::class, 'student_id')->latest('date');
+        return $this->hasOne(StudentDailyMemorization::class, 'student_id')->latestOfMany('date');
     }
     public function quranTests()
     {
