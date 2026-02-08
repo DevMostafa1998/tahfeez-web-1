@@ -1,4 +1,3 @@
-
 :root {
     --bg-color: #f0f4f8;
     --accent-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -10,6 +9,8 @@ body {
     background-color: var(--bg-color);
     font-family: 'Cairo', sans-serif;
     direction: rtl;
+    margin: 0;
+    padding: 0;
 }
 
 .premium-container {
@@ -42,7 +43,7 @@ body {
     position: relative;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start; /* تحسين توزيع العناصر */
 }
 
 .avatar-glow {
@@ -166,15 +167,6 @@ body {
     transition: 0.4s;
 }
 
-.badge-status {
-    display: inline-block;
-    padding: 6px 15px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    font-size: 0.8rem;
-    margin-top: 10px;
-}
-
 .rank-wrapper {
     display: flex;
     flex-direction: column;
@@ -212,70 +204,91 @@ body {
     border: 1px dashed rgba(255, 255, 255, 0.3);
     font-weight: 500;
 }
-/* تحسينات الشاشات الصغيرة (الجوال) */
+
+/* ======================================================
+   تعديلات الاستجابة (Responsive) المحسنة للجوال
+   ====================================================== */
+
 @media (max-width: 991px) {
+    .premium-container {
+        padding: 10px; /* تقليل الحواف الخارجية */
+    }
+
     .ultra-card {
-        flex-direction: column; /* تحويل التوزيع من أفقي إلى عمودي */
-        margin: 10px;
-        border-radius: 20px;
-        overflow: hidden;
+        flex-direction: column !important; /* تحويل التوزيع إلى عمودي */
+        border-radius: 25px;
+        min-height: auto;
     }
 
     .hero-sidebar {
-        width: 100% !important; /* جعل القائمة الجانبية بعرض كامل */
-        padding: 20px 15px;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .form-display {
         width: 100% !important;
-        padding: 20px;
+        padding: 30px 15px !important;
+        border-radius: 25px 25px 0 0;
     }
 
     .nav-list {
-        display: flex;
-        overflow-x: auto; /* السماح بالتمرير الأفقي للأزرار */
+        display: flex !important; /* تحويل القائمة إلى أفقية */
+        flex-direction: row;
+        overflow-x: auto;
         gap: 10px;
+        margin-top: 25px !important;
         padding-bottom: 10px;
-        scrollbar-width: none; /* إخفاء شريط التمرير لـ Firefox */
+        scrollbar-width: none; /* إخفاء السكرول بار */
     }
 
     .nav-list::-webkit-scrollbar {
-        display: none; /* إخفاء شريط التمرير لـ Chrome/Safari */
+        display: none;
     }
 
     .nav-item-fancy {
-        white-space: nowrap; /* منع انكسار نص الزر */
         flex: 0 0 auto;
         margin-bottom: 0 !important;
-        font-size: 0.9rem;
-        padding: 10px 15px;
+        padding: 12px 18px !important;
+        font-size: 0.85rem;
+        background: rgba(255, 255, 255, 0.1);
     }
 
-    .avatar-container {
-        margin-bottom: 20px;
+    .nav-item-fancy.active {
+        transform: translateY(-5px) !important; /* حركة للاعلى بدلاً من اليمين */
+        background: white !important;
     }
 
-    .avatar-glow {
-        width: 80px;
-        height: 80px;
-        font-size: 2rem;
+    .form-display {
+        padding: 30px 20px !important;
+        max-height: none !important; /* إزالة التمرير الداخلي في الجوال */
+        overflow-y: visible !important;
+    }
+
+    .input-icon {
+        top: 45px !important;
     }
 
     .glow-button {
-        width: 100%; /* زر التحديث بعرض كامل على الجوال */
-        justify-content: center;
+        padding: 15px;
+        font-size: 1rem;
     }
 }
 
-/* تحسين شكل المدخلات على الشاشات الصغيرة جداً */
 @media (max-width: 576px) {
+    .avatar-glow {
+        width: 90px !important;
+        height: 90px !important;
+        font-size: 2rem !important;
+        border-radius: 20px;
+    }
+
     .content-tab h2 {
-        font-size: 1.25rem;
+        font-size: 1.3rem !important;
         text-align: center;
+        margin-bottom: 20px !important;
     }
 
     .fancy-input-group label {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
+    }
+
+    .input-box {
+        padding: 12px 15px 12px 40px;
+        font-size: 0.9rem;
     }
 }
