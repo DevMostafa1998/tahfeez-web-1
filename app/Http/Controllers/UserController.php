@@ -93,6 +93,9 @@ class UserController extends Controller
 
     public function destroy($id)
     {
+        if ($id == 1) {
+            return redirect()->route('user.index')->with('error', 'لا يمكن حذف المستخدم الرئيسي للمنظومة!');
+        }
         $user = User::findOrFail($id);
         $this->userLogic->deleteUser($user);
         return redirect()->route('user.index')->with('success', 'تم حذف المستخدم بنجاح');

@@ -178,22 +178,27 @@
                                                     title="عرض">
                                                     <i class="bi bi-eye"></i>
                                                 </a>
-
-                                                <button class="btn btn-sm btn-outline-warning rounded-circle action-btn"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#editUserModal{{ $user->id }}" title="تعديل">
-                                                    <i class="bi bi-pencil-square"></i>
-                                                </button>
-
-                                                <form action="{{ route('user.destroy', $user->id) }}" method="POST"
-                                                    id="deleteForm{{ $user->id }}" class="d-inline">
-                                                    @csrf @method('DELETE')
-                                                    <button type="button" onclick="confirmDelete({{ $user->id }})"
-                                                        class="btn btn-sm btn-outline-danger rounded-circle action-btn"
-                                                        title="حذف">
-                                                        <i class="bi bi-trash3"></i>
+                                                @if ($user->id !== 1)
+                                                    <button class="btn btn-sm btn-outline-warning rounded-circle action-btn"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#editUserModal{{ $user->id }}" title="تعديل">
+                                                        <i class="bi bi-pencil-square"></i>
                                                     </button>
-                                                </form>
+
+                                                    <form action="{{ route('user.destroy', $user->id) }}" method="POST"
+                                                        id="deleteForm{{ $user->id }}" class="d-inline">
+                                                        @csrf @method('DELETE')
+                                                        <button type="button" onclick="confirmDelete({{ $user->id }})"
+                                                            class="btn btn-sm btn-outline-danger rounded-circle action-btn"
+                                                            title="حذف">
+                                                            <i class="bi bi-trash3"></i>
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <div style="width: 34px; display: inline-block;">
+                                                        <i class="bi bi-lock-fill text-muted" title="مستخدم محمي"></i>
+                                                    </div>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>

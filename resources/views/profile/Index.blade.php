@@ -77,10 +77,12 @@
                     @php
                         $currentUser = auth()->user();
                     @endphp
+@if($teacher->id !== 1)
                     @if($teacher->is_admin == 1 || ($currentUser->is_admin == 0 && $currentUser->id == $teacher->id))
                         <a href="{{ route('teachers.edit', $teacher->id) }}" class="btn btn-outline-primary btn-lg rounded-pill px-5 py-2 shadow-sm">
                             تعديل البيانات <i class="fas fa-edit me-2"></i>
                         </a>
+                    @endif
                     @endif
                 </div>
                 </div>

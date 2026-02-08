@@ -96,6 +96,7 @@
 @push('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.bootstrap4.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap4.min.css">
+
     <style>
         .btn-excel {
             background-color: #1d6f42 !important;
@@ -274,11 +275,11 @@
                         "sInfoFiltered": "(تمت التصفية من إجمالي _MAX_ سجل)",
                         "sZeroRecords": "لم يتم العثور على سجلات مطابقة",
                         "sEmptyTable": "لا توجد بيانات متاحة في الجدول",
-                        "oPaginate": {
-                            "sFirst": "الأول",
-                            "sPrevious": "السابق",
-                            "sNext": "التالي",
-                            "sLast": "الأخير"
+                        "paginate": {
+                            "first": "«",
+                            "last": "»",
+                            "next": "›",
+                            "previous": "‹"
                         }
                     },
                     "buttons": [{

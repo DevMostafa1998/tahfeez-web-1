@@ -63,10 +63,7 @@
                 /* إزالة الهوامش الجانبية للاستفادة من المساحة */
             }
 
-            .table thead {
-                display: none;
-                /* إخفاء الرأس في الشاشات الصغيرة جداً إذا كنت تفضل عرض الكروت */
-            }
+
 
             /* اختيارياً: تصغير الخطوط في الجوال */
             .table td {
@@ -247,12 +244,68 @@
                                         </div>
                                     </td>
                                 </tr>
+                                <div class="modal fade" id="viewGroup{{ $group->id }}" tabindex="-1"
+                                    aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                                            <div class="modal-header bg-warning text-white border-0"
+                                                style="border-radius: 20px 20px 0 0;">
+                                                <h5 class="modal-title fw-bold"><i class="bi bi-info-circle me-2"></i>
+                                                    تفاصيل المجموعة</h5>
+                                                <button type="button" class="btn-close btn-close-white"
+                                                    data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body p-4">
+                                                {{-- معلومات المجموعة الأساسية --}}
+                                                <div class="text-center mb-4">
+                                                    <h4 class="text-primary fw-bold mb-1">{{ $group->GroupName }}</h4>
+                                                    <span class="badge bg-light text-secondary border">بإشراف المحفظ:
+                                                        {{ $group->teacher->full_name ?? 'غير محدد' }}</span>
+                                                </div>
+
+                                                <hr class="text-muted opacity-25">
+
+                                                {{-- قائمة الطلاب --}}
+                                                <h6 class="fw-bold mb-3"><i class="bi bi-people me-2"></i> الطلاب المسجلون
+                                                    ({{ $group->students->count() }})
+                                                </h6>
+                                                <div class="list-group list-group-flush rounded-3 border overflow-auto"
+                                                    style="max-height: 250px;">
+                                                    @forelse($group->students as $index => $student)
+                                                        <div
+                                                            class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
+                                                            <span class="text-dark">{{ $index + 1 }}.
+                                                                {{ $student->full_name }}</span>
+                                                            @if ($student->date_of_birth)
+                                                                <span
+                                                                    class="badge bg-success-subtle text-success border-0 fw-normal">
+                                                                    {{ \Carbon\Carbon::parse($student->date_of_birth)->age }}
+                                                                    سنة
+                                                                </span>
+                                                            @endif
+                                                        </div>
+                                                    @empty
+                                                        <div class="list-group-item text-center text-muted small py-3">
+                                                            لا يوجد طلاب مسجلين في هذه المجموعة حالياً
+                                                        </div>
+                                                    @endforelse
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer border-0">
+                                                <button type="button" class="btn btn-secondary px-4 rounded-3"
+                                                    data-bs-dismiss="modal">إغلاق</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 @include('groups.edit_modal')
                                 @include('groups.manage_students_modal')
                             @endforeach
                         </tbody>
                     </table>
+                    @include('groups.create_modal')
+
                 </div>
             </div>
 
@@ -260,65 +313,21 @@
         </div>
     </div>
     {{-- مودال عرض تفاصيل المجموعة --}}
-    <div class="modal fade" id="viewGroup{{ $group->id }}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-                <div class="modal-header bg-warning text-white border-0" style="border-radius: 20px 20px 0 0;">
-                    <h5 class="modal-title fw-bold"><i class="bi bi-info-circle me-2"></i> تفاصيل المجموعة</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    {{-- معلومات المجموعة الأساسية --}}
-                    <div class="text-center mb-4">
-                        <h4 class="text-primary fw-bold mb-1">{{ $group->GroupName }}</h4>
-                        <span class="badge bg-light text-secondary border">بإشراف المحفظ:
-                            {{ $group->teacher->full_name ?? 'غير محدد' }}</span>
-                    </div>
 
-                    <hr class="text-muted opacity-25">
-
-                    {{-- قائمة الطلاب --}}
-                    <h6 class="fw-bold mb-3"><i class="bi bi-people me-2"></i> الطلاب المسجلون
-                        ({{ $group->students->count() }})</h6>
-                    <div class="list-group list-group-flush rounded-3 border overflow-auto" style="max-height: 250px;">
-                        @forelse($group->students as $index => $student)
-                            <div class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
-                                <span class="text-dark">{{ $index + 1 }}. {{ $student->full_name }}</span>
-                                @if ($student->date_of_birth)
-                                    <span class="badge bg-success-subtle text-success border-0 fw-normal">
-                                        {{ \Carbon\Carbon::parse($student->date_of_birth)->age }} سنة
-                                    </span>
-                                @endif
-                            </div>
-                        @empty
-                            <div class="list-group-item text-center text-muted small py-3">
-                                لا يوجد طلاب مسجلين في هذه المجموعة حالياً
-                            </div>
-                        @endforelse
-                    </div>
-                </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-secondary px-4 rounded-3"
-                        data-bs-dismiss="modal">إغلاق</button>
-                </div>
-            </div>
-        </div>
-    </div>
     {{-- استدعاء مودال الإضافة خارج الحلقة --}}
-    @include('groups.create_modal')
 
 @endsection
 
 @push('scripts')
     {{-- استدعاء مكتبة DataTables --}}
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script> --}}
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.min.js"></script> --}}
     <script src="https://cdn.datatables.net/2.3.6/js/dataTables.js"></script>
-    <script src="https://cdn.datatables.net/2.3.6/js/dataTables.bootstrap4.js"></script>
+    <script src="https://cdn.datatables.net/2.3.6/js/dataTables.bootstrap5.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap4.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 

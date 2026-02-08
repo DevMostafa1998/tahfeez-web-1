@@ -88,6 +88,10 @@ class UserLogic
 
     public function deleteUser($user)
     {
+        if ($user->id === 1) {
+            return false;
+            abort(403, 'لا يمكن حذف الحساب الرئيسي للمنظومة');
+        }
         $user->deleted_by = Auth::user()->full_name ?? 'System';
         $user->save();
         return $user->delete();
