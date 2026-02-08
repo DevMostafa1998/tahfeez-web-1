@@ -13,8 +13,8 @@ class ParentController extends Controller
     {
         if (!$id_number) return redirect()->route('parent.login');
 
-        $student = Student::where('id_number', $id_number)->firstOrFail();
-
+        $student = Student::where('id_number', $id_number)->first();
+        if($student == null) return redirect()->route('parent.login')->withErrors(['message' => 'رقم الهوية غير موجود']);
         //  جلب أحدث عملية تسميع (منطقة التوقف الحالية)
         // رتبنا حسب الـ id لضمان الحصول على آخر إدخال فعلي حتى لو تساوت التواريخ
         $lastMemo = DB::table('student_daily_memorizations')

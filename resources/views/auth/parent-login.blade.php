@@ -41,6 +41,12 @@
             <a href="{{ route('login') }}" class="btn btn-link btn-sm text-muted text-decoration-none">
                 <i class="bi bi-arrow-right"></i> العودة لتسجيل الدخول الرئيسية
             </a>
+            @if ($errors->has('message'))
+                <div class="alert alert-danger">
+                    {{ $errors->first('message') }}
+                </div>
+            @endif
+                
         </div>
     </form>
 </div>
