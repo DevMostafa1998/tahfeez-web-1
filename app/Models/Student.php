@@ -56,7 +56,6 @@ public function courses()
                     ->withPivot('creation_at')
                     ->orderByPivot('creation_at', 'desc');
     }
-      // جلب المعلم الحالي من خلال أحدث مجموعة
     public function getCurrentTeacherAttribute()
     {
         $latestGroup = $this->groups->first();
@@ -70,10 +69,11 @@ public function courses()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
     public function latestMemorization()
     {
         // هذه العلاقة تجلب آخر سجل مضاف للطالب في جدول الحفظ اليومي
-        return $this->hasOne(StudentDailyMemorization::class, 'student_id')->latest('date');
+        return $this->hasOne(StudentDailyMemorization::class, 'student_id')->latestOfMany('date');
     }
     public function quranTests()
     {

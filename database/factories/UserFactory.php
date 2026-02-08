@@ -3,8 +3,6 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -24,21 +22,27 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
+            'full_name'        => fake()->name(),
+            'password'         => static::$password ??= \Illuminate\Support\Facades\Hash::make('123456'),
+            'id_number'        => fake()->unique()->numerify('#########'),
+            'date_of_birth'    => fake()->date(),
+            'birth_place'      => fake()->city(),
+            'gender'           => fake()->randomElement(['male', 'female']),
+            'phone_number'     => fake()->phoneNumber(),
+            'wallet_number'    => fake()->numerify('059#######'),
+            'whatsapp_number'  => fake()->phoneNumber(),
+            'qualification'    => 'Bachelor',
+            'specialization'   => 'Islamic Studies',
+            'parts_memorized'  => fake()->numberBetween(1, 30),
+            'mosque_name'      => 'Al-Rahman Mosque',
+            'address'          => fake()->address(),
+            'is_displaced'     => false,
+            'is_admin'         => false,
+            'category_id'      => null,
+            'creation_by'      => null,
+            'updated_by'       => null,
+            'deleted_by'       => null,
         ];
     }
 
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
-    public function unverified(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
-    }
 }

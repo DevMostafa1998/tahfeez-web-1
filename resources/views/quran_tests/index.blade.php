@@ -107,7 +107,7 @@
                 <table class="table table-hover mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th class="ps-4">الطالب</th>
+                            <th class="ps-4">اسم الطالب/ة</th>
                             <th>التاريخ</th>
                             <th>الأجزاء</th>
                             <th>النوع</th>
@@ -240,7 +240,7 @@
 
                     Swal.fire({
                         title: 'هل أنت متأكد؟',
-                        text: `سيتم حذف سجل اختبار الطالب "${studentName}" نهائياً!`,
+                        text: `سيتم حذف سجل اختبار اسم الطالب/ة "${studentName}" نهائياً!`,
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#d33',

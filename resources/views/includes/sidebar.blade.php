@@ -192,7 +192,7 @@
                 @endif
                 <li class="nav-item">
                     <a href="{{ route('parent.login') }}"
-                        class="nav-link {{ request()->routeIs('parents.*') ? 'active' : '' }}">
+                    class="nav-link {{ request()->routeIs('parent.login') || request()->routeIs('parents.index') ? 'active' : '' }}">
                         <i class="nav-icon bi bi-people"></i>
                         <p>ولي الأمر</p>
                     </a>

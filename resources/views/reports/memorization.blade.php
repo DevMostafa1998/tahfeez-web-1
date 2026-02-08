@@ -24,7 +24,7 @@
 
                     @if(auth()->user()->is_admin)
                     <div class="col-md-2">
-                        <label class="form-label fw-bold">المحفظ</label>
+                        <label class="form-label fw-bold">اسم المحفظ/ة</label>
                         <select name="teacher_id" class="form-select filter-input">
                             <option value="">-- الكل --</option>
                             @foreach($teachers as $teacher)
@@ -45,7 +45,7 @@
                     </div>
 
                     <div class="col-md-2">
-                        <label class="form-label fw-bold">اسم الطالب</label>
+                        <label class="form-label fw-bold">اسم الطالب/ة</label>
                         <select name="student_id" class="form-select filter-input">
                             <option value="">-- الكل --</option>
                             @foreach($students as $student)
@@ -66,10 +66,10 @@
                     <thead class="bg-primary text-white">
                         <tr>
                             <th class="py-3">التاريخ</th>
-                            <th class="py-3">اسم الطالب</th>
+                            <th class="py-3">اسم الطالب/ة</th>
                             <th class="py-3">رقم الهوية</th>
                             <th class="py-3">المجموعة</th>
-                            <th class="py-3">المحفظ</th>
+                            <th class="py-3">المحفظ/ة</th>
                             <th class="py-3">السورة</th>
                             <th class="py-3">من آية</th>
                             <th class="py-3">إلى آية</th>

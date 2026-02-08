@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('phone_number');
             $table->string('address');
             $table->boolean('is_displaced')->default(false);
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('user')->onDelete('cascade');
             $table->string('creation_by')->nullable();
             $table->string('updated_by')->nullable();
             $table->string('deleted_by')->nullable();

@@ -58,7 +58,7 @@
                 <table class="table table-bordered table-hover align-middle mb-0 text-center" style="border-color: #f0f0f0;">
                     <thead class="bg-light text-secondary small text-uppercase">
                         <tr>
-                            <th class="ps-3 text" style="width: 25%;">اسم المحفظ</th>
+                            <th class="ps-3 text" style="width: 25%;">اسم المحفظ/ة</th>
                             <th style="width: 15%;">رقم الهوية</th>
                             <th style="width: 25%;">الحالة اليومية</th>
                             <th style="width: 35%;">ملاحظات</th>
