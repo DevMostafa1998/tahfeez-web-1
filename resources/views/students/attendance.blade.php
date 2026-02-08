@@ -33,7 +33,7 @@
 
                 @if(auth()->user()->is_admin)
                 <div class="col-md-3">
-                    <label class="small fw-bold text-dark mb-1">المحفظ</label>
+                    <label class="small fw-bold text-dark mb-1">المحفظ/ة</label>
                     <select name="teacher_id" class="form-select form-select-sm border-primary shadow-none" style="border-radius: 8px; height: 35px; font-size: 0.85rem;">
                         <option value="">كل المحفظين</option>
                         @foreach($teachers as $teacher)
@@ -90,8 +90,8 @@
                 <table class="table table-bordered table-hover align-middle mb-0 text-center" style="border-color: #f0f0f0;">
                     <thead class="bg-light text-secondary small">
                         <tr>
-                            <th class="ps-3" style="width: 25%;">اسم الطالب</th>
-                            <th style="width: 15%;">المحفظ</th>
+                            <th class="ps-3" style="width: 25%;">اسم الطالب/ة</th>
+                            <th style="width: 15%;">المحفظ/ة</th>
                             <th style="width: 15%;">المجموعة</th>
                             <th style="width: 20%;">الحالة اليومية</th>
                             <th style="width: 25%;">ملاحظات</th>

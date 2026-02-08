@@ -35,7 +35,7 @@
                     <table id="teachersTable" class="table table-bordered table-hover align-middle text-center m-0">
                         <thead class="bg-primary text-white">
                             <tr>
-                                <th>اسم المحفظ</th>
+                                <th>اسم المحفظ/ة</th>
                                 <th>رقم الهوية</th>
                                 <th>تاريخ الميلاد</th>
                                 <th>مكان الميلاد</th>

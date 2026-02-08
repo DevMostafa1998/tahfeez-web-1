@@ -21,7 +21,7 @@
                     <div class="row g-2 text-start">
                         @if (auth()->user()->is_admin == 1)
                             <div class="col-md-3">
-                                <label class="form-label small fw-bold">المحفظ المسؤول</label>
+                                <label class="form-label small fw-bold">اسم المحفظ/ة</label>
                                 <select name="UserId" id="UserId" class="form-select form-select-sm filter-input">
                                     <option value="">-- كل المحفظين --</option>
                                     @foreach ($teachers as $teacher)
@@ -63,7 +63,7 @@
                                 <th>المركز</th>
                                 <th>المسجد</th>
                                 <th>المجموعة</th>
-                                <th>المحفظ</th>
+                                <th>المحفظ/ة</th>
                                 <th>الحالة</th>
                             </tr>
                         </thead>

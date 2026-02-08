@@ -19,7 +19,8 @@ use App\Http\Controllers\{
     ProfileController,
     QuranMemTestController,
     ReportController,
-    StudentReportController
+    StudentReportController,
+    ParentController
 };
 
 // --- الراوتات العامة ---
@@ -29,12 +30,12 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 });
+
 Route::get('/parent-login', function () {
-    return view('auth/parent-login');
+    return view('auth.parent-login');
 })->name('parent.login');
-Route::get('/parents', function () {
-    return view('parents.index');
-})->name('parents.index');
+
+Route::get('/parents/{id_number?}', [App\Http\Controllers\ParentController::class, 'showStudentReport'])->name('parents.index');
 // --- راوتات المسجلين دخول (أدمن ومحفظ) ---
 Route::middleware('auth')->group(function () {
 

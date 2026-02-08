@@ -26,7 +26,7 @@
 
                         @if (auth()->user()->is_admin)
                             <div class="col-md-3">
-                                <label class="form-label fw-bold">المحفظ</label>
+                                <label class="form-label fw-bold">اسم المحفظ/ة</label>
                                 <select name="teacher_id" class="form-select filter-input">
                                     <option value="">-- الكل --</option>
                                     @foreach ($teachers as $teacher)
@@ -57,7 +57,7 @@
                         @endif
 
                         <div class="col-md-3">
-                            <label class="form-label fw-bold">اسم الطالب</label>
+                            <label class="form-label fw-bold">اسم الطالب/ة</label>
                             <select name="student_id" class="form-select filter-input">
                                 <option value="">-- الكل --</option>
                                 @foreach ($students as $student)
@@ -77,7 +77,7 @@
                         <thead class="bg-primary text-white">
                             <tr>
                                 <th class="py-3">التاريخ</th>
-                                <th class="py-3">اسم الطالب</th>
+                                <th class="py-3">اسم الطالب/ة</th>
                                 <th class="py-3">رقم الهوية</th>
                                 <th class="py-3">رقم الهاتف</th>
                                 <th class="py-3">الحالة</th>

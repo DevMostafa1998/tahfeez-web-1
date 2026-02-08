@@ -21,14 +21,14 @@ return new class extends Migration
             $table->string('address');
             $table->boolean('is_admin')->default(false);
 
-            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
+            $table->foreignId('category_id')->constrained('categorie')->onDelete('cascade');
 
             $table->string('creation_by')->nullable();
             $table->string('updated_by')->nullable();
             $table->string('deleted_by')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            
+
         });
     }
 

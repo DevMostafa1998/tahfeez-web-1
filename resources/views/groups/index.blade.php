@@ -182,7 +182,7 @@
                         <thead class="bg-light text-secondary">
                             <tr>
                                 <th class="text-center">اسم المجموعة</th>
-                                <th class="text-center">اسم المحفظ</th>
+                                <th class="text-center">اسم المحفظ/ة</th>
                                 <th class="text-center">تاريخ الإنشاء</th>
                                 <th class="text-center">عدد الطلاب</th>
                                 <th class="text-center">الإجراءات</th>

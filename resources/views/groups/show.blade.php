@@ -120,7 +120,7 @@
                         <table id="studentsTable" class="table table-bordered table-hover align-middle mb-0 shadow-sm">
                             <thead class="bg-light"> {{-- ضروري جداً لتثبيت الأسهم --}}
                                 <tr>
-                                    <th class="text-center py-3">اسم الطالب</th>
+                                    <th class="text-center py-3">اسم الطالب/ة</th>
                                     <th class="text-center py-3">العمر</th>
                                     <th class="text-center py-3">آخر سورة</th>
                                     <th class="text-center py-3">آخر آية</th>

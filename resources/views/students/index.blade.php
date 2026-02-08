@@ -166,7 +166,7 @@
                             style="width:100%">
                             <thead class="bg-light text-secondary">
                                 <tr>
-                                    <th class="text-center">اسم الطالب</th>
+                                    <th class="text-center">اسم الطالب/ة</th>
                                     <th class="text-center">رقم الهوية</th>
                                     <th class="text-center">الجنس</th>
 
@@ -218,7 +218,7 @@
                                         </td>
                                         <td class="text-center">
                                             <div class="d-flex justify-content-center gap-2">
-                                                <a href="{{ route('parents.index') }}"
+                                                <a href="{{ route('parents.index', ['id_number' => $student->id_number]) }}"
                                                     class="btn btn-sm btn-outline-secondary rounded-circle action-btn"
                                                     title="عرض ولي الأمر">
                                                     <i class="bi bi-person-vcard"></i>
