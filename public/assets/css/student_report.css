@@ -1,4 +1,23 @@
-        .table-wrapper {
+.dataTables_paginate,
+.dataTables_info {
+    text-align: center !important;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+}
+
+.pagination {
+    justify-content: center !important;
+    flex-wrap: wrap;
+}
+
+.dataTables_info {
+    margin-top: 10px;
+    color: #6c757d; 
+    font-size: 0.9rem;
+}
+.table-wrapper {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             width: 100%;
