@@ -1,12 +1,11 @@
-<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+<aside class="app-sidebar bg-body-secondary shadow d-flex flex-column" data-bs-theme="dark">
     <div class="sidebar-brand">
         <a href="{{ route('dashboard') }}" class="brand-link">
             <img src="{{ asset('assets/img/logo.jpeg') }}" alt="Logo" class="brand-image opacity-75 shadow" />
             <span class="brand-text fw-light">التحفيظ</span>
         </a>
     </div>
-
-    <div class="sidebar-wrapper">
+    <div class="sidebar-wrapper flex-grow-1 overflow-y-auto">
         <nav class="mt-2">
             <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="true">
 
@@ -200,4 +199,11 @@
             </ul>
         </nav>
     </div>
+
+    <div class="sidebar-footer p-3 text-center border-top border-secondary mt-auto">
+        <small class="text-white-50">
+            إصدار النظام: <span>{{ config('app.version', '1.0.0') }}</span>
+        </small>
+    </div>
+
 </aside>
