@@ -21,41 +21,43 @@
                 <div class="logo-wrapper animate__animated animate__zoomIn">
                     <img src="{{ asset('assets/img/logo.jpeg') }}" alt="الشعار">
                 </div>
+
                 <h4 class="fw-800 mb-1">المتابعة الأبوية</h4>
                 <p class="small opacity-75 mb-0">أدخل رقم هوية الطالب لمتابعة تقدمه</p>
             </div>
 
             <div class="card-body p-4 pt-4">
-    <form id="parentLoginForm" onsubmit="event.preventDefault(); redirectToReport();">
-        <div class="mb-4">
-            <label class="form-label fw-bold text-dark small">رقم هوية الطالب</label>
-            <input type="text" id="student_id_input" class="form-control"
-                placeholder="أدخل رقم الهوية المكون من 9 أرقام" inputmode="numeric"
-                oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
-        </div>
+                @if ($errors->has('message'))
+                    <div class="alert alert-danger">
+                        {{ $errors->first('message') }}
+                    </div>
+                @endif
+                <form id="parentLoginForm" onsubmit="event.preventDefault(); redirectToReport();">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-dark small">رقم هوية الطالب</label>
+                        <input type="text" id="student_id_input" class="form-control"
+                            placeholder="أدخل رقم الهوية المكون من 9 أرقام" inputmode="numeric"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                    </div>
 
-        <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-login text-white">
-                عرض النتائج <i class="bi bi-search ms-2"></i>
-            </button>
-            <a href="{{ route('login') }}" class="btn btn-link btn-sm text-muted text-decoration-none">
-                <i class="bi bi-arrow-right"></i> العودة لتسجيل الدخول الرئيسية
-            </a>
-            @if ($errors->has('message'))
-                <div class="alert alert-danger">
-                    {{ $errors->first('message') }}
-                </div>
-            @endif
-                
-        </div>
-    </form>
-</div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-login text-white">
+                            عرض النتائج <i class="bi bi-search ms-2"></i>
+                        </button>
+                        <a href="{{ route('login') }}" class="btn btn-link btn-sm text-muted text-decoration-none">
+                            <i class="bi bi-arrow-right"></i> العودة لتسجيل الدخول الرئيسية
+                        </a>
 
-<script>
-    function redirectToReport() {
-        const idNumber = document.getElementById('student_id_input').value;
-        if (idNumber) {
-            window.location.href = "{{ url('/parents') }}/" + idNumber;
-        }
-    }
-</script>
+
+                    </div>
+                </form>
+            </div>
+
+            <script>
+                function redirectToReport() {
+                    const idNumber = document.getElementById('student_id_input').value;
+                    if (idNumber) {
+                        window.location.href = "{{ url('/parents') }}/" + idNumber;
+                    }
+                }
+            </script>
