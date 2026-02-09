@@ -293,12 +293,17 @@
                         "sLengthMenu": "أظهر _MENU_ سجلات",
                         "sSearch": "بحث سريع:",
                         "sInfo": "عرض _START_ إلى _END_ من أصل _TOTAL_ مستخدم",
-                        "oPaginate": {
-                            "sPrevious": "السابق",
-                            "sNext": "التالي"
+                        "paginate": {
+                            "first": "«",
+                            "last": "»",
+                            "next": "›",
+                            "previous": "‹"
                         }
                     },
-                    "dom": "<'row mb-3'<'col-md-4 text-right'l><'col-md-4 text-center'B><'col-md-4 text-left d-flex justify-content-end'f>>t<'row'<'col-12 d-flex justify-content-between'ip>>",
+                    "dom": "<'row mb-3'<'col-md-4 text-right'l><'col-md-4 text-center'B><'col-md-4 text-left d-flex justify-content-end'f>>" +
+                        "<'row'<'col-sm-12' <'table-responsive' tr> >>" +
+                        "<'row mt-3'<'col-sm-12'p>>" +
+                        "<'row'<'col-sm-12 text-center'i>>",
                     "buttons": [{
                         extend: 'excelHtml5',
                         text: '<i class="bi bi-file-earmark-excel-fill ms-1"></i> تصدير إكسل',

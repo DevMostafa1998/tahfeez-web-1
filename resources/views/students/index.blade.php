@@ -337,21 +337,26 @@
             var dateString = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
             if (!$.fn.dataTable.isDataTable('#studentsTable')) {
                 $('#studentsTable').DataTable({
-
-                    "responsive": true, // تفعيل الاستجابة
+                    "responsive": true,
                     "language": {
                         "sProcessing": "جاري التحميل...",
                         "sLengthMenu": "أظهر _MENU_ طلاب",
                         "sSearch": "بحث سريع:",
                         "sInfo": "عرض _START_ إلى _END_ من أصل _TOTAL_ طالب",
-                        "oPaginate": {
-                            "sPrevious": "السابق",
-                            "sNext": "التالي"
+                        "paginate": {
+                            "first": "«",
+                            "last": "»",
+                            "next": "›",
+                            "previous": "‹"
                         }
                     },
+
                     "dom": "<'row mb-3 align-items-center'<'col-md-4 text-right'l><'col-md-4 text-center'B><'col-md-4 text-left'f>>" +
-                        "<'row'<'col-12'tr>>" +
-                        "<'row mt-3 align-items-center'<'col-md-6 text-right'i><'col-md-6 d-flex justify-content-end'p>>",
+                        "<'row'<'col-sm-12' <'table-responsive' tr> >>" +
+                        "<'row mt-3'<'col-sm-12'p>>" +
+                        "<'row'<'col-sm-12 text-center'i>>",
+
+
                     "buttons": [{
                         extend: 'excelHtml5',
                         text: '<i class="bi bi-file-earmark-excel-fill ms-1"></i> تصدير إكسل',

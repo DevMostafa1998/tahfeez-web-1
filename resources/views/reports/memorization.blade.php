@@ -217,8 +217,9 @@
             function initDataTable() {
                 table = $('#reportsTable').DataTable({
                     "dom": "<'row mb-3'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6 text-end'B>>" +
-                        "<'row'<'col-sm-12'tr>>" +
-                        "<'row mt-3'<'col-sm-12 d-flex justify-content-between align-items-center'ip>>",
+                        "<'row'<'col-sm-12' <'table-responsive' tr> >>" +
+                        "<'row mt-3'<'col-sm-12'p>>" +
+                        "<'row'<'col-sm-12 text-center'i>>",
                     "language": {
                         "sSearch": "بحث سريع:",
                         "emptyTable": "لا توجد سجلات",

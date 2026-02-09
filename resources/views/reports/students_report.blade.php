@@ -3,9 +3,6 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.bootstrap4.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap4.min.css">
     <link rel="stylesheet" href="{{ asset('assets/css/student_report.css') }}">
-    <style>
-
-    </style>
 @endpush
 @section('content')
     <div class="container-fluid p-2" dir="rtl text-right">
@@ -146,9 +143,7 @@
                                 "autoWidth": false,
                                 "dom": "<'row mb-3'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6 text-end'B>>" +
                                     "<'row'<'col-sm-12' <'table-responsive' tr> >>" +
-                                    // لف الجدول بـ responsive
                                     "<'row mt-3'<'col-sm-12'p>>" +
-                                    // جعل الترقيم يأخذ عرض الصف كاملاً
                                     "<'row'<'col-sm-12 text-center'i>>",
                                 "language": {
                                     "sSearch": "بحث سريع:",

@@ -375,11 +375,11 @@
                     "sInfo": "إظهار _START_ إلى _END_ من أصل _TOTAL_ مدخل",
                     "sInfoEmpty": "يعرض 0 إلى 0 من أصل 0 سجل",
                     "sSearch": "بحث:",
-                    "oPaginate": {
-                        "sFirst": "الأول",
-                        "sPrevious": "السابق",
-                        "sNext": "التالي",
-                        "sLast": "الأخير"
+                    "paginate": {
+                        "first": "«",
+                        "last": "»",
+                        "next": "›",
+                        "previous": "‹"
                     }
                 },
                 // إعدادات الأزرار
@@ -393,8 +393,9 @@
                     }
                 }],
                 "dom": "<'row mb-4 align-items-center'<'col-md-4 text-right'l><'col-md-4 text-center'B><'col-md-4 text-left'f>>" +
-                    "<'row'<'col-12'tr>>" +
-                    "<'row mt-4 align-items-center'<'col-md-6 text-right'i><'col-md-6 d-flex justify-content-end'p>>",
+                    "<'row'<'col-sm-12' <'table-responsive' tr> >>" +
+                    "<'row mt-3'<'col-sm-12'p>>" +
+                    "<'row'<'col-sm-12 text-center'i>>",
                 "columnDefs": [{
                     "orderable": false,
                     "targets": 4

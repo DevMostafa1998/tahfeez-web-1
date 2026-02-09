@@ -1,283 +1,289 @@
 @extends('layouts.app')
 
-@section('content')
+@section('title', 'سجل اختبارات تسميع القرآن')
+
+@push('css')
+    {{-- استيراد نفس مكتبات التنسيق من الملف المرجعي --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.bootstrap4.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap4.min.css">
+
     <style>
-        .main-card {
-            background-color: #ffffff;
-            border-radius: 15px;
-            border: 1px solid #ececec;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            padding: 20px;
-            margin-top: 20px;
+        /* التنسيقات الموحدة من الملف الآخر */
+        .dataTables_wrapper .row:first-child {
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: center;
+            width: 100%;
+            margin: 0 0 1rem 0;
+            padding: 0 15px;
         }
 
-        .table thead th {
-            background-color: #f8f9fa;
-            border-bottom: 2px solid #dee2e6;
-            /* تغميق خط الرأس قليلًا */
-            color: #333;
-            font-weight: 600;
-            padding: 15px;
+        #testsTable {
+            width: 100% !important;
+            margin: 0 !important;
         }
 
-        /* تصميم المربع الأبيض الصغير للأيقونة */
-        .icon-box {
-            background-color: #ffffff;
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
+        .action-btn {
+            width: 34px;
+            height: 34px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-            /* ظل ناعم للمربع */
-            border: 1px solid #f0f0f0;
-            margin-left: 15px;
-            /* مسافة بين المربع والنص */
+            transition: all 0.2s;
         }
 
-        .icon-box i {
-            font-size: 1.4rem;
-            color: #0d6efd;
-            /* لون الأيقونة */
+        .action-btn:hover {
+            transform: scale(1.1);
         }
 
-        .table tbody td {
-            padding: 15px;
-            vertical-align: middle;
-            border-bottom: 1px solid #dee2e6;
-            /* فاصل أوضح بين الصفوف */
+        .btn-excel {
+            background-color: #1d6f42 !important;
+            color: white !important;
+            border-radius: 8px !important;
+            padding: 5px 15px !important;
+            font-weight: bold !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 5px !important;
         }
 
-        .table tbody tr:last-child td {
-            border-bottom: none;
-            /* إزالة الخط من آخر صف */
-        }
-
-        .column-fit {
-            width: 1%;
-            white-space: nowrap;
-        }
-
-        .btn-action {
-            width: 35px;
-            height: 35px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            border: 1px solid #eee;
-            background-color: #fff;
-            transition: all 0.3s;
-            margin: 0 2px;
-        }
-
-        .btn-edit:hover {
-            background-color: #f0f7ff;
+        .bg-soft-info {
+            background-color: #e7f1ff !important;
             color: #0d6efd !important;
-            border-color: #0d6efd;
         }
 
-        .btn-delete:hover {
-            background-color: #fff5f5;
-            color: #dc3545 !important;
-            border-color: #dc3545;
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start !important;
+            }
+
+            .dataTables_wrapper .row:first-child {
+                flex-direction: column !important;
+                gap: 10px;
+            }
         }
     </style>
-    <div class="container mt-5" dir="rtl">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div class="d-flex align-items-center">
-                <div class="icon-box">
-                    <i class="bi bi-journal-check"></i>
-                </div>
-                <h2 class="text-primary fw-bold mb-0">سجل اختبارات تسميع القرآن</h2>
-            </div>
+@endpush
 
-            <a href="{{ route('quran_tests.create') }}" class="btn btn-success px-4 shadow-sm">
-                <i class="bi bi-plus-lg me-1"></i> إضافة اختبار جديد
+@section('content')
+    <div class="container-fluid p-4" dir="rtl">
+        {{-- الهيدر الموحد بنفس الستايل --}}
+        <div class="page-header d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="bg-white p-2 rounded-3 shadow-sm">
+                    <i class="bi bi-journal-check fs-3 text-primary"></i>
+                </div>
+                <div>
+                    <h1 class="page-title m-0 h3">سجل اختبارات تسميع القرآن</h1>
+                </div>
+            </div>
+            <a href="{{ route('quran_tests.create') }}"
+                class="btn btn-success d-flex align-items-center gap-2 px-4 py-2 rounded-3 shadow-sm">
+                <i class="bi bi-plus-lg"></i><span>إضافة اختبار جديد</span>
             </a>
         </div>
 
-        @if (session('success'))
-            <div class="alert alert-success border-0 shadow-sm">{{ session('success') }}</div>
-        @endif
-
-        <div class="main-card">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="ps-4">اسم الطالب/ة</th>
-                            <th>التاريخ</th>
-                            <th>الأجزاء</th>
-                            <th>النوع</th>
-                            <th>النتيجة</th>
-                            <th class="text-center column-fit pe-4">إجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($tests as $test)
+        <div class="card shadow-sm border-0 overflow-hidden">
+            <div class="card-body p-3">
+                <div class="table-responsive">
+                    <table id="testsTable" class="table table-striped table-bordered align-middle mb-0">
+                        <thead class="bg-light text-secondary">
                             <tr>
-                                <td class="ps-4 fw-medium">{{ $test->student?->full_name }}</td>
-                                <td>{{ $test->date->format('Y-m-d') }}</td>
-                                <td><span class="text-muted">{{ $test->juz_count }} </span></td>
-                                <td><span class="badge bg-soft-info text-info border border-info"
-                                        style="--bs-bg-opacity: .1;">{{ $test->examType }}</span></td>
-                                <td>
-                                    <span class="badge {{ $test->result_status == 'ناجح' ? 'bg-success' : 'bg-danger' }}">
-                                        {{ $test->result_status }}
-                                    </span>
-                                </td>
-                                <td class="text-center column-fit pe-4">
-                                    <button type="button" class="btn-action btn-edit text-primary edit-test-btn"
-                                        data-bs-toggle="modal" data-bs-target="#editTestModal" data-id="{{ $test->id }}"
-                                        data-student="{{ $test->studentId }}"
-                                        data-student-name="{{ $test->student?->full_name }}"
-                                        data-date="{{ $test->date->format('Y-m-d') }}" data-juz="{{ $test->juz_count }}"
-                                        data-type="{{ $test->examType }}" data-status="{{ $test->result_status }}"
-                                        data-note="{{ $test->note }}" title="تعديل">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-
-                                    <button type="button" class="btn-action btn-delete text-danger delete-test-btn"
-                                        data-id="{{ $test->id }}" data-name="{{ $test->student?->full_name }}"
-                                        title="حذف">
-                                        <i class="bi bi-trash3"></i>
-                                    </button>
-                                </td>
+                                <th class="text-center">اسم الطالب/ة</th>
+                                <th class="text-center">التاريخ</th>
+                                <th class="text-center">الأجزاء</th>
+                                <th class="text-center">النوع</th>
+                                <th class="text-center">النتيجة</th>
+                                <th class="text-center">الإجراءات</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach ($tests as $test)
+                                <tr>
+                                    <td class="ps-4 fw-bold text-start">{{ $test->student?->full_name }}</td>
+                                    <td class="text-center">{{ $test->date->format('Y-m-d') }}</td>
+                                    <td class="text-center"><span class="badge badge-light border">{{ $test->juz_count }}
+                                            أجزاء</span></td>
+                                    <td class="text-center">
+                                        <span class="badge bg-soft-info px-3">{{ $test->examType }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span
+                                            class="badge {{ $test->result_status == 'ناجح' ? 'bg-success' : 'bg-danger' }} text-white px-3">
+                                            {{ $test->result_status }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="d-flex justify-content-center gap-2">
+                                            {{-- زر التعديل --}}
+                                            <button type="button"
+                                                class="btn btn-sm btn-outline-primary rounded-circle action-btn edit-test-btn"
+                                                data-bs-toggle="modal" data-bs-target="#editTestModal"
+                                                data-id="{{ $test->id }}" data-student="{{ $test->studentId }}"
+                                                data-student-name="{{ $test->student?->full_name }}"
+                                                data-date="{{ $test->date->format('Y-m-d') }}"
+                                                data-juz="{{ $test->juz_count }}" data-type="{{ $test->examType }}"
+                                                data-status="{{ $test->result_status }}" data-note="{{ $test->note }}"
+                                                title="تعديل">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button>
+
+                                            {{-- زر الحذف --}}
+                                            <button type="button"
+                                                class="btn btn-sm btn-outline-danger rounded-circle action-btn delete-test-btn"
+                                                data-id="{{ $test->id }}" data-name="{{ $test->student?->full_name }}"
+                                                title="حذف">
+                                                <i class="bi bi-trash3"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
-    {{-- استدعاء ملف المودل المنفصل --}}
     @include('quran_tests.edit_modal')
+@endsection
 
-    {{-- الإسكربتات --}}
-    @push('scripts')
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@push('scripts')
+    {{-- استيراد مكتبات JS اللازمة لـ DataTables --}}
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/2.3.6/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.3.6/js/dataTables.bootstrap4.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        <script>
-            $(document).ready(function() {
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
+    <script>
+        $(document).ready(function() {
+            // إعداد DataTables بنفس إعدادات الملف الآخر
+            var d = new Date();
+            var dateString = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+
+            if (!$.fn.dataTable.isDataTable('#testsTable')) {
+                $('#testsTable').DataTable({
+                    "responsive": true,
+                    "language": {
+                        "sProcessing": "جاري التحميل...",
+                        "sLengthMenu": "أظهر _MENU_ طلاب",
+                        "sSearch": "بحث سريع:",
+                        "sInfo": "عرض _START_ إلى _END_ من أصل _TOTAL_ طالب",
+                        "paginate": {
+                            "first": "«",
+                            "last": "»",
+                            "next": "›",
+                            "previous": "‹"
+                        }
+                    },
+                    "dom": "<'row mb-3 align-items-center'<'col-md-4 text-right'l><'col-md-4 text-center'B><'col-md-4 text-left'f>>" +
+                        "<'row'<'col-sm-12' <'table-responsive' tr> >>" +
+                        "<'row mt-3'<'col-sm-12'p>>" +
+                        "<'row'<'col-sm-12 text-center'i>>",
+                    "buttons": [{
+                        extend: 'excelHtml5',
+                        text: '<i class="bi bi-file-earmark-excel-fill ms-1"></i> تصدير إكسل',
+                        className: 'btn btn-excel',
+                        title: 'سجل الاختبارات - ' + dateString,
+                        filename: 'سجل_الاختبارات_' + dateString,
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4]
+                        }
+                    }]
                 });
+            }
 
-                function clearNoteField() {
-                    $('#edit_note').val('');
+            // --- منطق AJAX الخاص بالتعديل والحذف (من ملفك الأصلي) ---
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
+            });
 
-                // 1. تعبئة بيانات المودال
-                $(document).on('click', '.edit-test-btn', function() {
-                    clearNoteField();
+            $(document).on('click', '.edit-test-btn', function() {
+                const id = $(this).data('id');
+                $('#editTestForm').attr('action', `/quran_tests/${id}`);
+                $('#edit_student_name_display').val($(this).data('student-name'));
+                $('#edit_studentId').val($(this).data('student'));
+                $('#edit_date').val($(this).data('date'));
+                $('#edit_juz_count').val($(this).data('juz'));
+                $('#edit_examType').val($(this).data('type'));
+                $('#edit_result_status').val($(this).data('status'));
+                $('#edit_note').val($(this).data('note'));
+            });
 
-                    const id = $(this).data('id');
-                    const studentId = $(this).data('student');
-                    const studentName = $(this).data('student-name');
-                    const noteValue = $(this).data('note');
-
-                    $('#editTestForm').attr('action', `/quran_tests/${id}`);
-                    $('#edit_student_name_display').val(studentName);
-                    $('#edit_studentId').val(studentId);
-                    $('#edit_date').val($(this).data('date'));
-                    $('#edit_juz_count').val($(this).data('juz'));
-                    $('#edit_examType').val($(this).data('type'));
-                    $('#edit_result_status').val($(this).data('status'));
-                    $('#edit_note').val(noteValue);
-
-                    $('.is-invalid').removeClass('is-invalid');
-                    $('.invalid-feedback').remove();
-                });
-
-                // 2. إرسال التعديل عبر AJAX
-                $('#editTestForm').on('submit', function(e) {
-                    e.preventDefault();
-                    const form = $(this);
-
-                    $.ajax({
-                        url: form.attr('action'),
-                        type: 'POST',
-                        data: form.serialize(),
-                        success: function(response) {
-                            $('#editTestModal').modal('hide');
-                            Swal.fire({
+            $('#editTestForm').on('submit', function(e) {
+                e.preventDefault();
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        $('#editTestModal').modal('hide');
+                        Swal.fire({
                                 icon: 'success',
                                 title: 'تم التحديث!',
                                 text: response.message,
                                 timer: 1500,
                                 showConfirmButton: false
-                            }).then(() => {
-                                location.reload();
-                            });
-                        },
-                        error: function(xhr) {
-                            if (xhr.status === 422) {
-                                let errors = xhr.responseJSON.errors;
-                                $('.is-invalid').removeClass('is-invalid');
-                                $('.invalid-feedback').remove();
-                                $.each(errors, function(key, value) {
-                                    let input = $(`[name="${key}"]`);
-                                    input.addClass('is-invalid');
-                                    input.after(
-                                        `<div class="invalid-feedback d-block">${value[0]}</div>`
-                                    );
-                                });
-                            }
-                        }
-                    });
-                });
-
-                // 3. وظيفة الحذف
-                $(document).on('click', '.delete-test-btn', function() {
-                    const id = $(this).data('id');
-                    const studentName = $(this).data('name');
-
-                    Swal.fire({
-                        title: 'هل أنت متأكد؟',
-                        text: `سيتم حذف سجل اختبار اسم الطالب/ة "${studentName}" نهائياً!`,
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#3085d6',
-                        confirmButtonText: 'نعم، احذف السجل',
-                        cancelButtonText: 'إلغاء',
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            $.ajax({
-                                url: `/quran_tests/${id}`,
-                                type: 'DELETE',
-                                success: function(response) {
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'تم الحذف!',
-                                        text: response.message,
-                                        timer: 1500,
-                                        showConfirmButton: false
-                                    }).then(() => {
-                                        location.reload();
-                                    });
-                                },
-                                error: function() {
-                                    Swal.fire('خطأ!',
-                                        'تعذر حذف السجل، يرجى المحاولة لاحقاً.', 'error'
-                                    );
-                                }
+                            })
+                            .then(() => location.reload());
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            $('.is-invalid').removeClass('is-invalid');
+                            $.each(errors, function(key, value) {
+                                let input = $(`[name="${key}"]`);
+                                input.addClass('is-invalid').after(
+                                    `<div class="invalid-feedback d-block">${value[0]}</div>`
+                                );
                             });
                         }
-                    });
-                });
-
-                $('#editTestModal').on('hidden.bs.modal', function() {
-                    clearNoteField();
+                    }
                 });
             });
-        </script>
-    @endpush
-@endsection
+
+            $(document).on('click', '.delete-test-btn', function() {
+                const id = $(this).data('id');
+                const studentName = $(this).data('name');
+                Swal.fire({
+                    title: 'هل أنت متأكد؟',
+                    text: `سيتم حذف سجل اختبار "${studentName}" نهائياً!`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    confirmButtonText: 'نعم، احذف',
+                    cancelButtonText: 'إلغاء',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: `/quran_tests/${id}`,
+                            type: 'DELETE',
+                            success: function(response) {
+                                Swal.fire({
+                                        icon: 'success',
+                                        title: 'تم الحذف!',
+                                        timer: 1500,
+                                        showConfirmButton: false
+                                    })
+                                    .then(() => location.reload());
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+@endpush
