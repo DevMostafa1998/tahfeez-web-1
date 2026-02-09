@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
     <meta name="color-scheme" content="light dark" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css"
         integrity="sha256-tXJfXfp6Ewt1ilPzLDtQnJV4hclT9XuaZUKyUvmyr+Q=" crossorigin="anonymous" media="print"
         onload="this.media='all'" />
@@ -28,6 +29,7 @@
         body {
             font-size: 15px !important;
         }
+
         .app-sidebar .nav-header {
             text-align: right !important;
             padding: 1.5rem 1rem 0.5rem !important;
@@ -92,7 +94,7 @@
             transition: transform 0.3s ease-in-out;
         }
 
-        .sidebar-menu .menu-open > .nav-link .nav-arrow {
+        .sidebar-menu .menu-open>.nav-link .nav-arrow {
             transform: rotate(90deg) !important;
             margin-top: -3px !important;
         }
@@ -109,6 +111,7 @@
             margin-left: 8px;
             vertical-align: middle;
         }
+
         .app-main .form-control,
         .app-main .form-select,
         .app-main .input-group-text {
