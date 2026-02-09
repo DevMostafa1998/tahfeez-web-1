@@ -180,10 +180,6 @@
                                     <tr>
                                         <td class="ps-4">
                                             <div class="d-flex align-items-center gap-3">
-                                                <div class="avatar-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center rounded-3"
-                                                    style="width: 40px; height: 40px;">
-                                                    <i class="bi bi-person"></i>
-                                                </div>
                                                 <span class="fw-bold">{{ $student->full_name }}</span>
                                             </div>
                                         </td>

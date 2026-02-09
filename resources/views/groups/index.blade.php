@@ -222,12 +222,11 @@
                                                 <i class="bi bi-eye-fill"></i>
                                             </a>
 
+                                            <button class="btn btn-action text-success" data-bs-toggle="modal"
+                                                data-bs-target="#manageStudents{{ $group->id }}" title="إدارة الطلاب">
+                                                <i class="bi bi-people-fill"></i>
+                                            </button>
                                             @if (auth()->check() && auth()->user()->is_admin)
-                                                <button class="btn btn-action text-success" data-bs-toggle="modal"
-                                                    data-bs-target="#manageStudents{{ $group->id }}"
-                                                    title="إدارة الطلاب">
-                                                    <i class="bi bi-people-fill"></i>
-                                                </button>
                                                 <button class="btn btn-action text-primary" data-bs-toggle="modal"
                                                     data-bs-target="#editGroup{{ $group->id }}" title="تعديل">
                                                     <i class="bi bi-pencil-square"></i>
