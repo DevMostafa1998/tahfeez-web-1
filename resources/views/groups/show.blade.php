@@ -96,7 +96,7 @@
                     </div>
                     <div class="d-flex gap-2">
                         <span class="badge bg-white text-primary px-3 py-2 fs-6 shadow-sm">
-                            عدد الطلاب: {{ $students->total() }}
+                            عدد الطلاب: {{ $students->count() }}
                         </span>
                         <a href="{{ route('group.index') }}" class="btn btn-light px-4 shadow-sm fw-bold">
                             <i class="bi bi-arrow-right me-1"></i> عودة للمجموعات
