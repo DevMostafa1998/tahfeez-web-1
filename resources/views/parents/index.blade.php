@@ -452,6 +452,93 @@
                             </table>
                         </div>
                     </section>
+                    <section class="bg-white rounded-[2.5rem] p-8 shadow-lg shadow-slate-100 premium-card animate__animated animate__fadeInUp" style="animation-delay: 0.4s">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-1.5 h-8 bg-violet-500 rounded-full"></div>
+                            <h3 class="text-xl font-black text-slate-800">سجل اختبارات الحفظ</h3>
+                        </div>
+                        <span class="bg-violet-50 text-violet-600 px-3 py-1 rounded-lg text-sm font-bold shadow-sm">
+                            {{ $tests->count() }} اختبار
+                        </span>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-2xl border border-slate-100">
+                        <table class="w-full text-right min-w-[600px]">
+                            <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-bold">
+                                <tr>
+                                    <th class="px-6 py-4">تاريخ الاختبار</th>
+                                    <th class="px-6 py-4">نوع الاختبار</th>
+                                    <th class="px-6 py-4">عدد الأجزاء</th>
+                                    <th class="px-6 py-4">النتيجة</th>
+                                    <th class="px-6 py-4">ملاحظات</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                @forelse($tests as $test)
+                                    <tr class="hover:bg-slate-50 transition-colors group">
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-2">
+                                                <i class="far fa-calendar-alt text-slate-300 group-hover:text-violet-500 transition-colors"></i>
+                                                <span class="font-mono text-slate-600 font-bold text-sm">
+                                                    {{ \Carbon\Carbon::parse($test->date)->format('Y-m-d') }}
+                                                </span>
+                                            </div>
+                                        </td>
+
+                                        <td class="px-6 py-4">
+                                            <span class="font-bold text-slate-700 text-sm">{{ $test->examType }}</span>
+                                        </td>
+
+                                        <td class="px-6 py-4">
+                                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-violet-50 text-violet-600 font-bold text-xs">
+                                                {{ $test->juz_count }}
+                                            </span>
+                                        </td>
+
+                                        <td class="px-6 py-4">
+                                            @php
+                                                $statusColor = 'bg-slate-100 text-slate-600';
+                                                $icon = 'fas fa-minus'; 
+
+                                                // فحص الحالة
+                                                if (str_contains($test->result_status, 'ناجح')) {
+                                                    $statusColor = 'bg-emerald-50 text-emerald-600';
+                                                    $icon = 'fas fa-check-circle'; // أيقونة صح
+                                                } elseif (str_contains($test->result_status, 'راسب')) {
+                                                    $statusColor = 'bg-rose-50 text-rose-600';
+                                                    $icon = 'fas fa-times-circle'; // أيقونة خطأ
+                                                }
+                                            @endphp
+
+                                            <span class="{{ $statusColor }} px-3 py-1 rounded-lg text-xs font-bold border border-transparent inline-flex items-center gap-2">
+                                                <i class="{{ $icon }}"></i>
+                                                {{ $test->result_status }}
+                                            </span>
+                                        </td>
+
+                                        <td class="px-6 py-4">
+                                            <p class="text-xs text-slate-500 max-w-[200px] truncate" title="{{ $test->note }}">
+                                                {{ $test->note ?? '-' }}
+                                            </p>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-10 text-center text-slate-400">
+                                            <div class="flex flex-col items-center justify-center gap-2">
+                                                <div class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center mb-2">
+                                                    <i class="fas fa-clipboard-check text-slate-300 text-xl"></i>
+                                                </div>
+                                                <p class="font-bold text-sm">لا توجد اختبارات مسجلة حتى الآن</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
                 </div>
 
                 <div class="lg:col-span-4 space-y-6">
