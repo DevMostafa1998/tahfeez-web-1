@@ -34,8 +34,10 @@ Route::middleware('guest')->group(function () {
 Route::get('/parent-login', function () {
     return view('auth.parent-login');
 })->name('parent.login');
+Route::get('student-restore/{id}', [StudentController::class, 'restore'])->name('student.restore');
 Route::get('student-data/{id}', [StudentController::class, 'getStudentData'])->name('student.data');
 Route::get('student-courses/{id}', [StudentController::class, 'getStudentCourses'])->name('student.courses');
+Route::post('student/{id}/restore', [StudentController::class, 'restore'])->name('student.restore');
 Route::get('/parents/{id_number?}', [App\Http\Controllers\ParentController::class, 'showStudentReport'])->name('parents.index');
 // --- راوتات المسجلين دخول (أدمن ومحفظ)
 

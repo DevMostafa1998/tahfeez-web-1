@@ -13,69 +13,75 @@ use Illuminate\Support\Facades\Auth;
 class StudentController extends Controller
 {
     protected $studentLogic;
-    /**
-     * Display a listing of the resource.
-     */
+
     public function __construct(StudentLogic $studentLogic)
     {
         $this->studentLogic = $studentLogic;
     }
+
+    /**
+     * Display a listing of the resource.
+     */
     public function index(Request $request)
     {
         if ($request->has('export_all')) {
             $students = Student::all();
             return $this->exportExcel($students);
         }
-        if ($request->ajax()) {
-            $query = Student::query();
 
-            // 1. الإحصائيات الكلية
+        if ($request->ajax()) {
+            // التحقق مما إذا كان الطلب للأرشيف
+            $showArchived = $request->input('archived') == 'true';
+
+            // بناء الاستعلام بناءً على الحالة
+            $query = $showArchived ? Student::onlyTrashed() : Student::query();
+
             $totalData = $query->count();
             $totalFiltered = $totalData;
 
-            // 2. البحث (Search)
+            // البحث
             if ($request->filled('search.value')) {
                 $search = $request->input('search.value');
                 $query->where(function ($q) use ($search) {
                     $q->where('full_name', 'LIKE', "%{$search}%")
-                        ->orWhere('id_number', 'LIKE', "%{$search}%")
-                        ->orWhere('phone_number', 'LIKE', "%{$search}%");
+                        ->orWhere('id_number', 'LIKE', "%{$search}%");
                 });
                 $totalFiltered = $query->count();
             }
 
-            // 3. الترتيب (Ordering)
-            $columns = ['full_name', 'id_number', 'gender', 'is_displaced', 'id', 'id']; // ترتيب الأعمدة في الجدول
-            if ($request->filled('order.0.column')) {
-                $columnIdx = $request->input('order.0.column');
-                $dir = $request->input('order.0.dir');
-                $query->orderBy($columns[$columnIdx], $dir);
-            }
+            $students = $query->offset($request->input('start'))
+                ->limit($request->input('length'))
+                ->get();
 
-            // 4. الترقيم (Pagination)
-            $start = $request->input('start');
-            $length = $request->input('length');
-            $students = $query->offset($start)->limit($length)->get();
+            $data = $students->map(function ($student) use ($showArchived) {
+                $actionButtons = '';
 
-            // 5. تجهيز البيانات للعرض (Formatting)
-            $data = $students->map(function ($student) {
+                if ($showArchived) {
+                    // زر الاستعادة يظهر فقط في الأرشيف
+                    $actionButtons = '<button onclick="restoreStudent(' . $student->id . ')" class="btn btn-sm btn-outline-success rounded-pill px-3"><i class="bi bi-arrow-counterclockwise"></i> استعادة</button>';
+                } else {
+                    // الأزرار للطلاب الحاليين (تم إضافة زر التقرير هنا)
+                    $actionButtons = '
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="' . route('parents.index', ['id_number' => $student->id_number]) . '"
+                       class="btn btn-sm btn-outline-secondary rounded-circle action-btn"
+                       title="عرض التقرير">
+                       <i class="bi bi-file-earmark-person"></i>
+                    </a>
+
+                    <button class="btn btn-sm btn-outline-info rounded-circle action-btn course-btn" data-id="' . $student->id . '" data-name="' . $student->full_name . '" title="الدورات"><i class="bi bi-journal-plus"></i></button>
+                    <button class="btn btn-sm btn-outline-warning rounded-circle action-btn edit-student-btn" data-id="' . $student->id . '" title="تعديل"><i class="bi bi-pencil-square"></i></button>
+                    <button type="button" onclick="confirmDelete(' . $student->id . ')" class="btn btn-sm btn-outline-danger rounded-circle action-btn" title="حذف"><i class="bi bi-trash3"></i></button>
+                </div>';
+                }
+
                 return [
                     'full_name' => '<span class="fw-bold">' . $student->full_name . '</span>',
-                    'id_number' => '<span class="badge bg-light text-dark border px-4 py-2 fw-bold">' . $student->id_number . '</span>',
-                    'gender' => $student->gender == 'male'
-                        ? '<span class="badge bg-blue-subtle text-primary border px-3"><i class="bi bi-person-fill ms-1"></i> ذكر </span>'
-                        : '<span class="badge bg-pink-subtle text-danger border px-3"><i class="bi bi-person ms-1"></i> أنثى </span>',
-                    'status' => $student->is_displaced
-                        ? '<span class="badge rounded-pill border bg-warning-subtle text-dark">نازح</span>'
-                        : '<span class="badge rounded-pill border bg-success-subtle text-success">مقيم</span>',
-                    'courses' => '<span class="badge bg-warning text-dark rounded-pill shadow-sm px-3">' . ($student->courses()->count()) . ' دورات</span>',
-                    'actions' => '
-                    <div class="d-flex justify-content-center gap-2">
-                        <a href="' . route('parents.index', ['id_number' => $student->id_number]) . '" class="btn btn-sm btn-outline-secondary rounded-circle action-btn" title="عرض ولي الأمر"><i class="bi bi-person-vcard"></i></a>
-                        <button class="btn btn-sm btn-outline-info rounded-circle action-btn course-btn" data-id="' . $student->id . '" data-name="' . $student->full_name . '"><i class="bi bi-journal-plus"></i></button>
-                        <button class="btn btn-sm btn-outline-warning rounded-circle action-btn edit-student-btn" data-id="' . $student->id . '"><i class="bi bi-pencil-square"></i></button>
-                        <button type="button" onclick="confirmDelete(' . $student->id . ')" class="btn btn-sm btn-outline-danger rounded-circle action-btn"><i class="bi bi-trash3"></i></button>
-                    </div>'
+                    'id_number' => '<span class="badge bg-light text-dark border px-4 py-2">' . $student->id_number . '</span>',
+                    'gender'    => $student->gender == 'male' ? '<span class="badge bg-blue-subtle text-primary border px-3">ذكر</span>' : '<span class="badge bg-pink-subtle text-danger border px-3">أنثى</span>',
+                    'status'    => $showArchived ? '<span class="badge rounded-pill bg-danger text-white">محذوف</span>' : ($student->is_displaced ? '<span class="badge rounded-pill bg-warning-subtle text-dark">نازح</span>' : '<span class="badge rounded-pill bg-success-subtle text-success">مقيم</span>'),
+                    'courses'   => '<span class="badge bg-warning text-dark rounded-pill px-3">' . ($student->courses()->count()) . ' دورات</span>',
+                    'actions'   => $actionButtons
                 ];
             });
 
@@ -163,7 +169,6 @@ class StudentController extends Controller
     public function create()
     {
         $groups = Group::all();
-
         $student_courses = Course::where(function ($q) {
             $q->where('type', 'students')
                 ->orWhereNull('type');
@@ -175,39 +180,29 @@ class StudentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'full_name'     => 'required|string|max:255',
-            'id_number'     => 'required|string|unique:student,id_number|digits:9',
-            'date_of_birth' => 'required|date',
-            'phone_number'  => 'required|string|max:15',
-            'address'       => 'required|string',
-            'is_displaced'  => 'required|boolean',
-            'group_id'      => 'nullable|exists:group,id',
-            'is_displaced'  => 'nullable',
-            'courses'       => 'nullable|array',
-            'birth_place'   => 'required|string|max:255',
-            'center_name'   => 'required|string|max:255',
-            'mosque_name'   => 'required|string|max:255',
-            'mosque_address' => 'required|string|max:255',
+            'full_name'       => 'required|string|max:255',
+            'id_number'       => 'required|string|unique:student,id_number|digits:9',
+            'date_of_birth'   => 'required|date',
+            'phone_number'    => 'required|string|max:15',
+            'address'         => 'required|string',
+            'group_id'        => 'nullable|exists:group,id',
+            'is_displaced'    => 'required|boolean',
+            'courses'         => 'nullable|array',
+            'birth_place'     => 'required|string|max:255',
+            'center_name'     => 'required|string|max:255',
+            'mosque_name'     => 'required|string|max:255',
+            'mosque_address'  => 'required|string|max:255',
             'whatsapp_number' => 'required|string|max:15',
-            'gender'       => 'sometimes|in:male,female',
-
+            'gender'          => 'sometimes|in:male,female',
         ]);
         $this->studentLogic->storeStudent($validated);
         if ($request->ajax()) {
             return response()->json(['success' => true, 'message' => 'تم إضافة الطالب']);
         }
         return redirect()->route('student.index')->with('success', 'تم إضافة الطالب والدورات بنجاح');
-    }
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
     }
 
     /**
@@ -225,7 +220,7 @@ class StudentController extends Controller
     public function update(Request $request, $id)
     {
         if ($request->has('update_courses_only')) {
-            $student = \App\Models\Student::findOrFail($id);
+            $student = Student::findOrFail($id);
             $student->courses()->sync($request->input('courses', []));
             return redirect()->back()->with('success', 'تم تحديث الدورات بنجاح');
         }
@@ -242,7 +237,7 @@ class StudentController extends Controller
             'mosque_name'    => 'nullable|string|max:255',
             'mosque_address' => 'nullable|string|max:255',
             'whatsapp_number' => 'nullable|string|max:15',
-            'gender'       => 'sometimes|in:male,female',
+            'gender'          => 'sometimes|in:male,female',
         ]);
 
         $this->studentLogic->updateStudent($id, $validatedData);
@@ -250,11 +245,24 @@ class StudentController extends Controller
         return redirect()->route('student.index')->with('success', 'تم تحديث بيانات الطالب بنجاح');
     }
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified resource from storage (Soft Delete).
      */
     public function destroy($id)
     {
         $this->studentLogic->deleteStudent($id);
         return redirect()->route('student.index')->with('success', 'تم حذف الطالب بنجاح');
+    }
+
+    public function restore($id)
+    {
+        // البحث عن الطالب حتى لو كان محذوفاً
+        $student = Student::withTrashed()->find($id);
+
+        if ($student) {
+            $student->restore();
+            return redirect()->back()->with('success', 'تم استعادة سجل الطالب بنجاح');
+        }
+
+        return redirect()->back()->with('error', 'الطالب غير موجود');
     }
 }

@@ -136,53 +136,116 @@
                 justify-content: center;
             }
         }
+
+        /* تنسيق أزرار التبويبات (حاليين / أرشيف) */
+        .btn-tab-custom {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+
+        /* تأثير التمرير للأزرار البيضاء */
+        .btn-tab-custom:hover {
+            background-color: #f8f9fa;
+            border-color: #d0d0d0;
+            transform: translateY(-2px);
+            /* رفعة بسيطة للأعلى */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        /* التنسيق الخاص بالزر النشط */
+        .active-tab {
+            background-color: #f0f7ff !important;
+            border-color: #0d6efd !important;
+            color: #0d6efd !important;
+        }
+
+        /* تأثير زر "طالب جديد" */
+        .btn-add-new {
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-add-new:hover {
+            background-color: #0b5ed7;
+            /* درجة أغمق قليلاً */
+            transform: scale(1.05);
+            /* تكبير بسيط */
+            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
+        }
+
+        /* تأثير خاص لزر الأرشيف عند التمرير */
+        #btn-archived:hover {
+            background-color: #fff5f5;
+            border-color: #dc3545;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endpush
 
 @section('content')
-    <div class="container-fluid p-4" dir="rtl">
-        {{-- الهيدر الموحد --}}
-        <div class="page-header d-flex justify-content-between align-items-center mb-4">
-            <div class="d-flex align-items-center gap-3">
-                <div class="bg-white p-2 rounded-3 shadow-sm">
-                    <i class="bi bi-person-badge-fill fs-3 text-primary"></i>
+    <div class="container-fluid p-3" dir="rtl">
+        <div class="page-header d-flex justify-content-between align-items-center mb-3 px-3 flex-wrap">
+
+            <div class="d-flex align-items-center gap-2">
+                <div class="bg-white p-1 rounded-2 shadow-sm d-flex align-items-center justify-content-center border"
+                    style="width: 40px; height: 40px;">
+                    <i class="bi bi-person-badge-fill fs-4 text-primary"></i>
                 </div>
-                <div>
-                    <h1 class="page-title m-0 h3">إدارة الطلاب</h1>
+                <h1 class="page-title m-0 h4 fw-bold text-dark">إدارة الطلاب</h1>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+
+                <div class="header-btns-wrapper d-flex gap-2">
+                    <button type="button" id="btn-current" class="btn btn-tab-custom active-tab">
+                        <i class="bi bi-people-fill ms-1"></i> الطلاب الحاليين
+                    </button>
+
+                    <button type="button" id="btn-archived" class="btn btn-tab-custom text-danger">
+                        <i class="bi bi-trash3-fill ms-1"></i> الأرشيف
+                    </button>
+                </div>
+
+                <div class="vr mx-2 text-muted opacity-25 d-none d-md-block" style="height: 30px;"></div>
+
+                <a href="{{ route('student.create') }}" class="btn btn-primary btn-add-new shadow-sm px-4 py-2">
+                    <i class="bi bi-plus-lg ms-1"></i> طالب جديد
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card card-table shadow-sm border-0 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="p-3">
+                <div class="table-responsive">
+                    <table id="studentsTable" class="table table-striped table-bordered align-middle mb-0"
+                        style="width:100%">
+                        <thead class="bg-light text-secondary text-center">
+                            <tr>
+                                <th>اسم الطالب/ة</th>
+                                <th>رقم الهوية</th>
+                                <th>الجنس</th>
+                                <th>الحالة</th>
+                                <th>الدورات</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+
+                    {{-- ضع المودال خارج الحلقة (أخرجناه من الـ foreach) --}}
+                    @include('students.edit_modal_unified')
                 </div>
             </div>
-            <a href="{{ route('student.create') }}"
-                class="btn btn-primary d-flex align-items-center gap-2 px-4 py-2 rounded-3">
-                <i class="bi bi-plus-lg"></i><span>طالب جديد</span>
-            </a>
         </div>
-
-        <div class="card card-table shadow-sm border-0 overflow-hidden">
-            <div class="card-body p-0">
-                <div class="p-3">
-                    <div class="table-responsive">
-                        <table id="studentsTable" class="table table-striped table-bordered align-middle mb-0"
-                            style="width:100%">
-                            <thead class="bg-light text-secondary text-center">
-                                <tr>
-                                    <th>اسم الطالب/ة</th>
-                                    <th>رقم الهوية</th>
-                                    <th>الجنس</th>
-                                    <th>الحالة</th>
-                                    <th>الدورات</th>
-                                    <th>الإجراءات</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-
-                        {{-- ضع المودال خارج الحلقة (أخرجناه من الـ foreach) --}}
-                        @include('students.edit_modal_unified')
-                    </div>
-                </div>
-            </div>
-        </div>
+    </div>
     </div>
 
     {{-- مودال إدارة الدورات --}}
@@ -238,11 +301,14 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
     <script>
-        // 1. دالة حذف الطالب (استخدام SweetAlert2)
+        // متغير للتحكم في نوع البيانات المعروضة (حالي أو مؤرشف)
+        let showArchived = false;
+
+        // دالة حذف الطالب (نقل للأرشيف)
         function confirmDelete(id) {
             Swal.fire({
                 title: 'هل أنت متأكد؟',
-                text: "سيتم حذف بيانات الطالب نهائياً!",
+                text: "سيتم نقل الطالب إلى الأرشيف!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#dc3545',
@@ -251,7 +317,6 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // إنشاء فورم وهمي للحذف لإرسال طلب DELETE
                     let form = $(`<form action="{{ url('student') }}/${id}" method="POST">
                         @csrf
                         @method('DELETE')
@@ -262,19 +327,34 @@
             });
         }
 
-        $(document).ready(function() {
-            const d = new Date();
-            const dateString = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+        // دالة استعادة الطالب من الأرشيف
+        function restoreStudent(id) {
+            Swal.fire({
+                title: 'استعادة الطالب؟',
+                text: "سيتم إعادة الطالب إلى القائمة النشطة",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                confirmButtonText: 'نعم، استعادة',
+                cancelButtonText: 'تراجع',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `{{ url('student-restore') }}/${id}`;
+                }
+            });
+        }
 
-            // 2. تهيئة DataTable بنظام Server-side
+        $(document).ready(function() {
+            // تهيئة DataTable بنظام Server-side مع تمرير حالة الأرشيف
             const table = $('#studentsTable').DataTable({
                 processing: true,
-                serverSide: true, // تفعيل المعالجة من طرف السيرفر
+                serverSide: true,
                 ajax: {
                     url: "{{ route('student.index') }}",
                     type: 'GET',
-                    error: function(xhr, error, thrown) {
-                        console.error("حدث خطأ في جلب البيانات:", error);
+                    data: function(d) {
+                        d.archived = showArchived; // إرسال المتغير للسيرفر لجلب المحذوفين أو الحاليين
                     }
                 },
                 columns: [{
@@ -312,15 +392,13 @@
                 ],
                 order: [
                     [0, 'asc']
-                ], // الترتيب الافتراضي حسب الاسم
+                ],
                 language: {
                     "sProcessing": "جاري التحميل...",
                     "sLengthMenu": "أظهر _MENU_ طلاب",
                     "sSearch": "بحث سريع:",
                     "sInfo": "عرض _START_ إلى _END_ من أصل _TOTAL_ طالب",
                     "paginate": {
-                        "first": "«",
-                        "last": "»",
                         "next": "›",
                         "previous": "‹"
                     }
@@ -330,15 +408,30 @@
                     "<'row mt-3'<'col-sm-12'p>>" +
                     "<'row'<'col-sm-12 text-center'i>>",
                 buttons: [{
-                    text: '<i class="bi bi-file-earmark-excel-fill ms-1"></i> تصدير إكسل (كامل البيانات)',
+                    text: '<i class="bi bi-file-earmark-excel-fill ms-1"></i> تصدير إكسل',
                     className: 'btn btn-excel',
-                    action: function(e, dt, node, config) {
+                    action: function() {
                         window.location.href = "{{ route('student.export') }}";
                     }
                 }]
             });
 
-            // 3. فتح مودال التعديل وجلب بيانات الطالب عبر AJAX
+            // منطق أزرار التبديل (الطلاب الحاليين / الأرشيف)
+            $('#btn-current').on('click', function() {
+                showArchived = false;
+                $(this).addClass('active-status shadow-sm').removeClass('text-secondary');
+                $('#btn-archived').removeClass('active-archive shadow-sm').addClass('text-secondary');
+                table.ajax.reload();
+            });
+
+            $('#btn-archived').on('click', function() {
+                showArchived = true;
+                $(this).addClass('active-archive shadow-sm').removeClass('text-secondary');
+                $('#btn-current').removeClass('active-status shadow-sm').addClass('text-secondary');
+                table.ajax.reload();
+            });
+
+            // فتح مودال التعديل عبر AJAX
             $(document).on('click', '.edit-student-btn', function() {
                 const id = $(this).data('id');
                 const modal = $('#unifiedEditModal');
@@ -361,8 +454,8 @@
                         $('#edit_mosque_name').val(student.mosque_name);
                         $('#edit_mosque_address').val(student.mosque_address);
                         if (student.date_of_birth) {
-                            let formattedDate = student.date_of_birth.substring(0, 10);
-                            $('#edit_date_of_birth').val(formattedDate);
+                            $('#edit_date_of_birth').val(student.date_of_birth.substring(0,
+                                10));
                         }
 
                         $('#edit_is_displaced option').each(function() {
@@ -370,35 +463,29 @@
                                 $(this).prop('selected', true);
                             }
                         });
+
                         modal.modal('show');
-                    },
-                    error: function() {
-                        Swal.fire('خطأ', 'تعذر جلب بيانات الطالب', 'error');
+
                     }
                 });
             });
 
-            // 4. فتح مودال إدارة الدورات
+            // فتح مودال إدارة الدورات
             $(document).on('click', '.course-btn', function() {
                 const studentId = $(this).data('id');
                 const studentName = $(this).data('name');
-                const modal = $('#courseStudentModal');
-
-                // تحديث واجهة المودال
                 $('#courseForm').attr('action', `{{ url('student') }}/${studentId}`);
                 $('#modal_student_name').text(studentName);
                 $('.course-checkbox').prop('checked', false);
 
-                // جلب الدورات الحالية للطالب
                 $.get(`{{ url('student-courses') }}/${studentId}`, function(courseIds) {
                     courseIds.forEach(id => {
                         $(`#student_course_${id}`).prop('checked', true);
                     });
-                    modal.modal('show');
+                    $('#courseStudentModal').modal('show');
                 });
             });
 
-            // 5. رسائل النجاح (من الـ Session)
             @if (session('success'))
                 Swal.fire({
                     icon: 'success',
