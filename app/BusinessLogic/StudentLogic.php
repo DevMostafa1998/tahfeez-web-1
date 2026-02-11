@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 class StudentLogic
 {
+
     public function storeStudent(array $data)
     {
         $studentData = [
@@ -44,7 +45,43 @@ class StudentLogic
     {
         return Student::whereNull('deleted_at')->latest();
     }
+    public function getFilteredStudents($request)
+    {
+        $user = Auth::user();
+        $isAdmin = $user->is_admin == 1;
 
+        $query = \Illuminate\Support\Facades\DB::table('student')
+            ->select('student.*')
+            ->addSelect([
+                'courses_count' => \Illuminate\Support\Facades\DB::table('course_student')
+                    ->whereColumn('student_id', 'student.id')
+                    ->selectRaw('count(*)'),
+                'course_ids' => \Illuminate\Support\Facades\DB::table('course_student')
+                    ->whereColumn('student_id', 'student.id')
+                    ->selectRaw("GROUP_CONCAT(course_id)")
+            ])
+            ->whereNull('student.deleted_at');
+
+        // منطق الصلاحيات: إذا لم يكن أدمن يرى طلاب مجموعاته فقط
+        if (!$isAdmin) {
+            $query->join('student_group', 'student.id', '=', 'student_group.student_id')
+                ->join('group', 'student_group.group_id', '=', 'group.id')
+                ->where('group.UserId', $user->id)
+                ->distinct();
+        }
+
+        // فلتر "لم يسمعوا اليوم"
+        if ($request->filter == 'not_memorized_today') {
+            $today = \Carbon\Carbon::today();
+            $who_memorized = \Illuminate\Support\Facades\DB::table('student_daily_memorizations')
+                ->whereDate('date', $today)
+                ->pluck('student_id');
+
+            $query->whereNotIn('student.id', $who_memorized);
+        }
+
+        return $query->get();
+    }
 
     public function getStudentById($id)
     {

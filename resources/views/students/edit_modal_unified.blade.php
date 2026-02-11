@@ -1,8 +1,8 @@
-<div class="modal fade" id="editStudentModal{{ $student->id }}" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="unifiedEditModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;" dir="rtl">
 
-            {{-- هيدر نحيف جداً --}}
+            {{-- الهيدر --}}
             <div
                 class="modal-header bg-warning py-2 border-0 d-flex flex-row-reverse justify-content-between align-items-center">
                 <button type="button" class="btn-close m-0 shadow-none" data-bs-dismiss="modal" aria-label="Close"
@@ -12,10 +12,10 @@
                 </h6>
             </div>
 
-            <form action="{{ route('student.update', $student->id) }}" method="POST"
-                id="editStudentForm{{ $student->id }}">
+            <form action="" method="POST" id="editStudentForm">
                 @csrf
                 @method('PUT')
+                <input type="hidden" id="edit_student_id">
 
                 <div class="modal-body py-3 px-4" dir="rtl">
 
@@ -27,16 +27,15 @@
                             <hr class="flex-grow-1 me-2 my-0 opacity-10">
                         </div>
                         <div class="row g-2">
-                            {{-- لاحظ استخدام d-flex flex-row-reverse --}}
                             <div class="col-md-4">
                                 <label
                                     class="label-style fw-bold mb-1 d-flex flex-row-reverse justify-content-end align-items-center">
                                     <span>الاسم رباعي</span>
                                     <i class="bi bi-person-bounding-box text-warning ms-2"></i>
                                 </label>
-                                <input type="text" name="full_name"
+                                <input type="text" name="full_name" id="edit_full_name"
                                     class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
-                                    value="{{ $student->full_name }}" required>
+                                    required>
                             </div>
                             <div class="col-md-2">
                                 <label
@@ -44,9 +43,9 @@
                                     <span>رقم الهوية</span>
                                     <i class="bi bi-person-vcard text-warning ms-2"></i>
                                 </label>
-                                <input type="text" name="id_number"
+                                <input type="text" name="id_number" id="edit_id_number"
                                     class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
-                                    value="{{ $student->id_number }}" required>
+                                    required>
                             </div>
                             <div class="col-md-2">
                                 <label
@@ -54,9 +53,8 @@
                                     <span>الميلاد</span>
                                     <i class="bi bi-calendar-check text-warning ms-2"></i>
                                 </label>
-                                <input type="date" name="date_of_birth"
+                                <input type="date" name="date_of_birth" id="edit_date_of_birth"
                                     class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
-                                    value="{{ \Carbon\Carbon::parse($student->date_of_birth)->format('Y-m-d') }}"
                                     required>
                             </div>
                             <div class="col-md-3">
@@ -65,9 +63,8 @@
                                     <span>مكان الميلاد</span>
                                     <i class="bi bi-geo-alt text-warning ms-2"></i>
                                 </label>
-                                <input type="text" name="birth_place"
-                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
-                                    value="{{ $student->birth_place }}">
+                                <input type="text" name="birth_place" id="edit_birth_place"
+                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start">
                             </div>
                             <div class="col-md-1">
                                 <label
@@ -75,11 +72,10 @@
                                     <span>الجنس</span>
                                     <i class="bi bi-gender-ambiguous text-warning ms-2"></i>
                                 </label>
-                                <select name="gender" class="form-select bg-light border-0 py-2">
-                                    <option value="male" {{ $student->gender == 'male' ? 'selected' : '' }}>ذكر
-                                    </option>
-                                    <option value="female" {{ $student->gender == 'female' ? 'selected' : '' }}>أنثى
-                                    </option>
+                                <select name="gender" id="edit_gender"
+                                    class="form-select form-select-sm bg-light border-0">
+                                    <option value="male">ذكر</option>
+                                    <option value="female">أنثى</option>
                                 </select>
                             </div>
                         </div>
@@ -99,9 +95,9 @@
                                     <span>الجوال</span>
                                     <i class="bi bi-phone-vibrate text-warning ms-2"></i>
                                 </label>
-                                <input type="text" name="phone_number"
+                                <input type="text" name="phone_number" id="edit_phone_number"
                                     class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
-                                    value="{{ $student->phone_number }}" required>
+                                    required>
                             </div>
                             <div class="col-md-2">
                                 <label
@@ -109,9 +105,8 @@
                                     <span>واتساب</span>
                                     <i class="bi bi-whatsapp text-success ms-2"></i>
                                 </label>
-                                <input type="text" name="whatsapp_number"
-                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
-                                    value="{{ $student->whatsapp_number }}">
+                                <input type="text" name="whatsapp_number" id="edit_whatsapp_number"
+                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start">
                             </div>
                             <div class="col-md-5">
                                 <label
@@ -119,9 +114,9 @@
                                     <span>عنوان السكن</span>
                                     <i class="bi bi-map text-warning ms-2"></i>
                                 </label>
-                                <input type="text" name="address"
+                                <input type="text" name="address" id="edit_address"
                                     class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
-                                    value="{{ $student->address }}" required>
+                                    required>
                             </div>
                             <div class="col-md-3">
                                 <label
@@ -129,11 +124,12 @@
                                     <span>حالة السكن</span>
                                     <i class="bi bi-house-check text-warning ms-2"></i>
                                 </label>
-                                <select name="is_displaced" class="form-select bg-light border-0 py-2">
-                                    <option value="0" {{ !$student->is_displaced ? 'selected' : '' }}>مقيم
-                                    </option>
-                                    <option value="1" {{ $student->is_displaced ? 'selected' : '' }}>نازح</option>
+                                <select name="is_displaced" id="edit_is_displaced"
+                                    class="form-select form-select-sm bg-light border-0">
+                                    <option value="0">مقيم</option>
+                                    <option value="1">نازح</option>
                                 </select>
+
                             </div>
                         </div>
                     </div>
@@ -152,9 +148,8 @@
                                     <span>اسم المركز</span>
                                     <i class="bi bi-building-gear text-warning ms-2"></i>
                                 </label>
-                                <input type="text" name="center_name"
-                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
-                                    value="{{ $student->center_name }}">
+                                <input type="text" name="center_name" id="edit_center_name"
+                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start">
                             </div>
                             <div class="col-md-3">
                                 <label
@@ -162,9 +157,8 @@
                                     <span>اسم المسجد</span>
                                     <i class="bi bi-moon-stars-fill text-warning ms-2"></i>
                                 </label>
-                                <input type="text" name="mosque_name"
-                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
-                                    value="{{ $student->mosque_name }}">
+                                <input type="text" name="mosque_name" id="edit_mosque_name"
+                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start">
                             </div>
                             <div class="col-md-6">
                                 <label
@@ -172,9 +166,8 @@
                                     <span>عنوان المسجد التفصيلي</span>
                                     <i class="bi bi-pin-map-fill text-warning ms-2"></i>
                                 </label>
-                                <input type="text" name="mosque_address"
-                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
-                                    value="{{ $student->mosque_address }}">
+                                <input type="text" name="mosque_address" id="edit_mosque_address"
+                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start">
                             </div>
                         </div>
                     </div>

@@ -34,9 +34,13 @@ Route::middleware('guest')->group(function () {
 Route::get('/parent-login', function () {
     return view('auth.parent-login');
 })->name('parent.login');
-
+Route::get('student-data/{id}', [StudentController::class, 'getStudentData'])->name('student.data');
+Route::get('student-courses/{id}', [StudentController::class, 'getStudentCourses'])->name('student.courses');
 Route::get('/parents/{id_number?}', [App\Http\Controllers\ParentController::class, 'showStudentReport'])->name('parents.index');
-// --- راوتات المسجلين دخول (أدمن ومحفظ) ---
+// --- راوتات المسجلين دخول (أدمن ومحفظ)
+
+Route::get('student-export-excel', [StudentController::class, 'exportExcel'])->name('student.export');
+Route::resource('student', StudentController::class);
 Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

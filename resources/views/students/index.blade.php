@@ -164,93 +164,21 @@
                     <div class="table-responsive">
                         <table id="studentsTable" class="table table-striped table-bordered align-middle mb-0"
                             style="width:100%">
-                            <thead class="bg-light text-secondary">
+                            <thead class="bg-light text-secondary text-center">
                                 <tr>
-                                    <th class="text-center">اسم الطالب/ة</th>
-                                    <th class="text-center">رقم الهوية</th>
-                                    <th class="text-center">الجنس</th>
-
-                                    <th class="text-center">الحالة</th>
-                                    <th class="text-center">الدورات</th>
-                                    <th class="text-center">الإجراءات</th>
+                                    <th>اسم الطالب/ة</th>
+                                    <th>رقم الهوية</th>
+                                    <th>الجنس</th>
+                                    <th>الحالة</th>
+                                    <th>الدورات</th>
+                                    <th>الإجراءات</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @foreach ($students as $student)
-                                    <tr>
-                                        <td class="ps-4">
-                                            <div class="d-flex align-items-center gap-3">
-                                                <span class="fw-bold">{{ $student->full_name }}</span>
-                                            </div>
-                                        </td>
-
-                                        <td class="text-center">
-                                            <span class="badge bg-light text-dark border px-4 py-2 fw-bold fs-7"
-                                                style="letter-spacing: 1.5px; min-width: 110px; display: inline-block;">
-                                                {{ $student->id_number }}
-                                            </span>
-                                        </td>
-                                        <td class="text-center">
-                                            @if ($student->gender == 'male')
-                                                <span class="badge bg-blue-subtle text-primary border px-3">
-                                                    <i class="bi bi-person-fill ms-1"></i> ذكر </span>
-                                            @else
-                                                <span class="badge bg-pink-subtle text-danger border px-3">
-                                                    <i class="bi bi-person ms-1"></i> أنثى </span>
-                                            @endif
-                                        </td>
-                                        <td class="text-center">
-                                            <span
-                                                class="badge rounded-pill border {{ $student->is_displaced ? 'bg-warning-subtle text-dark' : 'bg-success-subtle text-success' }}"
-                                                style="padding: 5px 12px; font-size: 0.85rem; font-weight: 600;">
-                                                {{ $student->is_displaced ? 'نازح' : 'مقيم' }}
-                                            </span>
-                                        </td>
-                                        <td class="text-center">
-                                            <span class="badge bg-warning text-dark rounded-pill shadow-sm px-3"
-                                                style="padding-top: 6px; padding-bottom: 6px; font-size: 0.70rem;">
-                                                {{ $student->courses_count ?? 0 }} دورات
-                                            </span>
-                                        </td>
-                                        <td class="text-center">
-                                            <div class="d-flex justify-content-center gap-2">
-                                                <a href="{{ route('parents.index', ['id_number' => $student->id_number]) }}"
-                                                    class="btn btn-sm btn-outline-secondary rounded-circle action-btn"
-                                                    title="عرض ولي الأمر">
-                                                    <i class="bi bi-person-vcard"></i>
-                                                </a>
-                                                <button
-                                                    class="btn btn-sm btn-outline-info rounded-circle action-btn course-btn"
-                                                    data-bs-toggle="modal" data-bs-target="#courseStudentModal"
-                                                    data-student-id="{{ $student->id }}"
-                                                    data-student-name="{{ $student->full_name }}"
-                                                    data-student-courses="{{ isset($student->course_ids) ? json_encode(explode(',', $student->course_ids)) : '[]' }}"
-                                                    title="إدارة الدورات">
-                                                    <i class="bi bi-journal-plus"></i>
-                                                </button>
-
-                                                <button class="btn btn-sm btn-outline-warning rounded-circle action-btn"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#editStudentModal{{ $student->id }}" title="تعديل">
-                                                    <i class="bi bi-pencil-square"></i>
-                                                </button>
-
-                                                <form action="{{ route('student.destroy', $student->id) }}" method="POST"
-                                                    id="deleteForm{{ $student->id }}" class="d-inline">
-                                                    @csrf @method('DELETE')
-                                                    <button type="button" onclick="confirmDelete({{ $student->id }})"
-                                                        class="btn btn-sm btn-outline-danger rounded-circle action-btn"
-                                                        title="حذف">
-                                                        <i class="bi bi-trash3"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    @include('students.edit_modal', ['student' => $student])
-                                @endforeach
-                            </tbody>
+                            <tbody></tbody>
                         </table>
+
+                        {{-- ضع المودال خارج الحلقة (أخرجناه من الـ foreach) --}}
+                        @include('students.edit_modal_unified')
                     </div>
                 </div>
             </div>
@@ -275,9 +203,8 @@
                                 <div class="col-6 mb-2">
                                     <div class="p-2 bg-light rounded border d-flex align-items-center justify-content-start"
                                         style="cursor: pointer;">
-                                        <input class="form-check-input course-checkbox m-0" type="checkbox"
-                                            name="courses[]" value="{{ $course->id }}"
-                                            id="student_course_{{ $course->id }}"
+                                        <input class="form-check-input course-checkbox m-0" type="checkbox" name="courses[]"
+                                            value="{{ $course->id }}" id="student_course_{{ $course->id }}"
                                             style="position: relative; margin-left: 10px !important;">
 
                                         <label class="form-check-label fw-bold mb-0 flex-grow-1 cursor-pointer"
@@ -311,6 +238,7 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
     <script>
+        // 1. دالة حذف الطالب (استخدام SweetAlert2)
         function confirmDelete(id) {
             Swal.fire({
                 title: 'هل أنت متأكد؟',
@@ -323,73 +251,154 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    document.getElementById('deleteForm' + id).submit();
+                    // إنشاء فورم وهمي للحذف لإرسال طلب DELETE
+                    let form = $(`<form action="{{ url('student') }}/${id}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                    </form>`);
+                    $('body').append(form);
+                    form.submit();
                 }
             });
         }
 
         $(document).ready(function() {
-            var d = new Date();
-            var dateString = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
-            if (!$.fn.dataTable.isDataTable('#studentsTable')) {
-                $('#studentsTable').DataTable({
-                    "responsive": true,
-                    "language": {
-                        "sProcessing": "جاري التحميل...",
-                        "sLengthMenu": "أظهر _MENU_ طلاب",
-                        "sSearch": "بحث سريع:",
-                        "sInfo": "عرض _START_ إلى _END_ من أصل _TOTAL_ طالب",
-                        "paginate": {
-                            "first": "«",
-                            "last": "»",
-                            "next": "›",
-                            "previous": "‹"
-                        }
-                    },
+            const d = new Date();
+            const dateString = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
 
-                    "dom": "<'row mb-3 align-items-center'<'col-md-4 text-right'l><'col-md-4 text-center'B><'col-md-4 text-left'f>>" +
-                        "<'row'<'col-sm-12' <'table-responsive' tr> >>" +
-                        "<'row mt-3'<'col-sm-12'p>>" +
-                        "<'row'<'col-sm-12 text-center'i>>",
-
-
-                    "buttons": [{
-                        extend: 'excelHtml5',
-                        text: '<i class="bi bi-file-earmark-excel-fill ms-1"></i> تصدير إكسل',
-                        className: 'btn btn-excel',
-                        title: 'قائمة الطلاب - تاريخ ' + dateString,
-                        filename: 'تقرير_الطلاب_' + dateString,
-                        exportOptions: {
-                            columns: [0, 1, 2, 3, 4]
-                        }
-                    }]
-                });
-            }
-
-            $(document).on('click', '.course-btn', function() {
-                const studentId = $(this).data('student-id');
-                const studentName = $(this).data('student-name');
-                let studentCourses = $(this).data('student-courses');
-
-                if (typeof studentCourses === 'string') {
-                    try {
-                        studentCourses = JSON.parse(studentCourses).map(id => parseInt(id));
-                    } catch (e) {
-                        studentCourses = [];
+            // 2. تهيئة DataTable بنظام Server-side
+            const table = $('#studentsTable').DataTable({
+                processing: true,
+                serverSide: true, // تفعيل المعالجة من طرف السيرفر
+                ajax: {
+                    url: "{{ route('student.index') }}",
+                    type: 'GET',
+                    error: function(xhr, error, thrown) {
+                        console.error("حدث خطأ في جلب البيانات:", error);
                     }
-                }
+                },
+                columns: [{
+                        data: 'full_name',
+                        name: 'full_name',
+                        className: 'text-right'
+                    },
+                    {
+                        data: 'id_number',
+                        name: 'id_number',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'gender',
+                        name: 'gender',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'status',
+                        name: 'status',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'courses',
+                        name: 'courses',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'actions',
+                        name: 'actions',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center'
+                    }
+                ],
+                order: [
+                    [0, 'asc']
+                ], // الترتيب الافتراضي حسب الاسم
+                language: {
+                    "sProcessing": "جاري التحميل...",
+                    "sLengthMenu": "أظهر _MENU_ طلاب",
+                    "sSearch": "بحث سريع:",
+                    "sInfo": "عرض _START_ إلى _END_ من أصل _TOTAL_ طالب",
+                    "paginate": {
+                        "first": "«",
+                        "last": "»",
+                        "next": "›",
+                        "previous": "‹"
+                    }
+                },
+                dom: "<'row mb-3 align-items-center'<'col-md-4 text-right'l><'col-md-4 text-center'B><'col-md-4 text-left'f>>" +
+                    "<'row'<'col-sm-12' <'table-responsive' tr> >>" +
+                    "<'row mt-3'<'col-sm-12'p>>" +
+                    "<'row'<'col-sm-12 text-center'i>>",
+                buttons: [{
+                    text: '<i class="bi bi-file-earmark-excel-fill ms-1"></i> تصدير إكسل (كامل البيانات)',
+                    className: 'btn btn-excel',
+                    action: function(e, dt, node, config) {
+                        window.location.href = "{{ route('student.export') }}";
+                    }
+                }]
+            });
 
-                $('#courseForm').attr('action', "{{ url('student') }}/" + studentId);
+            // 3. فتح مودال التعديل وجلب بيانات الطالب عبر AJAX
+            $(document).on('click', '.edit-student-btn', function() {
+                const id = $(this).data('id');
+                const modal = $('#unifiedEditModal');
+                const form = $('#editStudentForm');
+                form[0].reset();
+
+                $.ajax({
+                    url: `{{ url('student-data') }}/${id}`,
+                    type: 'GET',
+                    success: function(student) {
+                        form.attr('action', `{{ url('student') }}/${id}`);
+                        $('#edit_full_name').val(student.full_name);
+                        $('#edit_id_number').val(student.id_number);
+                        $('#edit_birth_place').val(student.birth_place);
+                        $('#edit_gender').val(student.gender);
+                        $('#edit_phone_number').val(student.phone_number);
+                        $('#edit_whatsapp_number').val(student.whatsapp_number);
+                        $('#edit_address').val(student.address);
+                        $('#edit_center_name').val(student.center_name);
+                        $('#edit_mosque_name').val(student.mosque_name);
+                        $('#edit_mosque_address').val(student.mosque_address);
+                        if (student.date_of_birth) {
+                            let formattedDate = student.date_of_birth.substring(0, 10);
+                            $('#edit_date_of_birth').val(formattedDate);
+                        }
+
+                        $('#edit_is_displaced option').each(function() {
+                            if ($(this).val() == student.is_displaced) {
+                                $(this).prop('selected', true);
+                            }
+                        });
+                        modal.modal('show');
+                    },
+                    error: function() {
+                        Swal.fire('خطأ', 'تعذر جلب بيانات الطالب', 'error');
+                    }
+                });
+            });
+
+            // 4. فتح مودال إدارة الدورات
+            $(document).on('click', '.course-btn', function() {
+                const studentId = $(this).data('id');
+                const studentName = $(this).data('name');
+                const modal = $('#courseStudentModal');
+
+                // تحديث واجهة المودال
+                $('#courseForm').attr('action', `{{ url('student') }}/${studentId}`);
                 $('#modal_student_name').text(studentName);
                 $('.course-checkbox').prop('checked', false);
 
-                if (Array.isArray(studentCourses)) {
-                    studentCourses.forEach(id => {
+                // جلب الدورات الحالية للطالب
+                $.get(`{{ url('student-courses') }}/${studentId}`, function(courseIds) {
+                    courseIds.forEach(id => {
                         $(`#student_course_${id}`).prop('checked', true);
                     });
-                }
+                    modal.modal('show');
+                });
             });
 
+            // 5. رسائل النجاح (من الـ Session)
             @if (session('success'))
                 Swal.fire({
                     icon: 'success',
