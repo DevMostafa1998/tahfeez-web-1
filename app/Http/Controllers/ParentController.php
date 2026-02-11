@@ -45,7 +45,10 @@ class ParentController extends Controller
 
                 return $item;
             });
-
+            
+            $tests = $student->quranTests()
+                    ->orderBy('date', 'desc')
+                    ->get();
             //  الحسابات الإجمالية بناءً على الصفحات
             $totalSavedPages = $memorizedSurahs->sum('equivalent_pages');
 
@@ -82,7 +85,7 @@ class ParentController extends Controller
 
             return view('parents.index', compact(
                 'student', 'age', 'completedPartsCount', 'percentage',
-                'lastMemo', 'teacher', 'memorizedSurahs', 'startFromEnd'
+                'lastMemo', 'teacher', 'memorizedSurahs', 'startFromEnd','tests'
             ));
         }
 }
