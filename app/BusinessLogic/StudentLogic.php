@@ -16,7 +16,7 @@ class StudentLogic
             'date_of_birth'   => $data['date_of_birth'],
             'phone_number'    => $data['phone_number'],
             'address'         => $data['address'],
-            'is_displaced'    => isset($data['is_displaced']) ? 1 : 0,
+            'is_displaced'    => $data['is_displaced'],
             'user_id'         => Auth::id(),
             'creation_by'     => Auth::user()->id,
             'birth_place'     => $data['birth_place'] ?? null,
