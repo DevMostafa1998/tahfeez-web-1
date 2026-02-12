@@ -166,7 +166,7 @@
                     <h1 class="page-title m-0 h3">إدارة المجموعات</h1>
                 </div>
             </div>
-            @if (auth()->check() && auth()->user()->is_admin)
+            @if (auth()->check() && (auth()->user()->is_admin == 1 || auth()->user()->is_admin_rouls == 1))
                 <button type="button" class="btn btn-primary d-flex align-items-center gap-2 px-4 py-2 rounded-3"
                     data-bs-toggle="modal" data-bs-target="#createGroupModal">
                     <i class="bi bi-plus-lg"></i><span>مجموعة جديدة</span>
@@ -226,7 +226,8 @@
                                                 data-bs-target="#manageStudents{{ $group->id }}" title="إدارة الطلاب">
                                                 <i class="bi bi-people-fill"></i>
                                             </button>
-                                            @if (auth()->check() && auth()->user()->is_admin)
+                                            @if (auth()->check() && (auth()->user()->is_admin == 1 || auth()->user()->is_admin_rouls == 1))
+                                                {{-- زر التعديل --}}
                                                 <button class="btn btn-action text-primary" data-bs-toggle="modal"
                                                     data-bs-target="#editGroup{{ $group->id }}" title="تعديل">
                                                     <i class="bi bi-pencil-square"></i>

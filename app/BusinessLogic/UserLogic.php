@@ -19,6 +19,13 @@ class UserLogic
 
     public function storeUser($data)
     {
+    $isAdminMain = (isset($data['is_admin']) && ($data['is_admin'] == '1' || $data['is_admin'] == 'مسؤول')) ? true : false;
+
+    $isAdminRouls = null;
+
+    if (!$isAdminMain) {
+        $isAdminRouls = isset($data['is_admin_rouls']) ? true : false;
+    }
         $user = User::create([
             'full_name'     => $data['full_name'],
             'id_number'     => $data['id_number'],
@@ -27,7 +34,9 @@ class UserLogic
             'phone_number'  => $data['phone_number'],
             'address'       => $data['address'],
             'category_id'   => $data['category_id'],
-            'is_admin'      => (isset($data['is_admin']) && ($data['is_admin'] == '1' || $data['is_admin'] == 'مسؤول')) ? true : false,
+            'is_admin'      => $isAdminMain,
+            'is_admin_rouls'=> $isAdminRouls,
+          'creation_by'   => Auth::user()->full_name ?? 'System',
             'creation_by'   => Auth::user()->full_name ?? 'System',
             'birth_place'     => $data['birth_place'] ?? null,
             'wallet_number'   => $data['wallet_number'] ?? null,
@@ -49,13 +58,14 @@ class UserLogic
 
     public function updateUser($user, $data)
     {
+        // 1. تجهيز مصفوفة البيانات الأساسية
         $updateData = [
-            'full_name'    => $data['full_name'] ?? $user->full_name,
-            'id_number'    => $data['id_number'] ?? $user->id_number,
-            'phone_number' => $data['phone_number'] ?? $user->phone_number,
-            'address'      => $data['address'] ?? $user->address,
-            'category_id'  => $data['category_id'] ?? $user->category_id,
-            'updated_by'   => Auth::user()->full_name ?? 'System',
+            'full_name'       => $data['full_name'] ?? $user->full_name,
+            'id_number'       => $data['id_number'] ?? $user->id_number,
+            'phone_number'    => $data['phone_number'] ?? $user->phone_number,
+            'address'         => $data['address'] ?? $user->address,
+            'category_id'     => $data['category_id'] ?? $user->category_id,
+            'updated_by'      => Auth::user()->full_name ?? 'System',
             'birth_place'     => $data['birth_place'] ?? $user->birth_place,
             'wallet_number'   => $data['wallet_number'] ?? $user->wallet_number,
             'whatsapp_number' => $data['whatsapp_number'] ?? $user->whatsapp_number,
@@ -67,20 +77,26 @@ class UserLogic
             'gender'          => $data['gender'] ?? $user->gender,
         ];
 
-        if (isset($data['is_admin'])) {
-            $updateData['is_admin'] = ($data['is_admin'] == 'مسؤول' || $data['is_admin'] == '1') ? true : false;
-        }
-
+        // 2. تحديث كلمة المرور فقط في حال تم إدخالها
         if (!empty($data['password'])) {
             $updateData['password'] = Hash::make($data['password']);
         }
 
+        if (isset($data['is_admin'])) {
+            $isAdminMain = ($data['is_admin'] == '1' || $data['is_admin'] == 'مسؤول');
+            $updateData['is_admin'] = $isAdminMain ? 1 : 0;
+
+            if ($isAdminMain) {
+                $updateData['is_admin_rouls'] = null;
+            } else {
+                $updateData['is_admin_rouls'] = (isset($data['is_admin_rouls']) && $data['is_admin_rouls'] == 1) ? 1 : 0;
+            }
+        }
+
         $user->update($updateData);
 
-        if (isset($data['courses']) && is_array($data['courses'])) {
+        if (isset($data['courses'])) {
             $user->courses()->sync($data['courses']);
-        } elseif (isset($data['update_courses_only']) || isset($data['courses'])) {
-            $user->courses()->detach();
         }
 
         return $user;

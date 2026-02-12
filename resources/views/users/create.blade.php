@@ -62,15 +62,26 @@
                                                 <i class="bi bi-tags text-danger me-1"></i>تصنيف المستخدم
                                             </label>
                                             <select name="is_admin" id="userRoleSelect"
-                                                class="form-select form-select-sm border-0 bg-white px-3 py-2 fw-bold shadow-sm"
-                                                required>
-                                                {{-- تم جعل "محفظ" هو الخيار الافتراضي --}}
-                                                <option value="محفظ"
-                                                    {{ old('is_admin') == 'محفظ' || !old('is_admin') ? 'selected' : '' }}>
-                                                    محفظ</option>
-                                                <option value="مسؤول" {{ old('is_admin') == 'مسؤول' ? 'selected' : '' }}>
-                                                    مسؤول</option>
+                                                class="form-select form-select-sm border-0 bg-white px-3 py-2 fw-bold shadow-sm" required>
+                                                <option value="محفظ" {{ old('is_admin') == 'محفظ' || !old('is_admin') ? 'selected' : '' }}>محفظ</option>
+                                                <option value="مسؤول" {{ old('is_admin') == 'مسؤول' ? 'selected' : '' }}>مسؤول</option>
                                             </select>
+                                        </div>
+
+                                        {{-- هذا هو الـ Checkbox الجديد (يظهر فقط للمحفظ) --}}
+                                        <div class="col-md-3" id="adminRoleCheckboxDiv" style="display: none;">
+                                            <label class="form-label small fw-bold text-secondary mb-1">
+                                                <i class="bi bi-shield-check text-warning me-1"></i>صلاحيات إضافية
+                                            </label>
+                                            <div class="form-check form-switch mt-2">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="is_admin_rouls" name="is_admin_rouls" value="1" {{ old('is_admin_rouls') ? 'checked' : '' }}>
+                                                <label class="form-check-label fw-bold text-dark" for="is_admin_rouls">
+                                                    منح صلاحيات الأدمن كاملة
+                                                </label>
+                                            </div>
+                                            <small class="text-muted d-block" style="font-size: 0.75rem;">
+                                                عند التفعيل، سيتمكن المحفظ من إدارة النظام بالكامل بالإضافة لمهامه.
+                                            </small>
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label small fw-bold text-secondary mb-1">
@@ -303,17 +314,22 @@
             const roleSelect = document.getElementById('userRoleSelect');
             const scientificSection = document.getElementById('scientificSection');
             const fieldsToToggle = document.querySelectorAll('.toggle-for-admin');
+            const adminRoleCheckboxDiv = document.getElementById('adminRoleCheckboxDiv');
+            const adminRoleCheckbox = document.getElementById('is_admin_rouls');
 
             function toggleFields() {
                 if (roleSelect.value === 'مسؤول') {
                     scientificSection.style.display = 'none';
 
                     fieldsToToggle.forEach(el => el.style.display = 'none');
+                    adminRoleCheckboxDiv.style.display = 'none';
+                if(adminRoleCheckbox) adminRoleCheckbox.checked = false;
                 } else {
                     // إظهار القسم العلمي
                     scientificSection.style.display = 'block';
                     // إظهار الحقول المخفية
                     fieldsToToggle.forEach(el => el.style.display = 'block');
+                    adminRoleCheckboxDiv.style.display = 'block';
                 }
             }
 

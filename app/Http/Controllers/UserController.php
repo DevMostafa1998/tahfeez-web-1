@@ -49,6 +49,7 @@ class UserController extends Controller
             'courses'       => 'nullable|array',
             'is_displaced'  => 'required|boolean',
             'gender'       => 'sometimes|in:male,female',
+            'is_admin_rouls' => 'nullable|boolean',
         ]);
 
         $this->userLogic->storeUser($request->all());
@@ -81,13 +82,16 @@ class UserController extends Controller
             'phone_number' => 'required',
             'address'      => 'required',
             'category_id'  => 'required',
-            'password'     => 'nullable|string|min:6|confirmed',
+            'password'     => 'nullable|string|min:6',
             'courses'      => 'nullable|array',
             'is_displaced' => 'required|boolean',
             'gender'       => 'sometimes|in:male,female',
         ]);
-
-        $this->userLogic->updateUser($user, $request->all());
+        $data = $request->all();
+    if (!$request->has('is_admin_rouls')) {
+        $data['is_admin_rouls'] = 0;
+    }
+        $this->userLogic->updateUser($user, $data);
         return redirect()->route('user.index')->with('success', 'تم تحديث البيانات بنجاح');
     }
 
