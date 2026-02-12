@@ -374,7 +374,7 @@
                     },
                     {
                         data: 'status',
-                        name: 'status',
+                        name: 'is_displaced',
                         className: 'text-center'
                     },
                     {

@@ -20,20 +20,33 @@ class StudentReportController extends Controller
     {
         $user = Auth::user();
 
+        if ($request->ajax()) {
+            $filters = $request->all();
+            $query = $this->reportLogic->buildFilteredQuery($user, $filters);
+
+            $totalRecords = $query->count();
+
+            if ($request->has('length') && $request->length != -1) {
+                $query->skip($request->start)->take($request->length);
+            }
+
+            $students = $query->get();
+            $formattedData = $this->reportLogic->formatStudentData($students);
+
+            return response()->json([
+                "draw" => intval($request->draw),
+                "recordsTotal" => $totalRecords,
+                "recordsFiltered" => $totalRecords,
+                "data" => $formattedData
+            ]);
+        }
+
         $teachers = $this->reportLogic->getTeachers();
         $groups = $this->reportLogic->getGroupsForUser($user);
 
-        if ($request->ajax()) {
-            $students = $this->reportLogic->getFilteredStudents($user, $request->all());
-            $formattedData = $this->reportLogic->formatStudentData($students);
-
-            return response()->json($formattedData);
-        }
-
-        $students = $this->reportLogic->getFilteredStudents($user, []);
-
-        return view('reports.students_report', compact('students', 'teachers', 'groups'));
+        return view('reports.students_report', compact('teachers', 'groups'));
     }
+
 
     public function getGroupsByTeacher($teacherId)
     {

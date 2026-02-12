@@ -46,8 +46,20 @@ class StudentController extends Controller
                     $q->where('full_name', 'LIKE', "%{$search}%")
                         ->orWhere('id_number', 'LIKE', "%{$search}%");
                 });
-                $totalFiltered = $query->count();
             }
+            if ($request->has('order')) {
+                $columnIndex = $request->input('order.0.column'); // رقم العمود المنقور عليه
+                $columnName = $request->input("columns.{$columnIndex}.name"); // اسم العمود
+                $columnDirection = $request->input('order.0.dir'); // اتجاه الفرز asc أو desc
+
+                // التأكد من أن العمود قابل للفرز وليس عمود "الإجراءات" أو "الدورات"
+                if ($columnName && !in_array($columnName, ['actions', 'courses'])) {
+                    $query->orderBy($columnName, $columnDirection);
+                }
+            } else {
+                $query->orderBy('full_name', 'asc'); // فرز افتراضي
+            }
+            $totalFiltered = $query->count();
 
             $students = $query->offset($request->input('start'))
                 ->limit($request->input('length'))
@@ -98,7 +110,7 @@ class StudentController extends Controller
     public function exportExcel()
     {
         // جلب الطلاب مع علاقة الدورات لتحسين الأداء
-        $students = \App\Models\Student::withCount('courses')->get();
+        $students = Student::withCount('courses')->get();
         $date = date('Y-m-d');
         $fileName = "تقرير_الطلاب_{$date}.xls";
 
