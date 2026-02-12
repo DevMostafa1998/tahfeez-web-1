@@ -4,7 +4,7 @@
 @push('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.bootstrap4.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap4.min.css">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .dataTables_wrapper .row:first-child {
             display: flex !important;
@@ -137,12 +137,17 @@
                                                 {{ $user->category->name ?? '---' }}
                                             </span>
                                         </td>
-
                                         <td>
-                                            <span
-                                                class="badge rounded-pill {{ $user->is_admin ? 'bg-primary' : 'bg-success' }} px-3 py-1"
+                                            <span class="badge rounded-pill {{ $user->is_admin ? 'bg-primary' : 'bg-success' }} px-3 py-1"
                                                 style="font-size: 0.85rem;">
-                                                {{ $user->is_admin ? 'مسؤول' : 'محفظ' }}
+
+                                                @if($user->is_admin)
+                                                    <i class="bi bi-shield-check me-1"></i> مسؤول
+                                                @elseif($user->is_admin_rouls)
+                                                    <i class="fas fa-user-shield me-1" style="font-size: 0.8rem;"></i> محفظ
+                                                @else
+                                                    <i class="bi bi-person me-1"></i> محفظ
+                                                @endif
                                             </span>
                                         </td>
 

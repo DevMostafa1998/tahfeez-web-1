@@ -34,7 +34,7 @@
                                 </div>
                             @endforeach
                             @foreach ($availableStudents as $st)
-                                @if ($st->gender === $group->teacher->gender)
+                                @if ($st->gender === ($group->teacher?->gender))
                                     <div class="col-md-6 student-item">
                                         <div class="form-check card p-2 border shadow-sm">
                                             <input class="form-check-input ms-2" type="checkbox" name="student_ids[]"

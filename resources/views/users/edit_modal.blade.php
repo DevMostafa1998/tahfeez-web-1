@@ -170,43 +170,65 @@
                     @endif
 
                     {{-- القسم الثالث: الحساب والأمان --}}
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="badge rounded-pill bg-warning text-dark px-3 fw-bold small-xs">
-                            3. إعدادات الحساب والأمان</span>
-                        <hr class="flex-grow-1 me-2 my-0 opacity-10">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="badge rounded-pill bg-warning text-dark px-3 fw-bold small-xs">
+                        3. إعدادات الحساب والأمان
+                    </span>
+                    <hr class="flex-grow-1 me-2 my-0 opacity-10">
+                </div>
+
+                <div class="row gx-3">
+                    <div class="col-md-3 text-start mb-2">
+                        <label class="fw-bold small">
+                            <i class="bi bi-person-lock text-warning"></i> الصلاحية
+                        </label>
+                        <select name="is_admin" id="userType{{ $user->id }}" class="form-select bg-light border-0 py-2"
+                                onchange="toggleAdminCheckbox({{ $user->id }})">
+                            <option value="1" {{ $user->is_admin == 1 ? 'selected' : '' }}>مسؤول (أدمن)</option>
+                            <option value="0" {{ $user->is_admin == 0 ? 'selected' : '' }}>محفظ</option>
+                        </select>
                     </div>
-                    <div class="row gx-3">
-                        <div class="col-md-2 text-start">
-                            <label class="fw-bold small"><i class="bi bi-person-lock text-warning"></i>
-                                الصلاحية</label>
-                            <select name="is_admin" class="form-select bg-light border-0 py-2">
-                                <option value="1" {{ $user->is_admin ? 'selected' : '' }}>مسؤول</option>
-                                <option value="0" {{ !$user->is_admin ? 'selected' : '' }}>محفظ</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2 text-start">
-                            <label class="fw-bold small"><i class="bi bi-tags text-warning"></i> التصنيف</label>
-                            <select name="category_id" class="form-select bg-light border-0 py-2">
-                                @foreach (\DB::table('categorie')->get() as $cat)
-                                    <option value="{{ $cat->id }}"
-                                        {{ $user->category_id == $cat->id ? 'selected' : '' }}>{{ $cat->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-4 text-start">
-                            <label class="fw-bold small"><i class="bi bi-key text-warning"></i> كلمة المرور
-                                الجديدة</label>
-                            <input type="password" name="password" class="form-control bg-light border-0 py-2"
-                                placeholder="اختياري">
-                        </div>
-                        <div class="col-md-4 text-start">
-                            <label class="fw-bold small"><i class="bi bi-check2-circle text-warning"></i> تأكيد كلمة
-                                المرور</label>
-                            <input type="password" name="password_confirmation"
-                                class="form-control bg-light border-0 py-2" placeholder="تأكيد">
+
+                    <div class="col-md-3 text-start mb-2" id="adminPrivilegeDiv{{ $user->id }}"
+                        style="{{ $user->is_admin == 1 ? 'display: none;' : '' }}">
+
+                        <label class="fw-bold small text-muted">
+                            <i class="bi bi-shield-plus text-warning"></i> صلاحيات إضافية
+                        </label>
+
+                        <div class="form-control bg-light border-0 d-flex justify-content-between align-items-center py-2"
+                            style="border-radius: 8px; height: 38px;">
+
+                            <label class="form-check-label small fw-bold text-dark mb-0" for="is_admin_rouls{{ $user->id }}">
+                                منح صلاحيات مشرف
+                            </label>
+
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input" type="checkbox" name="is_admin_rouls" value="1"
+                                    id="is_admin_rouls{{ $user->id }}"
+                                    style="cursor: pointer; width: 2.5em;"
+                                    {{ $user->is_admin_rouls == 1 ? 'checked' : '' }}>
+                            </div>
                         </div>
                     </div>
+
+                    <div class="col-md-3 text-start">
+                        <label class="fw-bold small"><i class="bi bi-tags text-warning"></i> التصنيف</label>
+                        <select name="category_id" class="form-select bg-light border-0 py-2">
+                            @foreach (\DB::table('categorie')->get() as $cat)
+                                <option value="{{ $cat->id }}" {{ $user->category_id == $cat->id ? 'selected' : '' }}>
+                                    {{ $cat->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 text-start">
+                        <label class="fw-bold small"><i class="bi bi-key text-warning"></i> كلمة المرور</label>
+                        <input type="password" name="password" class="form-control bg-light border-0 py-2" placeholder="اختياري">
+                    </div>
+                </div>
+
                 </div>
 
                 <div class="modal-footer border-0 p-3 bg-light d-flex justify-content-end gap-2">
@@ -220,3 +242,19 @@
         </form>
     </div>
 </div>
+
+<script>
+    function toggleAdminCheckbox(userId) {
+        const userTypeSelect = document.getElementById('userType' + userId);
+        const privilegeDiv = document.getElementById('adminPrivilegeDiv' + userId);
+        const checkboxInput = document.getElementById('is_admin_rouls' + userId);
+        if (userTypeSelect && privilegeDiv) {
+            if (userTypeSelect.value == '1') {
+                privilegeDiv.style.display = 'none';
+                if(checkboxInput) checkboxInput.checked = false;
+            } else {
+                privilegeDiv.style.display = 'block';
+            }
+        }
+    }
+</script>

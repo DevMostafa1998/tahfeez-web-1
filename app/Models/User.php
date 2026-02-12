@@ -41,6 +41,7 @@ class User extends Authenticatable
         'specialization',
         'parts_memorized',
         'mosque_name',
+        'is_admin_rouls',
         'is_displaced',
         'gender',
 

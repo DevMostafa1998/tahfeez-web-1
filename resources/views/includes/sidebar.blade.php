@@ -44,7 +44,7 @@
                                 <p>المجموعات</p>
                             </a>
                         </li>
-                        @if (auth()->user()->is_admin)
+                        @if (auth()->user()->is_admin == 1 || auth()->user()->is_admin_rouls == 1)
                             <li class="nav-item">
                                 <a href="{{ route('student.index') }}"
                                     class="nav-link {{ request()->routeIs('student.*') ? 'active' : '' }}">
@@ -95,7 +95,7 @@
                                 <p>حضور الطلاب</p>
                             </a>
                         </li>
-                        @if (auth()->user()->is_admin)
+                        @if (auth()->user()->is_admin == 1 || auth()->user()->is_admin_rouls == 1)
                             <li class="nav-item">
                                 <a href="{{ route('teachers.attendance') }}"
                                     class="nav-link {{ request()->routeIs('teachers.attendance') ? 'active' : '' }}">
@@ -156,7 +156,7 @@
                 </li>
 
 
-                @if (auth()->user()->is_admin)
+                @if (auth()->user()->is_admin == 1 || auth()->user()->is_admin_rouls == 1)
                     @php
                         $isAdminSettingsActive = request()->routeIs('courses.*') || request()->routeIs('category.*');
                     @endphp

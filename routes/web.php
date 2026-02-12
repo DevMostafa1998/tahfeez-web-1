@@ -34,15 +34,11 @@ Route::middleware('guest')->group(function () {
 Route::get('/parent-login', function () {
     return view('auth.parent-login');
 })->name('parent.login');
-Route::get('student-restore/{id}', [StudentController::class, 'restore'])->name('student.restore');
 Route::get('student-data/{id}', [StudentController::class, 'getStudentData'])->name('student.data');
 Route::get('student-courses/{id}', [StudentController::class, 'getStudentCourses'])->name('student.courses');
-Route::post('student/{id}/restore', [StudentController::class, 'restore'])->name('student.restore');
-Route::get('/parents/{id_number?}', [App\Http\Controllers\ParentController::class, 'showStudentReport'])->name('parents.index');
-// --- راوتات المسجلين دخول (أدمن ومحفظ)
+Route::get('/parents/{id_number?}', [ParentController::class, 'showStudentReport'])->name('parents.index');
 
-Route::get('student-export-excel', [StudentController::class, 'exportExcel'])->name('student.export');
-Route::resource('student', StudentController::class);
+// --- راوتات المسجلين دخول ---
 Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -56,12 +52,6 @@ Route::middleware('auth')->group(function () {
     Route::controller(AttendanceController::class)->group(function () {
         Route::get('/attendance', 'index')->name('attendance.index');
         Route::post('/attendance', 'store')->name('attendance.store');
-    });
-
-    // التقارير والـ AJAX والملفات الشخصية
-    Route::controller(UserController::class)->group(function () {
-        Route::get('/teachers/{id}/profile', 'show')->name('teachers.show');
-        Route::get('/teachers/{id}/edit', 'edit')->name('teachers.edit');
     });
 
     Route::prefix('reports')->name('reports.')->group(function () {
@@ -80,8 +70,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/get-group-teacher/{groupId}', 'getGroupTeacher')->name('get.group.teacher');
     });
 
-    // --- منطقة حماية المسؤول فقط ---
+    // --- منطقة حماية المسؤول (أدمن أو محفظ بصلاحيات) ---
     Route::middleware('admin')->group(function () {
+
+        Route::get('student-export-excel', [StudentController::class, 'exportExcel'])->name('student.export');
+        Route::get('student-restore/{id}', [StudentController::class, 'restore'])->name('student.restore.get');
+        Route::post('student/{id}/restore', [StudentController::class, 'restore'])->name('student.restore');
+
         Route::resources([
             'user'         => UserController::class,
             'category'     => CategoryController::class,
@@ -95,8 +90,12 @@ Route::middleware('auth')->group(function () {
             Route::get('/teachers-attendance', 'teachersAttendance')->name('teachers.attendance');
             Route::post('/teachers-attendance', 'storeTeachersAttendance')->name('teachers.attendance.store');
         });
-    });
 
+        Route::controller(UserController::class)->group(function () {
+            Route::get('/teachers/{id}/profile', 'show')->name('teachers.show');
+            Route::get('/teachers/{id}/edit', 'edit')->name('teachers.edit');
+        });
+    });
 
     Route::get('/logout', function (Request $request) {
         Auth::logout();
