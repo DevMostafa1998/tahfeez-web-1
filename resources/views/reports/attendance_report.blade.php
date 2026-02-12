@@ -110,9 +110,7 @@
             gap: 5px !important;
         }
 
-        .dataTables_filter {
-            display: none;
-        }
+
 
         .badge-present {
             background-color: #28a745;
@@ -135,18 +133,95 @@
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script src="https://cdn.datatables.net/2.3.6/js/dataTables.js"></script>
     <script src="https://cdn.datatables.net/2.3.6/js/dataTables.bootstrap4.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap4.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
     <script>
         $(document).ready(function() {
             let table = null;
 
             /**
-             * دالة المزامنة الكاملة:
-             * تقوم بتحديث كافة القوائم المنسدلة بناءً على العنصر الذي تم تغييره.
+             * تهيئة DataTable بنظام Server-side مع تفعيل البحث السريع
+             */
+            function initDataTable() {
+                table = $('#attendanceTable').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    searching: true, // تم التفعيل للسماح بالبحث السريع
+                    ajax: {
+                        url: "{{ route('reports.attendance.data') }}",
+                        type: 'GET',
+                        data: function(d) {
+                            // إرسال قيم الفلاتر بالإضافة إلى نص البحث التلقائي
+                            d.date_from = $('#date_from').val();
+                            d.date_to = $('#date_to').val();
+                            d.teacher_id = $('[name="teacher_id"]').val();
+                            d.group_id = $('select[name="group_id"]').val();
+                            d.student_id = $('select[name="student_id"]').val();
+                        }
+                    },
+                    columns: [{
+                            data: 'attendance_date',
+                            name: 'attendance_date'
+                        },
+                        {
+                            data: 'student_name',
+                            name: 'student_name',
+                            className: 'fw-bold text-dark'
+                        },
+                        {
+                            data: 'student_id_number',
+                            name: 'student_id_number'
+                        },
+                        {
+                            data: 'student_phone',
+                            name: 'student_phone'
+                        },
+                        {
+                            data: 'status',
+                            name: 'status',
+                            render: function(data) {
+                                let badgeClass = '';
+                                if (data === 'حاضر') badgeClass = 'bg-success';
+                                else if (data === 'غائب') badgeClass = 'bg-danger';
+                                else badgeClass = 'bg-warning text-dark';
+
+                                return `<span class="badge ${badgeClass}">${data}</span>`;
+                            }
+                        }
+                    ],
+
+                    language: {
+                        "sProcessing": "جاري التحميل...",
+                        "sLengthMenu": "عرض _MENU_ سجلات",
+                        "sZeroRecords": "لم يتم العثور على سجلات مطابقة",
+                        "sInfo": "عرض من _START_ إلى _END_ من أصل _TOTAL_ سجل",
+                        "sInfoEmpty": "عرض 0 إلى 0 من أصل 0 سجل",
+                        "sInfoFiltered": "(تمت التصفية من إجمالي _MAX_ سجل)",
+                        "sSearch": "بحث سريع:",
+                        "paginate": {
+                            "first": "«",
+                            "last": "»",
+                            "next": "›",
+                            "previous": "‹"
+                        }
+                    },
+                    // f: تعني Search filter، ستظهر الآن في الأعلى جهة اليسار
+                    dom: "<'row mb-3'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6'B>>" +
+                        "<'row'<'col-sm-12' <'table-responsive' tr> >>" +
+                        "<'row mt-3'<'col-sm-12'p>>" +
+                        "<'row'<'col-sm-12 text-center'i>>",
+                    pageLength: 10
+                });
+
+                // إضافة زر التصدير المخصص
+                $('#excel_button_container').html(`
+                    <button type="button" id="btnExportExcel" class="btn btn-excel">
+                        <i class="bi bi-file-earmark-excel"></i> تصدير إكسل (الكل)
+                    </button>
+                `);
+            }
+
+            /**
+             * دالة المزامنة للفلاتر (Ajax)
              */
             function syncFilters(changedElement) {
                 let teacherId = $('[name="teacher_id"]').val();
@@ -163,31 +238,23 @@
                         changed_element: changedElement
                     },
                     success: function(response) {
-                        // للأدمن: تحديث قائمة المحفظين (إلا إذا كان هو من قام بتغيير المحفظ يدوياً)
                         if (changedElement !== 'teacher_id') {
                             updateSelect('teacher_id', response.teachers, 'id', 'full_name', response
                                 .selected_teacher_id);
                         }
-
-                        // تحديث قائمة المجموعات
                         if (changedElement !== 'group_id') {
                             updateSelect('group_id', response.groups, 'id', 'GroupName', groupId);
                         }
-
-                        // تحديث قائمة الطلاب
                         if (changedElement !== 'student_id') {
                             updateSelect('student_id', response.students, 'id', 'full_name', studentId);
                         }
                     }
                 });
             }
-            /**
-             * دالة مساعدة لتحديث خيارات الـ Select
-             */
+
             function updateSelect(name, items, valueKey, textKey, currentValue = null) {
                 let select = $(`select[name="${name}"]`);
                 if (select.length === 0) return;
-
                 select.empty().append('<option value="">-- الكل --</option>');
                 $.each(items, function(i, item) {
                     let selected = (item[valueKey] == currentValue) ? 'selected' : '';
@@ -196,116 +263,38 @@
                 });
             }
 
+            // تفعيل الجدول عند التحميل
+            initDataTable();
+
             /**
-             * دالة جلب بيانات الحضور والغياب للجدول
+             * تحديث الجدول عند تغيير الفلاتر العلوية
              */
-            function fetchAttendance() {
-                let dateFrom = $('#date_from').val();
-                let dateTo = $('#date_to').val();
-
-                if (!dateFrom || !dateTo) {
-                    $('#tableBody').html(
-                        '<tr><td colspan="5" class="text-center py-4 text-danger fw-bold">يرجى تحديد التاريخ (من وإلى) لعرض البيانات</td></tr>'
-                    );
-                    return;
+            $(document).on('change', '.filter-input', function() {
+                let name = $(this).attr('name');
+                if (['group_id', 'teacher_id', 'student_id'].includes(name)) {
+                    syncFilters(name);
                 }
+                table.draw();
+            });
 
-                let data = {
-                    date_from: dateFrom,
-                    date_to: dateTo,
+            /**
+             * تصدير البيانات بناءً على الفلاتر الحالية
+             */
+            $(document).on('click', '#btnExportExcel', function() {
+                let queryData = {
+                    date_from: $('#date_from').val(),
+                    date_to: $('#date_to').val(),
                     teacher_id: $('[name="teacher_id"]').val(),
                     group_id: $('select[name="group_id"]').val(),
                     student_id: $('select[name="student_id"]').val(),
+                    search: {
+                        value: $('.dataTables_filter input').val()
+                    } // تضمين نص البحث في التصدير
                 };
 
-                if ($.fn.DataTable.isDataTable('#attendanceTable')) {
-                    $('#attendanceTable').DataTable().clear().destroy();
-                }
-
-                $('#tableBody').html(
-                    '<tr><td colspan="5" class="text-center py-4"><div class="spinner-border text-primary spinner-border-sm"></div> جاري تحميل البيانات...</td></tr>'
-                );
-
-                $.ajax({
-                    url: "{{ route('reports.attendance.data') }}",
-                    type: 'GET',
-                    data: data,
-                    success: function(response) {
-                        let html = '';
-                        if (response && response.length > 0) {
-                            // ... (بقية الكود الخاص بملء الجدول كما هو)
-                            $.each(response, function(index, item) {
-                                let statusBadge = '';
-                                if (item.status === 'حاضر') statusBadge =
-                                    '<span class="badge bg-success">حاضر</span>';
-                                else if (item.status === 'غائب') statusBadge =
-                                    '<span class="badge bg-danger">غائب</span>';
-                                else statusBadge =
-                                    '<span class="badge bg-warning text-dark">مستأذن</span>';
-
-                                html += `<tr>
-                        <td>${item.attendance_date || '-'}</td>
-                        <td class="fw-bold text-dark">${item.student_name || '-'}</td>
-                        <td>${item.student_id_number || '-'}</td>
-                        <td>${item.student_phone || '-'}</td>
-                        <td>${statusBadge}</td>
-                    </tr>`;
-                            });
-                            $('#tableBody').html(html);
-                            initDataTable();
-                        } else {
-                            $('#tableBody').html(
-                                '<tr><td colspan="6" class="py-5 text-center text-muted fw-bold">لا توجد سجلات حضور مطابقة للبحث</td></tr>'
-                            );
-                        }
-                    }
-                });
-            }
-
-            function initDataTable() {
-                table = $('#attendanceTable').DataTable({
-                    "dom": "<'row mb-3'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6'B>>" +
-                        "<'row'<'col-sm-12' <'table-responsive' tr> >>" +
-                        "<'row mt-3'<'col-sm-12'p>>" +
-                        "<'row'<'col-sm-12 text-center'i>>",
-                    "language": {
-                        "sSearch": "بحث سريع:",
-                        "sLengthMenu": "عرض _MENU_ سجلات",
-                        "sInfo": "عرض من _START_ إلى _END_ من أصل _TOTAL_ سجل",
-                        "sInfoEmpty": "عرض 0 إلى 0 من أصل 0 سجل",
-                        "sInfoFiltered": "(تمت التصفية من إجمالي _MAX_ سجل)",
-                        "sZeroRecords": "لم يتم العثور على سجلات مطابقة",
-                        "sEmptyTable": "لا توجد بيانات متاحة في الجدول",
-                        "paginate": {
-                            "first": "«",
-                            "last": "»",
-                            "next": "›",
-                            "previous": "‹"
-                        }
-                    },
-                    "buttons": [{
-                        extend: 'excelHtml5',
-                        text: '<i class="bi bi-file-earmark-excel"></i> تصدير إكسل',
-                        className: 'btn-excel',
-                        title: 'تقرير حضور الطلاب - ' + new Date().toLocaleDateString('ar-EG')
-                    }]
-                });
-
-                $('#excel_button_container').empty();
-                table.buttons().container().appendTo('#excel_button_container');
-            }
-
-            $(document).on('change', '.filter-input', function() {
-                let name = $(this).attr('name');
-
-                if (name === 'group_id' || name === 'teacher_id' || name === 'student_id') {
-                    syncFilters(name);
-                }
-
-                fetchAttendance();
+                let queryString = $.param(queryData);
+                window.location.href = "{{ route('reports.attendance.export') }}?" + queryString;
             });
-
-            fetchAttendance();
         });
     </script>
 @endpush

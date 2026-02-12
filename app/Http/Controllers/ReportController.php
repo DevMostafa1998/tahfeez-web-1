@@ -4,30 +4,73 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\BusinessLogic\ReportLogic;
+use App\BusinessLogic\ExportExcel;
 
 class ReportController extends Controller
 {
     protected $reportLogic;
-
-    public function __construct(ReportLogic $logic)
+    protected $exportExcel;
+    public function __construct(ReportLogic $logic, ExportExcel $export)
     {
         $this->reportLogic = $logic;
+        $this->exportExcel = $export;
     }
 
     public function index(Request $request)
     {
-        $filterLists = $this->reportLogic->getFilterLists();
-
-        $memorizations = $this->reportLogic->getRecitationReport($request->all());
-
         if ($request->ajax()) {
-            return response()->json($memorizations);
+            $query = $this->reportLogic->getRecitationQuery($request->all());
+
+            // حساب العدد الكلي قبل التقسيم (Pagination)
+            $totalData = $query->count();
+
+            // تطبيق البحث الخاص بـ DataTable (Search Box)
+            if ($search = $request->input('search.value')) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('student_name', 'LIKE', "%{$search}%")
+                        ->orWhere('sura_name', 'LIKE', "%{$search}%");
+                });
+            }
+
+            $totalFiltered = $query->count();
+
+            // التقسيم (Pagination)
+            $start = $request->input('start');
+            $length = $request->input('length');
+            $data = $query->orderBy('recitation_date', 'desc')
+                ->offset($start)
+                ->limit($length)
+                ->get();
+
+            return response()->json([
+                "draw"            => intval($request->input('draw')),
+                "recordsTotal"    => intval($totalData),
+                "recordsFiltered" => intval($totalFiltered),
+                "data"            => $data
+            ]);
         }
 
-        return view('reports.memorization', array_merge(
-            ['memorizations' => $memorizations],
-            $filterLists
-        ));
+        $filterLists = $this->reportLogic->getFilterLists();
+        return view('reports.memorization', $filterLists);
+    }
+    public function exportExcel(Request $request)
+    {
+        // جلب البيانات بناءً على الفلاتر فقط دون limit
+        $data = $this->reportLogic->getRecitationQuery($request->all())
+            ->orderBy('recitation_date', 'desc')
+            ->get()
+            ->toArray();
+
+        $headers = ['التاريخ', 'اسم الطالب', 'رقم الهوية', 'المجموعة', 'المحفظ', 'السورة', 'من آية', 'إلى آية', 'الملاحظات'];
+        $mapping = ['recitation_date', 'student_name', 'student_id_number', 'group_name', 'teacher_name', 'sura_name', 'verses_from', 'verses_to', 'note'];
+
+        return $this->exportExcel->export(
+            'Report_' . date('Y-m-d'),
+            'تقرير التسميع للطلاب',
+            $headers,
+            $data,
+            $mapping
+        );
     }
     public function getFiltersData(Request $request)
     {

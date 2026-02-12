@@ -67,12 +67,13 @@ Route::middleware('auth')->group(function () {
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/recitation', [ReportController::class, 'index'])->name('memorization');
         Route::get('/attendance', [AttendanceReportController::class, 'index'])->name('attendance');
+        Route::get('/recitation-export', [ReportController::class, 'exportExcel'])->name('export');        // مسار جلب البيانات للـ DataTable (Server-side)
+        Route::get('/attendance-data', [AttendanceReportController::class, 'getAttendanceData'])->name('attendance.data');
+        Route::get('/get-filters-data', [ReportController::class, 'getFiltersData'])->name('filters.data');
+        Route::get('/attendance-export', [AttendanceReportController::class, 'exportExcel'])->name('attendance.export');
         Route::get('/students', [StudentReportController::class, 'index'])->name('students');
         Route::get('/teachers-courses', [TeacherReportController::class, 'index'])->name('teachers_courses');
-        Route::get('/get-filters-data', [ReportController::class, 'getFiltersData'])->name('filters.data');
-        Route::get('/attendance-data', [AttendanceReportController::class, 'getAttendanceData'])->name('attendance.data');
     });
-
     // روابط AJAX المختصرة
     Route::controller(StudentReportController::class)->group(function () {
         Route::get('/get-groups-by-teacher/{teacherId}', 'getGroupsByTeacher')->name('get.groups.by.teacher');

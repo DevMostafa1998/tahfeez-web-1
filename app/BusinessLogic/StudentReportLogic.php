@@ -51,12 +51,10 @@ class StudentReportLogic
             });
         }
         if (isset($filters['order']) && !empty($filters['order'])) {
-            $columnIndex = $filters['order'][0]['column']; // رقم العمود
-            $columnName = $filters['columns'][$columnIndex]['data']; // اسم العمود البرمجي
-            $columnDir = $filters['order'][0]['dir']; // اتجاه الترتيب (asc/desc)
+            $columnIndex = $filters['order'][0]['column'];
+            $columnName = $filters['columns'][$columnIndex]['data'];
+            $columnDir = $filters['order'][0]['dir'];
 
-            // التحقق من أن العمود موجود في قاعدة البيانات لتجنب الأخطاء
-            // ملاحظة: أعمدة مثل 'groups' أو 'teacher_name' هي محسوبة برمجياً وليست في جدول الطلاب مباشرة
             $sortableColumns = ['full_name', 'id_number', 'date_of_birth', 'birth_place', 'phone_number', 'address', 'center_name', 'mosque_name', 'is_displaced'];
 
             if (in_array($columnName, $sortableColumns)) {
@@ -108,12 +106,10 @@ class StudentReportLogic
     /**
      * تنسيق بيانات الطالب للإخراج (JSON)
      */
-    // داخل ملف StudentReportLogic.php
 
     public function formatStudentData($students)
     {
         return $students->map(function ($student) {
-            // 1. تحويل المجموعات من مصفوفة إلى نص HTML بـ Badges
             $groupsHtml = '';
             if ($student->groups) {
                 foreach ($student->groups as $group) {

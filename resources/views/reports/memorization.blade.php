@@ -1,12 +1,15 @@
 @extends('layouts.app')
 
 @section('content')
-
     <div class="container-fluid p-4" dir="rtl text-right">
         <div class="d-flex justify-content-between align-items-center mb-4 no-print">
             <h3 class="fw-bold text-primary">تقرير التسميع للطلاب</h3>
-
-            <div id="excel_button_container"></div>
+            {{-- حاوية زر الإكسل المخصص --}}
+            <div id="excel_button_container">
+                <button id="btnExportExcel" class="btn btn-excel">
+                    <i class="bi bi-file-earmark-excel"></i> تصدير إكسل (الكل)
+                </button>
+            </div>
         </div>
 
         {{-- بطاقة الفلاتر --}}
@@ -65,7 +68,7 @@
         <div class="card shadow-sm border-0" style="border-radius: 15px;">
             <div class="card-body p-0">
                 <div class="table-responsive p-3">
-                    <table id="reportsTable" class="table table-bordered table-hover align-middle text-center m-0">
+                    <table id="reportsTable" class="table table-bordered table-hover align-middle text-center m-0 w-100">
                         <thead class="bg-primary text-white">
                             <tr>
                                 <th class="py-3">التاريخ</th>
@@ -79,8 +82,8 @@
                                 <th class="py-3">الملاحظات</th>
                             </tr>
                         </thead>
-                        <tbody id="tableBody">
-                            {{-- سيتم ملء البيانات هنا عبر AJAX --}}
+                        <tbody>
+                            {{-- يتم الملء بواسطة DataTables Server-side --}}
                         </tbody>
                     </table>
                 </div>
@@ -90,9 +93,7 @@
 @endsection
 
 @push('css')
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.bootstrap4.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap4.min.css">
-
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
     <style>
         .btn-excel {
             background-color: #1d6f42 !important;
@@ -106,26 +107,130 @@
             gap: 5px !important;
         }
 
-        .dataTables_filter {
-            display: none;
+        .dataTables_wrapper .dataTables_filter {
+            text-align: right !important;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        div.dataTables_wrapper div.dataTables_paginate ul.pagination {
+            justify-content: flex-start !important;
         }
     </style>
 @endpush
 
 @push('scripts')
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-    <script src="https://cdn.datatables.net/2.3.6/js/dataTables.js"></script>
-    <script src="https://cdn.datatables.net/2.3.6/js/dataTables.bootstrap4.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap4.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 
     <script>
         $(document).ready(function() {
-            let table = null;
+            // 1. تعريف جدول DataTables بنظام Server-side
+            let table = $('#reportsTable').DataTable({
+                processing: true,
+                serverSide: true,
+                searching: true,
+                ajax: {
+                    url: "{{ route('reports.memorization') }}", // المسار في الـ Controller
+                    type: 'GET',
+                    data: function(d) {
+                        // إرسال الفلاتر مع كل طلب للسيرفر
+                        d.date_from = $('#date_from').val();
+                        d.date_to = $('#date_to').val();
+                        d.teacher_id = $('select[name="teacher_id"]').val();
+                        d.group_id = $('select[name="group_id"]').val();
+                        d.student_id = $('select[name="student_id"]').val();
+                    }
+                },
+                columns: [{
+                        data: 'recitation_date',
+                        name: 'recitation_date'
+                    },
+                    {
+                        data: 'student_name',
+                        name: 'student_name',
+                        className: 'fw-bold text-dark'
+                    },
+                    {
+                        data: 'student_id_number',
+                        name: 'student_id_number'
+                    },
+                    {
+                        data: 'group_name',
+                        name: 'group_name',
+                        render: function(data) {
+                            return `<span class="badge bg-light text-primary border">${data || '-'}</span>`;
+                        }
+                    },
+                    {
+                        data: 'teacher_name',
+                        name: 'teacher_name'
+                    },
+                    {
+                        data: 'sura_name',
+                        name: 'sura_name',
+                        className: 'text-success fw-bold'
+                    },
+                    {
+                        data: 'verses_from',
+                        name: 'verses_from'
+                    },
+                    {
+                        data: 'verses_to',
+                        name: 'verses_to'
+                    },
+                    {
+                        data: 'note',
+                        name: 'note',
+                        className: 'small text-muted'
+                    }
+                ],
+                dom: "<'row mb-3'<'col-sm-12 col-md-6 text-right'f><'col-sm-12 col-md-6'B>>" +
+                    "<'row'<'col-sm-12' <'table-responsive' tr> >>" +
+                    "<'row mt-3'<'col-sm-12'p>>" +
+                    "<'row'<'col-sm-12 text-center'i>>",
+                language: {
+                    "sProcessing": "جاري التحميل...",
+                    "sLengthMenu": "عرض _MENU_ سجلات",
+                    "sZeroRecords": "لم يتم العثور على سجلات مطابقة",
+                    "sInfo": "عرض من _START_ إلى _END_ من أصل _TOTAL_ سجل",
+                    "sInfoEmpty": "عرض 0 إلى 0 من أصل 0 سجل",
+                    "sInfoFiltered": "(تمت التصفية من إجمالي _MAX_ سجل)",
+                    "sSearch": "بحث سريع:",
+                    "paginate": {
+                        "first": "«",
+                        "last": "»",
+                        "next": "›",
+                        "previous": "‹"
+                    }
+                },
+                order: [
+                    [0, 'desc']
+                ] // الترتيب الافتراضي حسب التاريخ
+            });
 
-            // دالة تحديث الفلاتر التبادلية
+            // 2. معالجة التصدير للإكسل (باستخدام كلاس ExportExcel في السيرفر)
+            $(document).on('click', '#btnExportExcel', function(e) {
+                e.preventDefault();
+
+                // تجميع الفلاتر الحالية لإرسالها لطلب الإكسل
+                let params = {
+                    date_from: $('#date_from').val(),
+                    date_to: $('#date_to').val(),
+                    teacher_id: $('select[name="teacher_id"]').val(),
+                    group_id: $('select[name="group_id"]').val(),
+                    student_id: $('select[name="student_id"]').val()
+                };
+
+                // بناء الرابط مع الـ Query String
+                let url = "{{ route('reports.export') }}?" + $.param(params);
+
+                // فتح رابط التحميل
+                window.location.href = url;
+            });
+
+            // 3. تحديث الفلاتر التبادلية (Ajax)
             function syncFilters(changedElement) {
                 let data = {
                     teacher_id: $('select[name="teacher_id"]').val(),
@@ -134,20 +239,17 @@
                 };
 
                 $.ajax({
-                    url: "{{ route('reports.filters.data') }}",
+                    url: "{{ route('reports.filters.data') }}", //
                     type: 'GET',
                     data: data,
                     success: function(response) {
-                        // تحديث المحفظين (إذا لم يكن هو العنصر الذي تغير)
                         if (changedElement !== 'teacher_id' && $('select[name="teacher_id"]').length) {
                             updateSelect('teacher_id', response.teachers, 'id', 'full_name', data
                                 .teacher_id);
                         }
-                        // تحديث المجموعات
                         if (changedElement !== 'group_id') {
                             updateSelect('group_id', response.groups, 'id', 'GroupName', data.group_id);
                         }
-                        // تحديث الطلاب
                         if (changedElement !== 'student_id') {
                             updateSelect('student_id', response.students, 'id', 'full_name', data
                                 .student_id);
@@ -166,96 +268,18 @@
                 });
             }
 
-            function fetchReports() {
-                let data = {
-                    date_from: $('#date_from').val(),
-                    date_to: $('#date_to').val(),
-                    teacher_id: $('select[name="teacher_id"]').val(),
-                    group_id: $('select[name="group_id"]').val(),
-                    student_id: $('select[name="student_id"]').val(),
-                };
-
-                if ($.fn.DataTable.isDataTable('#reportsTable')) {
-                    $('#reportsTable').DataTable().clear().destroy();
-                }
-
-                $('#tableBody').html(
-                    '<tr><td colspan="9" class="text-center py-4"><div class="spinner-border text-primary spinner-border-sm"></div> جاري البحث...</td></tr>'
-                );
-
-                $.ajax({
-                    url: "{{ route('reports.memorization') }}",
-                    type: 'GET',
-                    data: data,
-                    success: function(response) {
-                        let html = '';
-                        if (response && response.length > 0) {
-                            $.each(response, function(index, memo) {
-                                html += `<tr>
-                            <td>${memo.recitation_date || '-'}</td>
-                            <td class="fw-bold text-dark">${memo.student_name || '-'}</td>
-                            <td>${memo.student_id_number || '-'}</td>
-                            <td><span class="badge bg-light text-primary border">${memo.group_name || '-'}</span></td>
-                            <td>${memo.teacher_name || '-'}</td>
-                            <td class="text-success fw-bold">${memo.sura_name || '-'}</td>
-                            <td>${memo.verses_from || '-'}</td>
-                            <td>${memo.verses_to || '-'}</td>
-                            <td class="small text-muted">${memo.note || '-'}</td>
-                        </tr>`;
-                            });
-                            $('#tableBody').html(html);
-                            initDataTable();
-                        } else {
-                            $('#tableBody').html(
-                                '<tr><td colspan="9" class="py-5 text-center text-muted fw-bold">لا توجد نتائج</td></tr>'
-                            );
-                        }
-                    }
-                });
-            }
-
-            function initDataTable() {
-                table = $('#reportsTable').DataTable({
-                    "dom": "<'row mb-3'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6 text-end'B>>" +
-                        "<'row'<'col-sm-12' <'table-responsive' tr> >>" +
-                        "<'row mt-3'<'col-sm-12'p>>" +
-                        "<'row'<'col-sm-12 text-center'i>>",
-                    "language": {
-                        "sSearch": "بحث سريع:",
-                        "emptyTable": "لا توجد سجلات",
-                        "info": "عرض _START_ إلى _END_ من أصل _TOTAL_ مدخل",
-                        "infoEmpty": "عرض 0 إلى 0 من أصل 0 مدخل",
-                        "infoFiltered": "(تصفية من إجمالي _MAX_ مدخل)",
-                        "paginate": {
-                            "first": "«",
-                            "last": "»",
-                            "next": "›",
-                            "previous": "‹"
-                        }
-                    },
-                    "buttons": [{
-                        extend: 'excelHtml5',
-                        text: '<i class="bi bi-file-earmark-excel"></i> تصدير إكسل',
-                        className: 'btn-excel',
-                        title: 'تقرير التسميع - ' + new Date().toLocaleDateString('ar-EG').replace(
-                            /\//g, '-')
-                    }]
-                });
-                $('#excel_button_container').empty();
-                table.buttons().container().appendTo('#excel_button_container');
-            }
-
+            // 4. مراقبة التغييرات في الفلاتر
             $(document).on('change', '.filter-input', function() {
                 let name = $(this).attr('name');
 
-                if (name === 'teacher_id' || name === 'group_id' || name === 'student_id') {
+                // تحديث القوائم المنسدلة بناءً على التغيير
+                if (['teacher_id', 'group_id', 'student_id'].includes(name)) {
                     syncFilters(name);
                 }
 
-                fetchReports();
+                // إعادة تحميل الجدول من السيرفر (DataTable Draw)
+                table.draw();
             });
-
-            fetchReports();
         });
     </script>
 @endpush

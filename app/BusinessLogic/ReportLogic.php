@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ReportLogic
 {
-    public function getRecitationReport($filters)
+    public function getRecitationQuery($filters)
     {
         $query = RecitationReport::query();
 
@@ -18,11 +18,9 @@ class ReportLogic
             $query->whereBetween('recitation_date', [$filters['date_from'], $filters['date_to']]);
         }
 
-
         if (!empty($filters['student_id'])) {
             $query->where('student_id', $filters['student_id']);
         }
-
 
         if (!empty($filters['group_id'])) {
             $query->where('group_id', $filters['group_id']);
@@ -36,13 +34,12 @@ class ReportLogic
             $query->where('teacher_id', Auth::id());
         }
 
-        return $query->orderBy('recitation_date', 'desc')->get();
+        return $query;
     }
 
     public function getFilterLists()
     {
         $user = Auth::user();
-
         if ($user->is_admin) {
             return [
                 'students' => Student::orderBy('full_name')->get(),
@@ -54,7 +51,7 @@ class ReportLogic
         return [
             'groups'  => Group::where('UserId', $user->id)->get(),
             'students' => Student::whereHas('groups', function ($q) use ($user) {
-                $q->where('UserId', $user->id); // جلب الطلاب الذين ينتمون لمجموعات هذا المحفظ
+                $q->where('UserId', $user->id);
             })->orderBy('full_name')->get(),
             'teachers' => collect(),
         ];

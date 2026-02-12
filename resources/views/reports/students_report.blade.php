@@ -182,7 +182,7 @@
 
                 buttons: [{
                     extend: 'excelHtml5',
-                    text: '<i class="bi bi-file-earmark-excel"></i> تصدير إكسل',
+                    text: '<i class="bi bi-file-earmark-excel"></i> تصدير إكسل(الكل)',
                     className: 'btn btn-success btn-sm',
                     filename: function() {
                         let d = new Date();

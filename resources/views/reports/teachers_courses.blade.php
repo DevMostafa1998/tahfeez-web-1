@@ -149,129 +149,124 @@
     <script src="https://cdn.datatables.net/2.3.6/js/dataTables.bootstrap4.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap4.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
     <script>
         $(document).ready(function() {
-            function fetchReports() {
-                let tId = $('#teacher_id').val() || '';
-
-                if ($.fn.DataTable.isDataTable('#teachersTable')) {
-                    $('#teachersTable').DataTable().clear().destroy();
-                }
-
-                $('#tableBody').html('<tr><td colspan="14" class="text-center py-4">جاري التحميل...</td></tr>');
-
-                $.ajax({
-                    url: "{{ route('reports.teachers_courses') }}",
-                    type: 'GET',
-                    data: {
-                        teacher_id: tId
+            let table = $('#teachersTable').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    "url": "{{ route('reports.teachers_courses') }}",
+                    "type": "GET",
+                    "data": function(d) {
+                        d.teacher_id = $('#teacher_id').val();
+                    }
+                },
+                "columns": [{
+                        "data": "full_name",
+                        "defaultContent": "-"
                     },
-                    success: function(response) {
-                        let html = '';
-                        if (response && response.length > 0) {
-                            let groupedData = {};
-                            $.each(response, function(i, item) {
-                                let key = item.id_number;
-                                if (!groupedData[key]) {
-                                    groupedData[key] = {
-                                        ...item,
-                                        courses: []
-                                    };
-                                    if (item.course_name) groupedData[key].courses.push(item
-                                        .course_name);
-                                } else {
-                                    if (item.course_name && !groupedData[key].courses.includes(
-                                            item.course_name)) {
-                                        groupedData[key].courses.push(item.course_name);
-                                    }
-                                }
-                            });
-
-                            $.each(groupedData, function(key, item) {
-                                let residencyStatus = item.is_displaced == 1 ?
-                                    '<span class="badge bg-warning text-dark">نازح</span>' :
-                                    '<span class="badge bg-success text-white">مقيم</span>';
-
-                                let separator =
-                                    ' <span style="color: #ff8c00; font-weight: 900; margin: 0 8px;">-</span> ';
-                                let coursesList = item.courses.length > 0 ? item.courses.join(
-                                    separator) : 'لا يوجد';
-
-                                html += `<tr>
-                                    <td class="fw-bold">${item.full_name || '-'}</td>
-                                    <td>${item.id_number || '-'}</td>
-                                    <td>${item.date_of_birth || '-'}</td>
-                                    <td>${item.birth_place || '-'}</td>
-                                    <td>${item.phone_number || '-'}</td>
-                                    <td>${item.wallet_number || '-'}</td>
-                                    <td>${item.whatsapp_number || '-'}</td>
-                                    <td>${item.qualification || '-'}</td>
-                                    <td>${item.specialization || '-'}</td>
-                                    <td>${item.parts_memorized || '0'}</td>
-                                    <td>${item.mosque_name || '-'}</td>
-                                    <td>${item.address || '-'}</td>
-                                    <td>${residencyStatus}</td>
-                                    <td class="text-success fw-bold">${coursesList}</td>
-                                </tr>`;
-                            });
-
-                            $('#tableBody').html(html);
-                            initDataTable();
-                        } else {
-                            $('#tableBody').html(
-                                '<tr><td colspan="14" class="py-5 text-center text-muted">لا توجد بيانات</td></tr>'
-                            );
+                    {
+                        "data": "id_number",
+                        "defaultContent": "-"
+                    },
+                    {
+                        "data": "date_of_birth",
+                        "defaultContent": "-"
+                    },
+                    {
+                        "data": "birth_place",
+                        "defaultContent": "-"
+                    },
+                    {
+                        "data": "phone_number",
+                        "defaultContent": "-"
+                    },
+                    {
+                        "data": "wallet_number",
+                        "defaultContent": "-"
+                    },
+                    {
+                        "data": "whatsapp_number",
+                        "defaultContent": "-"
+                    },
+                    {
+                        "data": "qualification",
+                        "defaultContent": "-"
+                    },
+                    {
+                        "data": "specialization",
+                        "defaultContent": "-"
+                    },
+                    {
+                        "data": "parts_memorized",
+                        "defaultContent": "0"
+                    },
+                    {
+                        "data": "mosque_name",
+                        "defaultContent": "-"
+                    },
+                    {
+                        "data": "address",
+                        "defaultContent": "-"
+                    },
+                    {
+                        "data": "is_displaced",
+                        "render": function(data) {
+                            return data == 1 ?
+                                '<span class="badge bg-warning text-dark">نازح</span>' :
+                                '<span class="badge bg-success text-white">مقيم</span>';
                         }
                     },
-                    error: function() {
-                        $('#tableBody').html(
-                            '<tr><td colspan="14" class="py-5 text-center text-danger">حدث خطأ أثناء تحميل البيانات</td></tr>'
-                        );
+                    {
+                        "data": "course_name",
+                        "className": "text-success fw-bold",
+                        "defaultContent": "لا يوجد"
                     }
-                });
-            }
-
-            function initDataTable() {
-                let today = new Date().toISOString().slice(0, 10);
-
-                if ($.fn.DataTable.isDataTable('#teachersTable')) {
-                    $('#teachersTable').DataTable().destroy();
-                }
-
-                let table = $('#teachersTable').DataTable({
-                    "responsive": false,
-                    "scrollX": false,
-                    "autoWidth": false,
-                    "dom": "<'row mb-3'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6 text-end'B>>" +
-                        "<'row'<'col-sm-12 table-responsive-container' tr >>" +
-                        "<'row mt-3'<'col-sm-12'p>>" +
-                        "<'row'<'col-sm-12 text-center'i>>",
-                    "language": {
-                        "sSearch": "بحث سريع:",
-                        "sInfo": "إجمالي: _TOTAL_",
-                        "emptyTable": "لا توجد بيانات متاحة في الجدول",
-                        "zeroRecords": "لم يتم العثور على نتائج مطابقة"
+                ],
+                "dom": "<'row mb-3'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6 text-end'B>>" +
+                    "<'row'<'col-sm-12 table-responsive-container' tr >>" +
+                    "<'row mt-3'<'col-sm-12'p>>" +
+                    "<'row'<'col-sm-12 text-center'i>>",
+                "language": {
+                    "sProcessing": "جاري التحميل...",
+                    "sSearch": "بحث سريع:",
+                    "sInfo": "إجمالي السجلات: _TOTAL_",
+                    "sInfoEmpty": "إجمالي السجلات: 0",
+                    "sZeroRecords": "لم يتم العثور على نتائج مطابقة",
+                    "sEmptyTable": "لا توجد بيانات متاحة في الجدول",
+                    paginate: {
+                        first: "«",
+                        last: "»",
+                        next: "›",
+                        previous: "‹"
                     },
-                    "buttons": [{
-                        extend: 'excelHtml5',
-                        text: 'تصدير إكسل',
-                        className: 'btn-excel',
-                        title: 'تقرير دورات المحفظين الشامل',
-                        filename: 'تقرير_دورات_المحفظين_' + today
-                    }],
-                    "pageLength": 10,
-                    "ordering": true
-                });
+                },
+                "buttons": [{
+                    text: '<i class="fas fa-file-excel me-1"></i> تصدير إكسل (الكل)',
+                    className: 'btn btn-success fw-bold btn-excel',
+                    action: function(e, dt, node, config) {
+                        // جلب الفلاتر الحالية
+                        let teacherId = $('#teacher_id').val() || '';
+                        let searchQuery = dt.search() || '';
 
-                $('#excel_button_container').empty();
-                table.buttons().container().appendTo('#excel_button_container');
-            }
+                        let exportUrl = "{{ route('reports.teachers_courses') }}?export=1" +
+                            "&teacher_id=" + teacherId +
+                            "&search_value=" + encodeURIComponent(searchQuery);
 
-            $('#teacher_id').on('change', fetchReports);
-            fetchReports();
+                        window.location.href = exportUrl;
+                    }
+                }],
+                "pageLength": 10,
+                "ordering": true,
+                "searching": true
+            });
+
+            $('#teacher_id').on('change', function() {
+                table.draw();
+            });
+
+            table.buttons().container().appendTo('#excel_button_container');
         });
     </script>
 @endpush

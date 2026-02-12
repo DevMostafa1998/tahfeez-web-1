@@ -16,18 +16,21 @@ class TeacherReportController extends Controller
 
     public function index(Request $request)
     {
-        // جلب البيانات (تعتمد على الفلترة داخل اللوجيك)
-        $data = $this->logic->getTeacherCoursesReport($request->all());
-
-        if ($request->ajax()) {
-            return response()->json($data);
-        }
-
-        // جلب القوائم (Dropdowns)
+        // جلب القوائم للفلاتر
         $filterLists = $this->logic->getFilterLists();
 
+        // إذا كان الطلب تصدير إكسل
+        if ($request->has('export')) {
+            return $this->logic->exportToExcel($request->all());
+        }
+
+        // إذا كان طلب Ajax من DataTable
+        if ($request->ajax()) {
+            return response()->json($this->logic->getTeacherCoursesReport($request->all()));
+        }
+
         return view('reports.teachers_courses', array_merge(
-            ['reportData' => $data],
+            ['reportData' => []],
             $filterLists
         ));
     }

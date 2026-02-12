@@ -23,12 +23,8 @@ class AttendanceReportController extends Controller
 
     public function getAttendanceData(Request $request)
     {
-        if (!$request->date_from || !$request->date_to) {
-            return response()->json([], 400);
-        }
-
-        $attendances = $this->logic->getFilteredAttendance(Auth::user(), $request->all());
-        return response()->json($attendances);
+        $response = $this->logic->getDataTableAttendance(Auth::user(), $request->all());
+        return response()->json($response);
     }
 
     public function getFiltersData(Request $request)
@@ -36,4 +32,20 @@ class AttendanceReportController extends Controller
         $filters = $this->logic->getDynamicFilters($request->all());
         return response()->json($filters);
     }
+    public function exportExcel(Request $request)
+    {
+        $data = $this->logic->getAllAttendanceForExport(Auth::user(), $request->all());
+
+        $exporter = new \App\BusinessLogic\ExportExcel();
+        return $exporter->export(
+            'تقرير_الحضور',                    // اسم الملف
+            'تقرير حضور وغياب الطلاب المفصل',   // عنوان التقرير داخل الملف
+            ['التاريخ', 'اسم الطالب', 'الهوية', 'الهاتف', 'الحالة'], // الهيدرز
+            $data,                             // البيانات
+            ['date', 'name', 'id', 'phone', 'status'] // المابينج
+        );
+    }
+
+    // تحديث ميثود جلب البيانات لتناسب DataTables
+
 }
