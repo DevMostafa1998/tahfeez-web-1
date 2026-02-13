@@ -46,7 +46,8 @@
 
 <div class="modal fade" id="editUserModal{{ $user->id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-xl-custom">
-        <form action="{{ route('user.update', $user->id) }}" method="POST">
+        <form action="{{ route('user.update', $user->id) }}"method="POST"
+            id="editForm{{ $user->id }}"onsubmit="return validatePassword(event, {{ $user->id }})">
             @csrf
             @method('PUT')
             <div class="modal-content border-0 shadow-lg" style="border-radius: 15px; text-align: right;" dir="rtl">
@@ -169,65 +170,73 @@
                         </div>
                     @endif
 
-                    {{-- القسم الثالث: الحساب والأمان --}}
-                <div class="d-flex align-items-center mb-2">
-                    <span class="badge rounded-pill bg-warning text-dark px-3 fw-bold small-xs">
-                        3. إعدادات الحساب والأمان
-                    </span>
-                    <hr class="flex-grow-1 me-2 my-0 opacity-10">
-                </div>
+                        {{-- القسم الثالث: الحساب والأمان --}}
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge rounded-pill bg-warning text-dark px-3 fw-bold small-xs">
+                                3. إعدادات الحساب والأمان
+                            </span>
+                            <hr class="flex-grow-1 me-2 my-0 opacity-10">
+                        </div>
 
-                <div class="row gx-3">
-                    <div class="col-md-3 text-start mb-2">
-                        <label class="fw-bold small">
-                            <i class="bi bi-person-lock text-warning"></i> الصلاحية
-                        </label>
-                        <select name="is_admin" id="userType{{ $user->id }}" class="form-select bg-light border-0 py-2"
-                                onchange="toggleAdminCheckbox({{ $user->id }})">
-                            <option value="1" {{ $user->is_admin == 1 ? 'selected' : '' }}>مسؤول (أدمن)</option>
-                            <option value="0" {{ $user->is_admin == 0 ? 'selected' : '' }}>محفظ</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-3 text-start mb-2" id="adminPrivilegeDiv{{ $user->id }}"
-                        style="{{ $user->is_admin == 1 ? 'display: none;' : '' }}">
-
-                        <label class="fw-bold small text-muted">
-                            <i class="bi bi-shield-plus text-warning"></i> صلاحيات إضافية
-                        </label>
-
-                        <div class="form-control bg-light border-0 d-flex justify-content-between align-items-center py-2"
-                            style="border-radius: 8px; height: 38px;">
-
-                            <label class="form-check-label small fw-bold text-dark mb-0" for="is_admin_rouls{{ $user->id }}">
-                                منح صلاحيات مشرف
+                        <div class="row gx-2 mb-4 align-items-start"> <div class="col">
+                            <label class="fw-bold small">
+                                <i class="bi bi-person-lock text-warning"></i> الصلاحية
                             </label>
+                            <select name="is_admin" id="userType{{ $user->id }}" class="form-select bg-light border-0 py-2"
+                                    onchange="toggleAdminCheckbox({{ $user->id }})">
+                                <option value="1" {{ $user->is_admin == 1 ? 'selected' : '' }}>مسؤول (أدمن)</option>
+                                <option value="0" {{ $user->is_admin == 0 ? 'selected' : '' }}>محفظ</option>
+                            </select>
+                        </div>
 
-                            <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" name="is_admin_rouls" value="1"
-                                    id="is_admin_rouls{{ $user->id }}"
-                                    style="cursor: pointer; width: 2.5em;"
-                                    {{ $user->is_admin_rouls == 1 ? 'checked' : '' }}>
+                        <div class="col" id="adminPrivilegeDiv{{ $user->id }}"
+                            style="{{ $user->is_admin == 1 ? 'display: none;' : '' }}">
+                            <label class="fw-bold small text-muted">
+                                <i class="bi bi-shield-plus text-warning"></i> إضافية
+                            </label>
+                            <div class="form-control bg-light border-0 d-flex justify-content-between align-items-center py-2"
+                                style="border-radius: 8px; height: 38px;">
+                                <label class="form-check-label small fw-bold text-dark mb-0" for="is_admin_rouls{{ $user->id }}">
+                                    مشرف
+                                </label>
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" name="is_admin_rouls" value="1"
+                                        id="is_admin_rouls{{ $user->id }}"
+                                        style="cursor: pointer; width: 2em;"
+                                        {{ $user->is_admin_rouls == 1 ? 'checked' : '' }}>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="col-md-3 text-start">
-                        <label class="fw-bold small"><i class="bi bi-tags text-warning"></i> التصنيف</label>
-                        <select name="category_id" class="form-select bg-light border-0 py-2">
-                            @foreach (\DB::table('categorie')->get() as $cat)
-                                <option value="{{ $cat->id }}" {{ $user->category_id == $cat->id ? 'selected' : '' }}>
-                                    {{ $cat->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+                        <div class="col">
+                            <label class="fw-bold small"><i class="bi bi-tags text-warning"></i> التصنيف</label>
+                            <select name="category_id" class="form-select bg-light border-0 py-2">
+                                @foreach (\DB::table('categorie')->get() as $cat)
+                                    <option value="{{ $cat->id }}" {{ $user->category_id == $cat->id ? 'selected' : '' }}>
+                                        {{ $cat->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    <div class="col-md-3 text-start">
-                        <label class="fw-bold small"><i class="bi bi-key text-warning"></i> كلمة المرور</label>
-                        <input type="password" name="password" class="form-control bg-light border-0 py-2" placeholder="اختياري">
+                        <div class="col">
+                            <label class="fw-bold small"><i class="bi bi-key text-warning"></i> كلمة المرور</label>
+                            <input type="password" name="password" id="password{{ $user->id }}"
+                                class="form-control bg-light border-0 py-2" placeholder="أدخل كلمة جديدة (اختياري)" oninput="checkPasswordMatch({{ $user->id }})">
+                        </div>
+
+                        <div class="col">
+                            <label class="fw-bold small"><i class="bi bi-key-fill text-warning"></i> تأكيد كلمة المرور</label>
+                            <input type="password" name="password_confirmation" id="password_confirmation{{ $user->id }}"
+                                class="form-control bg-light border-0 py-2" placeholder="أعد كلمة جديدة"
+                                oninput="checkPasswordMatch({{ $user->id }})">
+
+                            <div id="passwordError{{ $user->id }}" class="text-danger fw-bold mt-1" style="display: none; font-size: 0.75rem;">
+                                <i class="bi bi-exclamation-circle"></i> <span id="errorText{{ $user->id }}"></span>
+                            </div>
+                        </div>
+
                     </div>
-                </div>
 
                 </div>
 
@@ -256,5 +265,45 @@
                 privilegeDiv.style.display = 'block';
             }
         }
+    }
+    function checkPasswordMatch(userId) {
+    const pass = document.getElementById('password' + userId).value;
+    const confirmPass = document.getElementById('password_confirmation' + userId).value;
+    const errorDiv = document.getElementById('passwordError' + userId);
+    const errorText = document.getElementById('errorText' + userId);
+
+    if (confirmPass !== "" && pass !== confirmPass) {
+        errorText.innerText = "كلمة المرور غير متطابقة";
+        errorDiv.style.display = 'block';
+    } else if (pass.length > 0 && pass.length < 6) {
+        errorText.innerText = "يجب أن تكون 6 خانات على الأقل";
+        errorDiv.style.display = 'block';
+    } else {
+        errorDiv.style.display = 'none';
+    }
+}
+    function validatePassword(event, userId) {
+        const pass = document.getElementById('password' + userId).value;
+        const confirmPass = document.getElementById('password_confirmation' + userId).value;
+        const errorDiv = document.getElementById('passwordError' + userId);
+        const errorText = document.getElementById('errorText' + userId);
+
+        if (pass.length > 0 && pass.length < 6) {
+            event.preventDefault();
+            errorText.innerText = "خطأ: كلمة المرور قصيرة جداً (أقل من 6)";
+            errorDiv.style.display = 'block';
+            document.getElementById('password' + userId).focus();
+            return false;
+        }
+
+        if (pass !== confirmPass) {
+            event.preventDefault();
+            errorText.innerText = "خطأ: كلمات المرور غير متطابقة";
+            errorDiv.style.display = 'block';
+            document.getElementById('password_confirmation' + userId).focus();
+            return false;
+        }
+
+        return true;
     }
 </script>
