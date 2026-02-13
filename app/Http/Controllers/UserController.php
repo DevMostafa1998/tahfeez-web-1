@@ -82,7 +82,7 @@ class UserController extends Controller
             'phone_number' => 'required',
             'address'      => 'required',
             'category_id'  => 'required',
-            'password'     => 'nullable|string|min:6',
+            'password'     => 'nullable|string|min:6|confirmed',
             'courses'      => 'nullable|array',
             'is_displaced' => 'required|boolean',
             'gender'       => 'sometimes|in:male,female',
