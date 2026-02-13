@@ -6,13 +6,6 @@ use Illuminate\Support\Facades\Response;
 
 class ExportExcel
 {
-    /**
-     * @param string $fileName اسم الملف عند التحميل
-     * @param string $reportTitle العنوان الذي يظهر في أول صف مدمج
-     * @param array $headers عناوين الأعمدة
-     * @param array $data المصفوفة التي تحتوي البيانات
-     * @param array $columnsMapping الحقول المقابلة في المصفوفة
-     */
     public function export($fileName, $reportTitle, $headers, $data, $columnsMapping)
     {
         $columnCount = count($headers);
@@ -22,36 +15,40 @@ class ExportExcel
         <head>
             <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
             <style>
-                /* تنسيق العنوان الرئيسي */
                 .title-row {
                     font-size: 16pt;
                     font-weight: bold;
                     text-align: center;
-                    height: 40px;
+                    background-color: #f8f9fa;
                 }
-                /* تنسيق صف الرأس */
-                .header-row {
-                    background-color: #1d6f42;
+                .header-row td {
+                    background-color: #007bff;
                     color: #ffffff;
                     font-weight: bold;
                     text-align: center;
+                    border: 0.5pt solid #dee2e6;
                 }
-                /* تنسيق الخلايا العام */
                 td {
-                    border: 0.5pt solid #000000;
-                    padding: 4px;
+                    border: 0.5pt solid #dee2e6;
+                    padding: 6px;
                     vertical-align: middle;
+                    text-align: center;
                 }
-                /* منع تحويل الأرقام الطويلة (هوية، هاتف) إلى ترميز علمي */
                 .text-format { mso-number-format:"\@"; text-align: right; }
+
+                .badge-custom {
+                    background-color: #f0f0f0;
+                    border: 1px solid #ccc;
+                }
+                .bg-info { background-color: #2faecb; color: white; }
+                .bg-success { background-color: #28a745; color: white; }
             </style>
         </head>
         <body>
             <table>
                 <tr>
-                    <td colspan="' . $columnCount . '" class="title-row">' . $reportTitle . '</td>
+                    <th colspan="' . $columnCount . '" class="title-row">' . $reportTitle . '</th>
                 </tr>
-
                 <tr class="header-row">';
         foreach ($headers as $header) {
             $output .= '<td>' . $header . '</td>';
@@ -62,13 +59,12 @@ class ExportExcel
             $output .= '<tr>';
             foreach ($columnsMapping as $field) {
                 $value = $row[$field] ?? '';
-
-                // فحص القيمة: إذا كانت تبدأ بـ 0 أو كانت طويلة جداً، نعاملها كنص
+                $style = "";
                 if (is_numeric($value) && (strlen($value) > 9 || strpos($value, '0') === 0)) {
-                    $output .= '<td class="text-format">' . $value . '</td>';
-                } else {
-                    $output .= '<td>' . $value . '</td>';
+                    $style = 'class="text-format"';
                 }
+
+                $output .= '<td ' . $style . '>' . $value . '</td>';
             }
             $output .= '</tr>';
         }
@@ -78,9 +74,7 @@ class ExportExcel
         return Response::make($output, 200, [
             "Content-type"        => "application/vnd.ms-excel",
             "Content-Disposition" => "attachment; filename={$fileName}.xls",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
+            "Cache-Control"       => "max-age=0",
         ]);
     }
 }
