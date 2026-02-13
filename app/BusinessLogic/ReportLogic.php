@@ -33,7 +33,14 @@ class ReportLogic
         } else {
             $query->where('teacher_id', Auth::id());
         }
-
+        if (isset($filters['order']) && count($filters['order'])) {
+            $columnIndex = $filters['order'][0]['column'];
+            $columnName = $filters['columns'][$columnIndex]['data'];
+            $columnSortOrder = $filters['order'][0]['dir'];
+            $query->orderBy($columnName, $columnSortOrder);
+        } else {
+            $query->orderBy('recitation_date', 'desc');
+        }
         return $query;
     }
 

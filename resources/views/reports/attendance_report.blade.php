@@ -150,7 +150,6 @@
                         url: "{{ route('reports.attendance.data') }}",
                         type: 'GET',
                         data: function(d) {
-                            // إرسال قيم الفلاتر بالإضافة إلى نص البحث التلقائي
                             d.date_from = $('#date_from').val();
                             d.date_to = $('#date_to').val();
                             d.teacher_id = $('[name="teacher_id"]').val();
@@ -165,15 +164,19 @@
                         {
                             data: 'student_name',
                             name: 'student_name',
+                            orderable: false,
+
                             className: 'fw-bold text-dark'
                         },
                         {
                             data: 'student_id_number',
-                            name: 'student_id_number'
+                            name: 'student_id_number',
+                            orderable: false
                         },
                         {
                             data: 'student_phone',
-                            name: 'student_phone'
+                            name: 'student_phone',
+                            orderable: false
                         },
                         {
                             data: 'status',

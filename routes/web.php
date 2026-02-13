@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/recitation', [ReportController::class, 'index'])->name('memorization');
+        Route::get('/reports/students/export', [StudentReportController::class, 'export'])->name('students.export');
         Route::get('/attendance', [AttendanceReportController::class, 'index'])->name('attendance');
         Route::get('/recitation-export', [ReportController::class, 'exportExcel'])->name('export');        // مسار جلب البيانات للـ DataTable (Server-side)
         Route::get('/attendance-data', [AttendanceReportController::class, 'getAttendanceData'])->name('attendance.data');

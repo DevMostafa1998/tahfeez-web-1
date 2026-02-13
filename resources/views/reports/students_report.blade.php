@@ -181,33 +181,17 @@
                     "<'row'<'col-sm-12 text-center'i>>",
 
                 buttons: [{
-                    extend: 'excelHtml5',
-                    text: '<i class="bi bi-file-earmark-excel"></i> تصدير إكسل(الكل)',
+                    text: '<i class="bi bi-file-earmark-excel"></i> تصدير إكسل (الكل)',
                     className: 'btn btn-success btn-sm',
-                    filename: function() {
-                        let d = new Date();
-                        let dateStr = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d
-                            .getDate();
-                        return 'تقرير_الطلاب_' + dateStr;
-                    },
-                    title: 'تقرير الطلاب',
-                    action: function(e, dt, button, config) {
-                        let self = this;
-                        let oldStart = dt.settings()[0]._iDisplayStart;
-                        let oldLength = dt.settings()[0]._iDisplayLength;
-                        dt.one('preXhr', function(e, s, data) {
-                            data.start = 0;
-                            data.length = -1;
-                        });
-                        dt.one('draw', function(e, settings) {
-                            $.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e,
-                                dt, button, config);
-                            setTimeout(() => {
-                                dt.page.len(oldLength).page(oldStart /
-                                    oldLength).draw(false);
-                            }, 100);
-                        });
-                        dt.draw();
+                    action: function(e, dt, node, config) {
+                        let userId = $('#UserId').val() || '';
+                        let groupId = $('#group_id').val() || '';
+                        let searchValue = dt.search() || '';
+                        let url = "{{ route('reports.students.export') }}?" +
+                            "UserId=" + userId +
+                            "&group_id=" + groupId +
+                            "&search[value]=" + searchValue;
+                        window.location.href = url;
                     }
                 }],
                 language: {

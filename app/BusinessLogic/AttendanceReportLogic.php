@@ -129,25 +129,35 @@ class AttendanceReportLogic
             'selected_teacher_id' => $selectedTeacherId
         ];
     }
-    // أضف هذا داخل الكلاس AttendanceReportLogic
 
     public function getDataTableAttendance($user, array $requestData)
     {
-        $query = \App\Models\StudentAttendance::with('student');
+        $query = StudentAttendance::with('student');
 
-        // تطبيق الفلاتر (نفس المنطق السابق)
         $this->applyFilters($query, $user, $requestData);
 
-        // الإجمالي قبل الفلترة (لـ DataTables)
-        $totalRecords = \App\Models\StudentAttendance::count();
+        if (isset($requestData['order']) && count($requestData['order'])) {
+            $columnIndex = $requestData['order'][0]['column'];
+            $columnDir = $requestData['order'][0]['dir'];
+            $columnName = $requestData['columns'][$columnIndex]['name'];
 
-        // الإجمالي بعد الفلترة
+            if ($columnName == 'student_name') {
+                $query->join('students', 'student_attendances.student_id', '=', 'students.id')
+                    ->orderBy('students.full_name', $columnDir)
+                    ->select('student_attendances.*');
+            } else {
+                $query->orderBy($columnName, $columnDir);
+            }
+        } else {
+            $query->orderBy('attendance_date', 'desc');
+        }
+
+        $totalRecords = StudentAttendance::count();
         $filteredRecords = $query->count();
 
-        // الترتيب والترقيم (Pagination)
+        //  الترقيم (Pagination)
         $start = $requestData['start'] ?? 0;
         $length = $requestData['length'] ?? 10;
-
         $records = $query->skip($start)->take($length)->get();
 
         $data = $records->map(function ($record) {
@@ -168,22 +178,18 @@ class AttendanceReportLogic
         ];
     }
 
-    // ميثود مساعدة للفلاتر لمنع تكرار الكود
     private function applyFilters($query, $user, $filters)
     {
-        // فلاتر التاريخ
         if (!empty($filters['date_from']) && !empty($filters['date_to'])) {
             $query->whereBetween('attendance_date', [$filters['date_from'], $filters['date_to']]);
         }
 
-        // فلاتر الصلاحيات
         if (!$user->is_admin) {
             $query->whereHas('student.groups', fn($q) => $q->where('UserId', $user->id));
         } elseif (!empty($filters['teacher_id'])) {
             $query->whereHas('student.groups', fn($q) => $q->where('UserId', $filters['teacher_id']));
         }
 
-        // فلتر المجموعة والطالب
         if (!empty($filters['group_id'])) {
             $query->whereHas('student.groups', fn($q) => $q->where('group_id', $filters['group_id']));
         }
@@ -191,7 +197,6 @@ class AttendanceReportLogic
             $query->where('student_id', $filters['student_id']);
         }
 
-        // --- إضافة منطق البحث السريع هنا ---
         if (!empty($filters['search']['value'])) {
             $searchValue = $filters['search']['value'];
             $query->where(function ($q) use ($searchValue) {

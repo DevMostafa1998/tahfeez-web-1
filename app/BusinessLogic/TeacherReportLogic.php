@@ -12,14 +12,14 @@ class TeacherReportLogic
     {
         $query = TeacherCourseReport::query();
 
-        // 1. الفلترة الأساسية (الأدمن والمحفظ)
+        //  الفلترة الأساسية (الأدمن والمحفظ)
         if (!Auth::user()->is_admin) {
             $query->where('id', Auth::id());
         } elseif (!empty($filters['teacher_id'])) {
             $query->where('id', $filters['teacher_id']);
         }
 
-        // 2. معالجة البحث الخاص بـ DataTable (Global Search)
+        //  معالجة البحث الخاص بـ DataTable (Global Search)
         if (!empty($filters['search']['value'])) {
             $search = $filters['search']['value'];
             $query->where(function ($q) use ($search) {
@@ -28,11 +28,18 @@ class TeacherReportLogic
             });
         }
 
-        // إجمالي السجلات قبل الفلترة
         $totalData = TeacherCourseReport::count();
         $totalFiltered = $query->count();
+        if (isset($filters['order']) && count($filters['order'])) {
+            $columnIndex = $filters['order'][0]['column'];
+            $columnName = $filters['columns'][$columnIndex]['data'];
+            $columnSortOrder = $filters['order'][0]['dir'];
 
-        // 3. الترتيب والتقسيم (Pagination)
+            $query->orderBy($columnName, $columnSortOrder);
+        } else {
+            $query->orderBy('full_name', 'asc');
+        }
+        //  الترتيب والتقسيم (Pagination)
         $limit = $filters['length'] ?? 10;
         $start = $filters['start'] ?? 0;
 
@@ -53,7 +60,6 @@ class TeacherReportLogic
     {
         $query = TeacherCourseReport::query();
 
-        // تطبيق نفس فلاتر البحث والفلترة المختارة
         if (!Auth::user()->is_admin) {
             $query->where('id', Auth::id());
         } elseif (!empty($filters['teacher_id'])) {

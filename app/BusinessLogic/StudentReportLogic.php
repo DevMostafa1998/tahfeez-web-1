@@ -19,7 +19,26 @@ class StudentReportLogic
             ->whereNull('deleted_at')
             ->get();
     }
-
+    public function formatForExcel($students)
+    {
+        return $students->map(function ($student) {
+            return [
+                'full_name'       => $student->full_name,
+                'id_number'       => $student->id_number,
+                'date_of_birth'   => $student->date_of_birth ? substr($student->date_of_birth, 0, 10) : '-',
+                'birth_place'     => $student->birth_place,
+                'phone_number'    => $student->phone_number,
+                'whatsapp_number' => $student->whatsapp_number,
+                'address'         => $student->address,
+                'center_name'     => $student->center_name,
+                'mosque_name'     => $student->mosque_name,
+                'group_name'      => $student->groups->pluck('GroupName')->implode(' - '),
+                'teacher_name'    => $student->groups->first() && $student->groups->first()->teacher
+                    ? $student->groups->first()->teacher->full_name : 'غير محدد',
+                'is_displaced'    => $student->is_displaced ? 'نازح' : 'مقيم',
+            ];
+        })->toArray();
+    }
     /**
      * جلب المجموعات بناءً على صلاحيات المستخدم
      */
@@ -61,9 +80,8 @@ class StudentReportLogic
                 $query->orderBy($columnName, $columnDir);
             }
         } else {
-            $query->orderBy('created_at', 'desc'); // ترتيب افتراضي
+            $query->orderBy('created_at', 'desc');
         }
-        // البحث السريع الخاص بـ DataTables
         if (!empty($filters['search']['value'])) {
             $search = $filters['search']['value'];
             $query->where(function ($q) use ($search) {
@@ -117,7 +135,6 @@ class StudentReportLogic
                 }
             }
 
-            // 2. تحويل حالة النزوح إلى نص ملون
             $statusHtml = $student->is_displaced
                 ? '<span class="status-badge bg-info">نازح</span>'
                 : '<span class="status-badge bg-success">مقيم</span>';
