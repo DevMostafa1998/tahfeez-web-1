@@ -346,7 +346,6 @@
         }
 
         $(document).ready(function() {
-            // تهيئة DataTable بنظام Server-side مع تمرير حالة الأرشيف
             const table = $('#studentsTable').DataTable({
                 processing: true,
                 serverSide: true,
@@ -354,7 +353,7 @@
                     url: "{{ route('student.index') }}",
                     type: 'GET',
                     data: function(d) {
-                        d.archived = showArchived; // إرسال المتغير للسيرفر لجلب المحذوفين أو الحاليين
+                        d.archived = showArchived;
                     }
                 },
                 columns: [{
@@ -408,7 +407,7 @@
                     "<'row mt-3'<'col-sm-12'p>>" +
                     "<'row'<'col-sm-12 text-center'i>>",
                 buttons: [{
-                    text: '<i class="bi bi-file-earmark-excel-fill ms-1"></i> تصدير إكسل',
+                    text: '<i class="bi bi-file-earmark-excel-fill ms-1"></i> تصدير إكسل (الكل)',
                     className: 'btn btn-excel',
                     action: function() {
                         window.location.href = "{{ route('student.export') }}";

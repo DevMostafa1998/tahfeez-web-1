@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Course;
 use App\BusinessLogic\UserLogic;
 use Illuminate\Support\Facades\DB;
+use App\BusinessLogic\ExportExcel;
 
 class UserController extends Controller
 {
@@ -17,16 +18,19 @@ class UserController extends Controller
         $this->userLogic = $userLogic;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('courses')->latest()->get();
+        if ($request->ajax()) {
+            // نمرر الطلب بالكامل للمنطق لمعالجة الترتيب والبحث
+            return $this->userLogic->getUsersForDataTable($request);
+        }
 
         $categories = DB::table('categorie')->get();
         $all_courses = Course::where(function ($query) {
             $query->where('type', 'teachers')->orWhereNull('type');
         })->get();
 
-        return view('users.index', compact('users', 'categories', 'all_courses'));
+        return view('users.index', compact('categories', 'all_courses'));
     }
     public function show($id)
     {
@@ -112,5 +116,59 @@ class UserController extends Controller
             $query->where('type', 'teachers')->orWhereNull('type');
         })->get();
         return view('users.create', compact('categories', 'all_courses'));
+    }
+    public function getEditData($id)
+    {
+        $user = User::findOrFail($id);
+        return response()->json($user);
+    }
+    public function exportFullExcel()
+    {
+        $users = User::with(['category', 'courses'])->get();
+
+        $exporter = new ExportExcel();
+
+        // تعريف العناوين التي ستظهر في رأس ملف الإكسل
+        $headers = [
+            'الاسم الكامل',
+            'رقم الهوية',
+            'رقم الجوال',
+            'الجنس',
+            'التصنيف',
+            'الصلاحية',
+            'عدد الدورات'
+        ];
+
+        // تحويل البيانات لمصفوفة تتناسب مع توقعات الكلاس
+        $data = $users->map(function ($user) {
+            return [
+                'full_name'     => $user->full_name,
+                'id_number'     => $user->id_number,
+                'phone_number'  => $user->phone_number,
+                'gender'        => ($user->gender == 'male' || $user->gender == 'ذكر') ? 'ذكر' : 'أنثى',
+                'category_name' => $user->category->name ?? '---',
+                'role'          => $user->is_admin ? 'مسؤول' : ($user->is_admin_rouls ? 'محفظ' : 'مستخدم'),
+                'courses_count' => $user->courses->count(),
+            ];
+        })->toArray();
+
+        // ترتيب المفاتيح كما هي في المصفوفة أعلاه
+        $columnsMapping = [
+            'full_name',
+            'id_number',
+            'phone_number',
+            'gender',
+            'category_name',
+            'role',
+            'courses_count'
+        ];
+
+        return $exporter->export(
+            'users_report_' . date('Y-m-d'), // اسم الملف
+            'تقرير جميع المستخدمين في النظام',  // عنوان الجدول بالداخل
+            $headers,
+            $data,
+            $columnsMapping
+        );
     }
 }

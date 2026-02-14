@@ -73,8 +73,9 @@ Route::middleware('auth')->group(function () {
 
     // --- منطقة حماية المسؤول (أدمن أو محفظ بصلاحيات) ---
     Route::middleware('admin')->group(function () {
-
+        Route::get('user/{id}/edit-data', [UserController::class, 'getEditData'])->name('user.edit_data');
         Route::get('student-export-excel', [StudentController::class, 'exportExcel'])->name('student.export');
+        Route::get('users/export-excel', [UserController::class, 'exportFullExcel'])->name('user.export.excel');
         Route::get('student-restore/{id}', [StudentController::class, 'restore'])->name('student.restore.get');
         Route::post('student/{id}/restore', [StudentController::class, 'restore'])->name('student.restore');
 
