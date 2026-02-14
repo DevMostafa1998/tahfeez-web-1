@@ -189,23 +189,25 @@
                             </select>
                         </div>
 
-                        <div class="col" id="adminPrivilegeDiv{{ $user->id }}"
+                        <div class="col-md-3" id="adminPrivilegeDiv{{ $user->id }}"
                             style="{{ $user->is_admin == 1 ? 'display: none;' : '' }}">
-                            <label class="fw-bold small text-muted">
-                                <i class="bi bi-shield-plus text-warning"></i> إضافية
+
+                            <label class="form-label small fw-bold text-secondary mb-1">
+                                <i class="bi bi-shield-check text-warning me-1"></i>صلاحيات إضافية
                             </label>
-                            <div class="form-control bg-light border-0 d-flex justify-content-between align-items-center py-2"
-                                style="border-radius: 8px; height: 38px;">
-                                <label class="form-check-label small fw-bold text-dark mb-0" for="is_admin_rouls{{ $user->id }}">
-                                    مشرف
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" role="switch"
+                                    name="is_admin_rouls" value="1"
+                                    id="is_admin_rouls{{ $user->id }}"
+                                    {{ $user->is_admin_rouls == 1 ? 'checked' : '' }}>
+
+                                <label class="form-check-label fw-bold text-dark" for="is_admin_rouls{{ $user->id }}">
+                                    منح صلاحيات الأدمن كاملة
                                 </label>
-                                <div class="form-check form-switch mb-0">
-                                    <input class="form-check-input" type="checkbox" name="is_admin_rouls" value="1"
-                                        id="is_admin_rouls{{ $user->id }}"
-                                        style="cursor: pointer; width: 2em;"
-                                        {{ $user->is_admin_rouls == 1 ? 'checked' : '' }}>
-                                </div>
                             </div>
+                            <small class="text-muted d-block" style="font-size: 0.75rem;">
+                                عند التفعيل، سيتمكن المحفظ من إدارة النظام بالكامل بالإضافة لمهامه.
+                            </small>
                         </div>
 
                         <div class="col">
