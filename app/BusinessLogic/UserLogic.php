@@ -194,9 +194,20 @@ class UserLogic
 
     private function renderRoleBadge($user)
     {
-        $class = $user->is_admin ? 'bg-primary' : 'bg-success';
-        $label = $user->is_admin ? 'مسؤول' : ($user->is_admin_rouls ? 'محفظ' : 'محفظ');
-        return '<span class="badge rounded-pill ' . $class . ' px-3 py-1">' . $label . '</span>';
+        $bgColor = $user->is_admin ? 'bg-primary' : 'bg-success';
+
+        $html = '<span class="badge rounded-pill ' . $bgColor . ' px-3 py-1" style="font-size: 0.85rem;">';
+
+        if ($user->is_admin) {
+            $html .= '<i class="bi bi-shield-check me-1"></i> مسؤول';
+        } elseif ($user->is_admin_rouls) {
+            $html .= '<i class="fas fa-user-shield me-1" style="font-size: 0.8rem;"></i> محفظ';
+        } else {
+            $html .= '<i class="bi bi-person me-1"></i> محفظ';
+        }
+
+        $html .= '</span>';
+        return $html;
     }
 
     private function renderActions($user)
