@@ -19,13 +19,13 @@ class UserLogic
 
     public function storeUser($data)
     {
-    $isAdminMain = (isset($data['is_admin']) && ($data['is_admin'] == '1' || $data['is_admin'] == 'مسؤول')) ? true : false;
+        $isAdminMain = (isset($data['is_admin']) && ($data['is_admin'] == '1' || $data['is_admin'] == 'مسؤول')) ? true : false;
 
-    $isAdminRouls = null;
+        $isAdminRouls = null;
 
-    if (!$isAdminMain) {
-        $isAdminRouls = isset($data['is_admin_rouls']) ? true : false;
-    }
+        if (!$isAdminMain) {
+            $isAdminRouls = isset($data['is_admin_rouls']) ? true : false;
+        }
         $user = User::create([
             'full_name'     => $data['full_name'],
             'id_number'     => $data['id_number'],
@@ -35,8 +35,8 @@ class UserLogic
             'address'       => $data['address'],
             'category_id'   => $data['category_id'],
             'is_admin'      => $isAdminMain,
-            'is_admin_rouls'=> $isAdminRouls,
-          'creation_by'   => Auth::user()->full_name ?? 'System',
+            'is_admin_rouls' => $isAdminRouls,
+            'creation_by'   => Auth::user()->full_name ?? 'System',
             'creation_by'   => Auth::user()->full_name ?? 'System',
             'birth_place'     => $data['birth_place'] ?? null,
             'wallet_number'   => $data['wallet_number'] ?? null,

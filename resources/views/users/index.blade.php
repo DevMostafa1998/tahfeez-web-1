@@ -138,10 +138,11 @@
                                             </span>
                                         </td>
                                         <td>
-                                            <span class="badge rounded-pill {{ $user->is_admin ? 'bg-primary' : 'bg-success' }} px-3 py-1"
+                                            <span
+                                                class="badge rounded-pill {{ $user->is_admin ? 'bg-primary' : 'bg-success' }} px-3 py-1"
                                                 style="font-size: 0.85rem;">
 
-                                                @if($user->is_admin)
+                                                @if ($user->is_admin)
                                                     <i class="bi bi-shield-check me-1"></i> مسؤول
                                                 @elseif($user->is_admin_rouls)
                                                     <i class="fas fa-user-shield me-1" style="font-size: 0.8rem;"></i> محفظ
@@ -235,8 +236,9 @@
                                 <div class="col-6 mb-2">
                                     <div
                                         class="p-2 bg-light rounded border d-flex align-items-center justify-content-start cursor-pointer">
-                                        <input class="form-check-input course-checkbox m-0" type="checkbox" name="courses[]"
-                                            value="{{ $course->id }}" id="user_course_{{ $course->id }}"
+                                        <input class="form-check-input course-checkbox m-0" type="checkbox"
+                                            name="courses[]" value="{{ $course->id }}"
+                                            id="user_course_{{ $course->id }}"
                                             style="position: relative; margin-left: 10px !important;">
                                         <label class="form-check-label fw-bold cursor-pointer mb-0 flex-grow-1"
                                             for="user_course_{{ $course->id }}"

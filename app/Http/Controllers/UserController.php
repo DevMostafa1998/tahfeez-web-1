@@ -88,9 +88,9 @@ class UserController extends Controller
             'gender'       => 'sometimes|in:male,female',
         ]);
         $data = $request->all();
-    if (!$request->has('is_admin_rouls')) {
-        $data['is_admin_rouls'] = 0;
-    }
+        if (!$request->has('is_admin_rouls')) {
+            $data['is_admin_rouls'] = 0;
+        }
         $this->userLogic->updateUser($user, $data);
         return redirect()->route('user.index')->with('success', 'تم تحديث البيانات بنجاح');
     }
