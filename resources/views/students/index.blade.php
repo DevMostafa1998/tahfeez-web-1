@@ -196,7 +196,7 @@
                     style="width: 40px; height: 40px;">
                     <i class="bi bi-person-badge-fill fs-4 text-primary"></i>
                 </div>
-                <h1 class="page-title m-0 h4 fw-bold text-dark">إدارة الطلاب</h1>
+                <h1 class="page-title m-0 h4 fw-bold text-primary">إدارة الطلاب</h1>
             </div>
 
             <div class="d-flex align-items-center gap-2">

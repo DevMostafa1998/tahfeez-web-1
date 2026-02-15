@@ -1,15 +1,48 @@
+<style>
+    .brand-link {
+        text-decoration: none !important;
+        transition: background-color 0.3s ease;
+    }
+
+    .brand-link:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .logo-wrapper {
+        transition: transform 0.3s ease;
+    }
+
+    .brand-link:hover .logo-wrapper {
+        transform: scale(1.11);
+    }
+
+    /* تحسين شكل الخط العربي */
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+</style>
 <aside class="app-sidebar bg-body-secondary shadow d-flex flex-column" data-bs-theme="dark">
-    <div class="sidebar-brand">
-        <a href="{{ route('dashboard') }}" class="brand-link">
-            <img src="{{ asset('assets/img/logo.jpeg') }}" alt="Logo" class="brand-image opacity-75 shadow" />
-            <span class="brand-text fw-light">التحفيظ</span>
+    <div class="sidebar-brand border-secondary-subtle mb-3">
+        <a href="{{ route('dashboard') }}" class="brand-link d-flex align-items-center gap-2 py-3 px-3 transition-all">
+            <div class="logo-wrapper bg-white shadow-sm d-flex align-items-center justify-content-center"
+                style="width: 40px; height: 40px; border-radius: 12px; overflow: hidden; border: 2px solid rgba(255,255,255,0.1);">
+                <img src="{{ asset('assets/img/logo.jpeg') }}" alt="Logo" class="brand-image img-fluid"
+                    style="object-fit: cover; width: 100%; height: 100%;">
+            </div>
+            <div class="brand-text-wrapper">
+                <span class="brand-text fw-bold fs-5 mb-0" style="letter-spacing: 0.5px;"> التحفيظ
+                </span>
+                <div class="brand-status d-flex align-items-center gap-1">
+                    <span class="badge rounded-pill bg-success" style="font-size: 0.6rem; padding: 2px 6px;">النظام
+                        الذكي</span>
+                </div>
+            </div>
         </a>
     </div>
+
     <div class="sidebar-wrapper flex-grow-1 overflow-y-auto">
         <nav class="mt-2">
             <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="true">
 
-                {{--  لوحة التحكم --}}
+                {{-- لوحة التحكم --}}
                 <li class="nav-item">
                     <a href="{{ route('dashboard') }}"
                         class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
@@ -19,13 +52,44 @@
                 </li>
 
                 <li class="nav-header custom-sidebar-header">إدارة النظام</li>
+                {{-- إدارة المستخدمين والطلاب --}}
+                @if (auth()->user()->is_admin == 1 || auth()->user()->is_admin_rouls == 1)
+                    @php
+                        $isPeopleActive = request()->routeIs('student.*') || request()->routeIs('user.*');
+                    @endphp
+                    <li class="nav-item {{ $isPeopleActive ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ $isPeopleActive ? 'active' : '' }}">
+                            <i class="nav-icon bi bi-people-fill"></i>
+                            <p>
+                                إدارة الحسابات والطلاب
+                                <i class="nav-arrow bi bi-chevron-right"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
 
+                            <li class="nav-item">
+                                <a href="{{ route('user.index') }}"
+                                    class="nav-link {{ request()->routeIs('user.*') ? 'active' : '' }}">
+                                    <i
+                                        class="nav-icon bi {{ request()->routeIs('user.*') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
+                                    <p>المستخدمين (المحفظين)</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('student.index') }}"
+                                    class="nav-link {{ request()->routeIs('student.*') ? 'active' : '' }}">
+                                    <i
+                                        class="nav-icon bi {{ request()->routeIs('student.*') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
+                                    <p>الطلاب</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif
+
+                {{-- القسم الأول: الحلقات والبرامج التعليمية --}}
                 @php
-                    $isEduActive =
-                        request()->routeIs('group.*') ||
-                        request()->routeIs('student.*') ||
-                        request()->routeIs('user.*') ||
-                        request()->routeIs('quran_tests.*');
+                    $isEduActive = request()->routeIs('group.*') || request()->routeIs('quran_tests.*');
                 @endphp
                 <li class="nav-item {{ $isEduActive ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ $isEduActive ? 'active' : '' }}">
@@ -46,23 +110,6 @@
                         </li>
                         @if (auth()->user()->is_admin == 1 || auth()->user()->is_admin_rouls == 1)
                             <li class="nav-item">
-                                <a href="{{ route('student.index') }}"
-                                    class="nav-link {{ request()->routeIs('student.*') ? 'active' : '' }}">
-                                    <i
-                                        class="nav-icon bi {{ request()->routeIs('student.*') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
-                                    <p>الطلاب</p>
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a href="{{ route('user.index') }}"
-                                    class="nav-link {{ request()->routeIs('user.*') ? 'active' : '' }}">
-                                    <i
-                                        class="nav-icon bi {{ request()->routeIs('user.*') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
-                                    <p>المستخدمين</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
                                 <a href="{{ route('quran_tests.index') }}"
                                     class="nav-link {{ request()->routeIs('quran_tests.*') ? 'active' : '' }}">
                                     <i
@@ -74,6 +121,8 @@
                     </ul>
                 </li>
 
+
+                {{-- متابعة الحضور --}}
                 @php
                     $isAttendanceActive =
                         request()->routeIs('attendance.*') || request()->routeIs('teachers.attendance');
@@ -108,6 +157,7 @@
                     </ul>
                 </li>
 
+                {{-- التقارير --}}
                 @php
                     $isReportsActive = request()->routeIs('reports.*');
                 @endphp
@@ -155,7 +205,7 @@
                     </ul>
                 </li>
 
-
+                {{-- إعدادات الإدارة --}}
                 @if (auth()->user()->is_admin == 1 || auth()->user()->is_admin_rouls == 1)
                     @php
                         $isAdminSettingsActive = request()->routeIs('courses.*') || request()->routeIs('category.*');
@@ -169,7 +219,6 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
-
                             <li class="nav-item">
                                 <a href="{{ route('courses.index') }}"
                                     class="nav-link {{ request()->routeIs('courses.*') ? 'active' : '' }}">
@@ -189,9 +238,10 @@
                         </ul>
                     </li>
                 @endif
+
                 <li class="nav-item">
                     <a href="{{ route('parent.login') }}"
-                    class="nav-link {{ request()->routeIs('parent.login') || request()->routeIs('parents.index') ? 'active' : '' }}">
+                        class="nav-link {{ request()->routeIs('parent.login') || request()->routeIs('parents.index') ? 'active' : '' }}">
                         <i class="nav-icon bi bi-people"></i>
                         <p>ولي الأمر</p>
                     </a>
@@ -205,5 +255,4 @@
             إصدار النظام: <span>{{ config('app.version', '1.0.0') }}</span>
         </small>
     </div>
-
 </aside>
