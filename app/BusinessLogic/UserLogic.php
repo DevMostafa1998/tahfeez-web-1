@@ -58,7 +58,7 @@ class UserLogic
 
     public function updateUser($user, $data)
     {
-        // 1. تجهيز مصفوفة البيانات الأساسية
+        //  تجهيز مصفوفة البيانات الأساسية
         $updateData = [
             'full_name'       => $data['full_name'] ?? $user->full_name,
             'id_number'       => $data['id_number'] ?? $user->id_number,
@@ -78,7 +78,7 @@ class UserLogic
             'gender'          => $data['gender'] ?? $user->gender,
         ];
 
-        // 2. تحديث كلمة المرور فقط في حال تم إدخالها
+        //  تحديث كلمة المرور فقط في حال تم إدخالها
         if (!empty($data['password'])) {
             $updateData['password'] = Hash::make($data['password']);
         }
@@ -134,7 +134,7 @@ class UserLogic
             1 => 'id_number',
             2 => 'phone_number',
             3 => 'gender',
-            4 => 'category_id', // ربط التصنيف بمعرفه
+            4 => 'category_id',
             5 => 'is_admin'
         ];
 
@@ -183,7 +183,6 @@ class UserLogic
         ]);
     }
 
-    // دوال مساعدة لتنسيق HTML داخل الـ Logic (للحفاظ على نظافة الكود)
     private function renderGenderBadge($user)
     {
         if ($user->gender == 'male' || $user->gender == 'ذكر') {
@@ -212,24 +211,44 @@ class UserLogic
 
     private function renderActions($user)
     {
-        $btns = '<div class="d-flex justify-content-center gap-2">';
+        $btns = '<div style="display: grid; grid-template-columns: repeat(4, 35px); justify-content: center; gap: 5px;">';
 
-        // زر الدورات
+        // 1. زر الدورات
+        $btns .= '<div>';
         if (!$user->is_admin) {
             $btns .= '<button class="btn btn-sm btn-outline-info rounded-circle action-btn course-btn"
-                    data-user-id="' . $user->id . '" data-user-name="' . $user->full_name . '"
-                    data-user-courses="' . json_encode($user->courses->pluck('id')) . '"><i class="bi bi-journal-plus"></i></button>';
+                data-user-id="' . $user->id . '" data-user-name="' . $user->full_name . '"
+                data-user-courses="' . json_encode($user->courses->pluck('id')) . '" title="إدارة الدورات">
+                <i class="bi bi-journal-plus"></i></button>';
         }
+        $btns .= '</div>';
 
-        // زر العرض
-        $btns .= '<a href="' . route('teachers.show', $user->id) . '" class="btn btn-sm btn-outline-primary rounded-circle action-btn"><i class="bi bi-eye"></i></a>';
+        // 2. زر العرض
+        $btns .= '<div class="position-relative">';
+        $btns .= '<a href="' . route('teachers.show', $user->id) . '" class="btn btn-sm btn-outline-primary rounded-circle action-btn" title="عرض الملف">
+        <i class="bi bi-eye"></i></a>';
 
-        // زر التعديل والحذف
+        if ($user->id == 1) {
+            $btns .= '<i class="bi bi-lock-fill text-secondary"
+                style="position: absolute; top: -5px; right: -5px; font-size: 0.7rem; background: white; border-radius: 50%; padding: 1px;"></i>';
+        }
+        $btns .= '</div>';
+
+        // 3. زر التعديل
+        $btns .= '<div>';
         if ($user->id !== 1) {
-            // ملاحظة: التعديل عبر المودال يتطلب آلية Dynamic Modal أو استخدام صفحة Edit منفصلة
-            $btns .= '<button type="button" onclick="editUser(' . $user->id . ')" class="btn btn-sm btn-outline-warning rounded-circle action-btn"><i class="bi bi-pencil-square"></i></button>';
-            $btns .= '<button type="button" onclick="confirmDelete(' . $user->id . ')" class="btn btn-sm btn-outline-danger rounded-circle action-btn"><i class="bi bi-trash3"></i></button>';
+            $btns .= '<button type="button" onclick="editUser(' . $user->id . ')" class="btn btn-sm btn-outline-warning rounded-circle action-btn" title="تعديل">
+                <i class="bi bi-pencil-square"></i></button>';
         }
+        $btns .= '</div>';
+
+        // 4. زر الحذف
+        $btns .= '<div>';
+        if ($user->id !== 1) {
+            $btns .= '<button type="button" onclick="confirmDelete(' . $user->id . ')" class="btn btn-sm btn-outline-danger rounded-circle action-btn" title="حذف">
+                <i class="bi bi-trash3"></i></button>';
+        }
+        $btns .= '</div>';
 
         $btns .= '</div>';
         return $btns;
