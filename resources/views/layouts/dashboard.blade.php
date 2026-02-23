@@ -151,7 +151,14 @@
         </div>
     </div>
 @endsection
-
+@push('ramadan')
+    <div class="ramadan-lantern lantern-right">
+        <img src="{{ asset('assets/img/ramadan.png') }}" alt="فانوس">
+    </div>
+    <div class="ramadan-lantern lantern-left">
+        <img src="{{ asset('assets/img/ramadan.png') }}" alt="فانوس">
+    </div>
+@endpush
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>

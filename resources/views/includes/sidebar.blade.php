@@ -136,14 +136,7 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="{{ route('attendance.index') }}"
-                                class="nav-link {{ request()->routeIs('attendance.*') ? 'active' : '' }}">
-                                <i
-                                    class="nav-icon bi {{ request()->routeIs('attendance.*') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
-                                <p>حضور الطلاب</p>
-                            </a>
-                        </li>
+
                         @if (auth()->user()->is_admin == 1 || auth()->user()->is_admin_rouls == 1)
                             <li class="nav-item">
                                 <a href="{{ route('teachers.attendance') }}"
@@ -154,6 +147,14 @@
                                 </a>
                             </li>
                         @endif
+                        <li class="nav-item">
+                            <a href="{{ route('attendance.index') }}"
+                                class="nav-link {{ request()->routeIs('attendance.*') ? 'active' : '' }}">
+                                <i
+                                    class="nav-icon bi {{ request()->routeIs('attendance.*') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
+                                <p>حضور الطلاب</p>
+                            </a>
+                        </li>
                     </ul>
                 </li>
 
@@ -171,11 +172,11 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="{{ route('reports.memorization') }}"
-                                class="nav-link {{ request()->routeIs('reports.memorization') ? 'active' : '' }}">
+                            <a href="{{ route('reports.teachers_courses') }}"
+                                class="nav-link {{ request()->routeIs('reports.teachers_courses') ? 'active' : '' }}">
                                 <i
-                                    class="nav-icon bi {{ request()->routeIs('reports.memorization') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
-                                <p>تقرير التسميع</p>
+                                    class="nav-icon bi {{ request()->routeIs('reports.teachers_courses') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
+                                <p>تقرير المحفظين</p>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -187,19 +188,19 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="{{ route('reports.memorization') }}"
+                                class="nav-link {{ request()->routeIs('reports.memorization') ? 'active' : '' }}">
+                                <i
+                                    class="nav-icon bi {{ request()->routeIs('reports.memorization') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
+                                <p>تقرير التسميع</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="{{ route('reports.attendance') }}"
                                 class="nav-link {{ request()->routeIs('reports.attendance') ? 'active' : '' }}">
                                 <i
                                     class="nav-icon bi {{ request()->routeIs('reports.attendance') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
                                 <p>تقرير الحضور للطلاب</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('reports.teachers_courses') }}"
-                                class="nav-link {{ request()->routeIs('reports.teachers_courses') ? 'active' : '' }}">
-                                <i
-                                    class="nav-icon bi {{ request()->routeIs('reports.teachers_courses') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
-                                <p>تقرير بيانات المحفظين</p>
                             </a>
                         </li>
                     </ul>
