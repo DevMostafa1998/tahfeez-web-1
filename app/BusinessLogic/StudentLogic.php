@@ -4,7 +4,7 @@ namespace App\BusinessLogic;
 
 use App\Models\Student;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\DB;
 class StudentLogic
 {
 
@@ -126,13 +126,13 @@ class StudentLogic
         $user = Auth::user();
         $isAdmin = $user->is_admin == 1;
 
-        $query = \Illuminate\Support\Facades\DB::table('student')
+        $query = DB::table('student')
             ->select('student.*')
             ->addSelect([
-                'courses_count' => \Illuminate\Support\Facades\DB::table('course_student')
+                'courses_count' => DB::table('course_student')
                     ->whereColumn('student_id', 'student.id')
                     ->selectRaw('count(*)'),
-                'course_ids' => \Illuminate\Support\Facades\DB::table('course_student')
+                'course_ids' => DB::table('course_student')
                     ->whereColumn('student_id', 'student.id')
                     ->selectRaw("GROUP_CONCAT(course_id)")
             ])
@@ -149,7 +149,7 @@ class StudentLogic
         // فلتر "لم يسمعوا اليوم"
         if ($request->filter == 'not_memorized_today') {
             $today = \Carbon\Carbon::today();
-            $who_memorized = \Illuminate\Support\Facades\DB::table('student_daily_memorizations')
+            $who_memorized = DB::table('student_daily_memorizations')
                 ->whereDate('date', $today)
                 ->pluck('student_id');
 

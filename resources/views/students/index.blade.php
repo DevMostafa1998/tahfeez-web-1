@@ -240,7 +240,6 @@
                         <tbody></tbody>
                     </table>
 
-                    {{-- ضع المودال خارج الحلقة (أخرجناه من الـ foreach) --}}
                     @include('students.edit_modal_unified')
                 </div>
             </div>

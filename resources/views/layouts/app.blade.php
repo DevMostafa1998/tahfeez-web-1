@@ -142,55 +142,6 @@
             padding: 8px 12px !important;
             font-size: 0.9rem !important;
         }
-
-        /* --- كود فانوس رمضان --- */
-        .ramadan-lantern {
-            position: fixed;
-            top: -5px;
-            z-index: 9999;
-            pointer-events: none;
-        }
-
-        .lantern-right {
-            right: 35%;
-        }
-
-        .lantern-left {
-            left: 30%;
-        }
-
-        .ramadan-lantern img {
-            width: 70px;
-
-            transform-origin: top center;
-            animation: swing 3.5s infinite ease-in-out;
-            filter: drop-shadow(0px 10px 20px rgba(255, 215, 0, 0.4));
-
-        }
-
-        .lantern-left img {
-            animation-delay: -1.7s;
-        }
-
-        @keyframes swing {
-            0% {
-                transform: rotate(20deg);
-            }
-
-            50% {
-                transform: rotate(-20deg);
-            }
-
-            100% {
-                transform: rotate(20deg);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .ramadan-lantern img {
-                width: 50px;
-            }
-        }
     </style>
 </head>
 
@@ -238,7 +189,6 @@
     </script>
 
     @stack('scripts')
-    @stack('ramadan')
 
 </body>
 
