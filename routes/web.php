@@ -20,11 +20,15 @@ use App\Http\Controllers\{
     QuranMemTestController,
     ReportController,
     StudentReportController,
-    ParentController
+    ParentController,
+    StudentPublicController
 };
 
 // --- الراوتات العامة ---
 Route::get('/', fn() => Auth::check() ? redirect()->route('dashboard') : redirect()->route('login'));
+Route::get('/student_public', [StudentPublicController::class, 'index'])->name('student_public.index');
+Route::post('/student_public', [StudentPublicController::class, 'store'])->name('student_public.store');
+
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
