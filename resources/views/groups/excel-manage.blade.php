@@ -77,5 +77,21 @@
     });
 </script>
 @endif
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const autoExportCheckbox = document.getElementById("autoExport");
 
+    const savedStatus = localStorage.getItem("autoExportStatus");
+
+    if (savedStatus === "true") {
+        autoExportCheckbox.checked = true;
+    } else if (savedStatus === "false") {
+        autoExportCheckbox.checked = false;
+    } 
+
+    autoExportCheckbox.addEventListener("change", function() {
+        localStorage.setItem("autoExportStatus", autoExportCheckbox.checked);
+    });
+});
+</script>
 @endsection
