@@ -21,14 +21,23 @@ use App\Http\Controllers\{
     ReportController,
     StudentReportController,
     ParentController,
-    StudentPublicController
+    StudentPublicController,
+    ExcelExportImportController
 };
+
 
 // --- الراوتات العامة ---
 Route::get('/', fn() => Auth::check() ? redirect()->route('dashboard') : redirect()->route('login'));
 Route::get('/student_public', [StudentPublicController::class, 'index'])->name('student_public.index');
 Route::post('/student_public', [StudentPublicController::class, 'store'])->name('student_public.store');
+Route::prefix('excel-manage')->group(function () {
 
+Route::get('/{groupId}', [ExcelExportImportController::class, 'showExcelPage'])->name('excel.manage.page');
+
+    // عمليات التصدير والاستيراد
+    Route::get('/export/{groupId}', [ExcelExportImportController::class, 'exportExcel'])->name('excel.export');
+    Route::post('/import', [ExcelExportImportController::class, 'importExcel'])->name('excel.import');
+});
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

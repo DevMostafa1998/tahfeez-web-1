@@ -83,17 +83,21 @@ class GroupLogic
     /**
      * جلب تفاصيل مجموعة معينة مع طلابها
      */
-    public function getGroupDetails($id)
-    {
-        $group = Group::with('teacher')->findOrFail($id);
-        $students = $group->students()
-            ->with('latestMemorization')
-            ->get();
+
+public function getGroupDetails($id)
+{
+    $group = Group::with('teacher')->findOrFail($id);
+
+    $students = $group->students()
+        ->with(['latestMemorization']) 
+        ->get();
+
         $surahs = DB::table('surahs')->orderBy('number')->get();
-        return [
-            'group' => $group,
-            'students' => $students,
-            'surahs' => $surahs
-        ];
-    }
+
+    return [
+        'group'    => $group,
+        'students' => $students,
+        'surahs'   => $surahs
+    ];
+}
 }
