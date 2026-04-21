@@ -76,6 +76,10 @@ class Student extends Model
     return $this->hasOne(StudentDailyMemorization::class, 'student_id')->ofMany(['date' => 'max','id' => 'max',]);
                                        
 }
+public function memorizations()
+{
+    return $this->hasMany(StudentDailyMemorization::class, 'student_id');
+}
     public function quranTests()
     {
         return $this->hasMany(QuranMemTest::class, 'studentId');

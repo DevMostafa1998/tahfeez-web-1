@@ -89,7 +89,7 @@ public function getGroupDetails($id)
     $group = Group::with('teacher')->findOrFail($id);
 
     $students = $group->students()
-        ->with(['latestMemorization']) 
+        ->with(['latestMemorization', 'memorizations']) 
         ->get();
 
         $surahs = DB::table('surahs')->orderBy('number')->get();
