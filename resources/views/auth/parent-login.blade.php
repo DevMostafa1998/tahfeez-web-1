@@ -47,7 +47,10 @@
                         <a href="{{ route('login') }}" class="btn btn-link btn-sm text-muted text-decoration-none">
                             <i class="bi bi-arrow-right"></i> العودة لتسجيل الدخول الرئيسية
                         </a>
-
+                        
+                        <button type="button" class="btn btn-secondary mt-2" onclick="window.location.href='{{ url('/student_public') }}'">
+                            <i class="bi bi-house-door"></i> تسجيل طالب جديد
+                        </button>
 
                     </div>
                 </form>

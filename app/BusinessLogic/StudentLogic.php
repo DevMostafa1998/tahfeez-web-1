@@ -240,4 +240,38 @@ class StudentLogic
 
         return $student->delete();
     }
+
+
+
+    public function storeStudentPublic(array $data)
+    {
+        $studentData = [
+            'full_name'       => $data['full_name'],
+            'id_number'       => $data['id_number'],
+            'date_of_birth'   => $data['date_of_birth'],
+            'phone_number'    => $data['phone_number'],
+            'address'         => $data['address'],
+            'is_displaced'    => $data['is_displaced'],
+            'user_id'         => $data['user_id'],
+            'creation_by'     => 1,
+            'birth_place'     => $data['birth_place'] ?? null,
+            'center_name'     => $data['center_name'] ?? null,
+            'mosque_name'     => $data['mosque_name'] ?? null,
+            'mosque_address'  => $data['mosque_address'] ?? null,
+            'whatsapp_number' => $data['whatsapp_number'] ?? null,
+            'gender' => $data['gender'],
+        ];
+
+        $student = Student::create($studentData);
+
+        if (!empty($data['group_id'])) {
+            $student->groups()->attach($data['group_id']);
+        }
+
+        if (isset($data['courses']) && is_array($data['courses'])) {
+            $student->courses()->attach($data['courses']);
+        }
+
+        return $student;
+    }
 }

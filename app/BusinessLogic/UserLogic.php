@@ -253,4 +253,9 @@ class UserLogic
         $btns .= '</div>';
         return $btns;
     }
+
+    public function getAllTeachers()
+    {
+        return User::where('is_admin', false)->get();
+    }
 }
