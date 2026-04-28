@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('attendances', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('student_id')->constrained('student')->onDelete('cascade');
-        $table->date('attendance_date');
-        $table->enum('status', ['حاضر', 'غائب', 'مستأذن']);
-        $table->string('notes')->nullable();
-        $table->string('recorded_by'); 
-        $table->timestamps();
-    });
+            $table->id();
+            $table->foreignId('student_id')->constrained('student')->onDelete('cascade');
+            $table->date('attendance_date');
+            $table->enum('status', ['حاضر', 'غائب', 'مستأذن']);
+            $table->string('notes')->nullable();
+            $table->string('recorded_by');
+            $table->timestamps();
+        });
     }
 
     /**
