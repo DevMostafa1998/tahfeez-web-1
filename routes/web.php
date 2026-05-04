@@ -30,6 +30,7 @@ use App\Http\Controllers\{
 Route::get('/', fn() => Auth::check() ? redirect()->route('dashboard') : redirect()->route('login'));
 Route::get('/student_public', [StudentPublicController::class, 'index'])->name('student_public.index');
 Route::post('/student_public', [StudentPublicController::class, 'store'])->name('student_public.store');
+Route::get('user/restore/{id}', [App\Http\Controllers\UserController::class, 'restore'])->name('user.restore');
 Route::prefix('excel-manage')->group(function () {
 
 Route::get('/{groupId}', [ExcelExportImportController::class, 'showExcelPage'])->name('excel.manage.page');

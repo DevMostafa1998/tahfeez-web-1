@@ -26,7 +26,7 @@ class StudentsHifzExport implements FromCollection, WithHeadings, WithMapping, S
 
     public function headings(): array
     {
-        return ['رقم_الطالب_المخفي', 'اسم الطالب', 'التاريخ', 'اسم السورة', 'من آية', 'إلى آية', 'ملاحظات المعلم'];
+        return ['رقم_الطالب', 'اسم الطالب', 'التاريخ', 'اسم السورة', 'من آية', 'إلى آية', 'ملاحظات المعلم'];
     }
 
     public function map($student): array
@@ -39,27 +39,27 @@ class StudentsHifzExport implements FromCollection, WithHeadings, WithMapping, S
     return [
         AfterSheet::class => function(AfterSheet $event) {
             $sheet = $event->sheet->getDelegate();
-            
+
             $dateRange = 'C2:C200';
             $surahRange = 'D2:D200';
 
             $sheet->getStyle($dateRange)->getNumberFormat()->setFormatCode('dd-mm-yyyy');
 
             $dateValidation = $sheet->getDataValidation($dateRange);
-            
+
             $dateValidation->setType(DataValidation::TYPE_TEXTLENGTH);
-            
+
             $dateValidation->setErrorStyle(DataValidation::STYLE_STOP);
-            
+
             $dateValidation->setAllowBlank(true);
             $dateValidation->setShowInputMessage(true);
             $dateValidation->setShowErrorMessage(true);
-            
+
             $dateValidation->setFormula1('=ISNUMBER(C2)');
-            
+
             $dateValidation->setErrorTitle('خطأ في الإدخال');
             $dateValidation->setError('يمنع كتابة الحروف هنا! يرجى إدخال التاريخ بالأرقام فقط (مثال: 21-04-2026)');
-            
+
             $dateValidation->setPromptTitle('تنسيق التاريخ');
             $dateValidation->setPrompt('أدخل التاريخ بالأرقام (يوم-شهر-سنة)');
 

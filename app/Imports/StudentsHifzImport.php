@@ -3,7 +3,7 @@
 namespace App\Imports;
 
 use App\Models\StudentDailyMemorization;
-use App\Models\StudentAttendance; 
+use App\Models\StudentAttendance;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Carbon\Carbon;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
@@ -13,13 +13,13 @@ class StudentsHifzImport implements ToModel
 {
     public function model(array $row)
     {
-        if ($row[0] == 'رقم_الطالب_المخفي' || empty($row[0])) {
+        if ($row[0] == 'رقم_الطالب' || empty($row[0])) {
             return null;
         }
 
-        $attendanceDate = $this->transformDate($row[2]); 
+        $attendanceDate = $this->transformDate($row[2]);
 
-        $hasMemorized = !empty($row[3]); 
+        $hasMemorized = !empty($row[3]);
         $status = $hasMemorized ? 'حاضر' : 'غائب';
 
         StudentAttendance::updateOrCreate(
@@ -29,7 +29,7 @@ class StudentsHifzImport implements ToModel
             ],
             [
                 'status'          => $status,
-                'recorded_by'     => Auth::id(), 
+                'recorded_by'     => Auth::id(),
                 'notes'           => $row[6] ?? 'تم التسجيل تلقائياً عبر رفع الملف',
             ]
         );
