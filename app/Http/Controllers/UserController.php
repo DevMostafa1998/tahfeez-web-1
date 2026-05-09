@@ -69,11 +69,7 @@ class UserController extends Controller
 
         return view('profile.edit', compact('user', 'categories', 'all_courses'));
     }
-    public function restore($id)
-    {
-        $this->userLogic->restoreUser($id);
-        return redirect()->route('user.index')->with('success', 'تم استعادة المستخدم بنجاح');
-    }
+
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
@@ -102,7 +98,16 @@ class UserController extends Controller
         $this->userLogic->updateUser($user, $data);
         return redirect()->route('user.index')->with('success', 'تم تحديث البيانات بنجاح');
     }
+    public function restore($id)
+    {
+        $restored = $this->userLogic->restoreUser($id);
 
+        if ($restored) {
+            return redirect()->back()->with('success', 'تم استعادة المحفظ بنجاح');
+        }
+
+        return redirect()->back()->with('error', 'حدث خطأ أثناء محاولة الاستعادة');
+    }
     public function destroy($id)
     {
         if ($id == 1) {

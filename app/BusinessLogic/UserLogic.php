@@ -22,7 +22,6 @@ class UserLogic
         $isAdminMain = (isset($data['is_admin']) && ($data['is_admin'] == '1' || $data['is_admin'] == 'مسؤول')) ? true : false;
 
         $isAdminRouls = null;
-
         if (!$isAdminMain) {
             $isAdminRouls = isset($data['is_admin_rouls']) ? true : false;
         }
@@ -36,7 +35,6 @@ class UserLogic
             'category_id'   => $data['category_id'],
             'is_admin'      => $isAdminMain,
             'is_admin_rouls' => $isAdminRouls,
-            'creation_by'   => Auth::user()->full_name ?? 'System',
             'creation_by'   => Auth::user()->full_name ?? 'System',
             'birth_place'     => $data['birth_place'] ?? null,
             'wallet_number'   => $data['wallet_number'] ?? null,
@@ -58,7 +56,6 @@ class UserLogic
 
     public function updateUser($user, $data)
     {
-        //  تجهيز مصفوفة البيانات الأساسية
         $updateData = [
             'full_name'       => $data['full_name'] ?? $user->full_name,
             'id_number'       => $data['id_number'] ?? $user->id_number,
@@ -78,7 +75,6 @@ class UserLogic
             'gender'          => $data['gender'] ?? $user->gender,
         ];
 
-        //  تحديث كلمة المرور فقط في حال تم إدخالها
         if (!empty($data['password'])) {
             $updateData['password'] = Hash::make($data['password']);
         }
@@ -95,11 +91,6 @@ class UserLogic
         }
 
         $user->update($updateData);
-        if (isset($data['update_courses_only'])) {
-            $courses = $data['courses'] ?? [];
-            $user->courses()->sync($courses);
-            return $user;
-        }
         if (isset($data['courses'])) {
             $user->courses()->sync($data['courses']);
         }
@@ -111,13 +102,18 @@ class UserLogic
     {
         if ($user->id === 1) {
             return false;
-            abort(403, 'لا يمكن حذف الحساب الرئيسي للمنظومة');
         }
         $user->deleted_by = Auth::user()->full_name ?? 'System';
         $user->save();
         return $user->delete();
     }
-    // UserLogic.php
+
+    // دالة استعادة المستخدم
+    public function restoreUser($id)
+    {
+        $user = User::withTrashed()->find($id);
+        return $user ? $user->restore() : false;
+    }
 
     public function getUsersForDataTable($request)
     {
@@ -126,28 +122,14 @@ class UserLogic
         $length = $request->get('length');
         $search = $request->get('search')['value'];
 
-        // فحص إذا كان المطلوب هو الأرشيف
-        $isArchived = $request->get('archived') === 'true';
+        // حالة الأرشيف
+        $showArchived = $request->get('archived') === 'true';
 
-        $columns = [
-            0 => 'full_name',
-            1 => 'id_number',
-            2 => 'phone_number',
-            3 => 'gender',
-            4 => 'category_id',
-            5 => 'is_admin'
-        ];
+        $query = $showArchived ? User::onlyTrashed() : User::query();
+        $query->with(['courses', 'category']);
 
-        // تعديل الاستعلام ليشمل المحذوفين إذا طلب الأرشيف
-        $query = User::with(['courses', 'category']);
+        $totalRecords = $showArchived ? User::onlyTrashed()->count() : User::count();
 
-        if ($isArchived) {
-            $query->onlyTrashed(); // جلب المحذوفين فقط (deleted_at is not null)
-        }
-
-        $totalRecords = $isArchived ? User::onlyTrashed()->count() : User::count();
-
-        // منطق البحث
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('full_name', 'like', "%$search%")
@@ -156,12 +138,16 @@ class UserLogic
             });
         }
 
-        $orderColumnIndex = $request->get('order')[0]['column'] ?? 0;
-        $orderDirection = $request->get('order')[0]['dir'] ?? 'desc';
-        $orderBy = $columns[$orderColumnIndex] ?? 'id';
-        $query->orderBy($orderBy, $orderDirection);
+        if ($request->has('order')) {
+            $columns = [0 => 'full_name', 1 => 'id_number', 2 => 'phone_number', 3 => 'gender', 4 => 'category_id', 5 => 'is_admin'];
+            $orderColumnIndex = $request->get('order')[0]['column'] ?? 0;
+            $orderDirection = $request->get('order')[0]['dir'] ?? 'desc';
+            $orderBy = $columns[$orderColumnIndex] ?? 'id';
+            $query->orderBy($orderBy, $orderDirection);
+        }
 
         $filteredRecords = $query->count();
+
         $users = $query->skip($start)->take($length)->get();
 
         $data = [];
@@ -174,7 +160,7 @@ class UserLogic
                 'category' => $user->category->name ?? '---',
                 'role' => $this->renderRoleBadge($user),
                 'courses_count' => (!$user->is_admin) ? '<span class="badge bg-warning text-dark rounded-pill px-3">' . $user->courses->count() . ' دورات</span>' : '--',
-                'actions' => $isArchived ? $this->renderRestoreActions($user) : $this->renderActions($user)
+                'actions' => $this->renderActions($user, $showArchived)
             ];
         }
 
@@ -184,13 +170,6 @@ class UserLogic
             "recordsFiltered" => $filteredRecords,
             "data" => $data
         ]);
-    }
-
-    private function renderRestoreActions($user)
-    {
-        return '<button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="restoreUser(' . $user->id . ')">
-                    <i class="bi bi-arrow-counterclockwise"></i> استعادة
-                </button>';
     }
 
     private function renderGenderBadge($user)
@@ -203,6 +182,7 @@ class UserLogic
 
     private function renderRoleBadge($user)
     {
+        // تم إرجاع الألوان والمسميات كما كانت في كودك الأصلي تماماً
         $bgColor = $user->is_admin ? 'bg-primary' : 'bg-success';
 
         $html = '<span class="badge rounded-pill ' . $bgColor . ' px-3 py-1" style="font-size: 0.85rem;">';
@@ -219,8 +199,17 @@ class UserLogic
         return $html;
     }
 
-    private function renderActions($user)
+    private function renderActions($user, $isArchived)
     {
+        // إذا كان في الأرشيف نعرض زر الاستعادة فقط
+        if ($isArchived) {
+            return '<div class="d-flex justify-content-center">
+                        <button onclick="restoreUser(' . $user->id . ')" class="btn btn-sm btn-outline-success rounded-pill px-3" title="استعادة">
+                             <i class="bi bi-arrow-counterclockwise"></i> استعادة
+                        </button>
+                    </div>';
+        }
+
         $btns = '<div style="display: grid; grid-template-columns: repeat(4, 35px); justify-content: center; gap: 5px;">';
 
         // 1. زر الدورات
@@ -228,7 +217,7 @@ class UserLogic
         if (!$user->is_admin) {
             $btns .= '<button class="btn btn-sm btn-outline-info rounded-circle action-btn course-btn"
                 data-user-id="' . $user->id . '" data-user-name="' . $user->full_name . '"
-                data-user-courses="' . json_encode($user->courses->pluck('id')) . '" title="إدارة الدورات">
+                data-user-courses=\'' . json_encode($user->courses->pluck('id')) . '\' title="إدارة الدورات">
                 <i class="bi bi-journal-plus"></i></button>';
         }
         $btns .= '</div>';
@@ -263,11 +252,7 @@ class UserLogic
         $btns .= '</div>';
         return $btns;
     }
-    public function restoreUser($id)
-    {
-        $user = User::withTrashed()->findOrFail($id);
-        return $user->restore();
-    }
+
     public function getAllTeachers()
     {
         return User::where('is_admin', false)->get();
