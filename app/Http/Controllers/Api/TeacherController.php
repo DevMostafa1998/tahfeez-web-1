@@ -8,14 +8,19 @@ use Illuminate\Support\Facades\DB;
 
 class TeacherController extends Controller
 {
-    /**
-     * جلب بيانات المعلم والمجموعات والطلاب التابعين له
-     */
+
     public function getTeacherData(Request $request)
     {
         $user = $request->user();
 
-        $data = $user->groups()->with('students:id,full_name,id_number')->get()->map(function ($group) {
+        if ($user->is_admin) {
+
+            $groupsQuery = \App\Models\Group::with('students:id,full_name,id_number');
+        } else {
+            $groupsQuery = $user->groups()->with('students:id,full_name,id_number');
+        }
+
+        $data = $groupsQuery->get()->map(function ($group) {
             return [
                 'id' => $group->id,
                 'name' => $group->GroupName,
@@ -28,7 +33,6 @@ class TeacherController extends Controller
             'data' => $data
         ]);
     }
-
     /**
      * استقبال بيانات التسميع القادمة من التطبيق ومزامنتها
      * تدعم هذه الدالة إرسال مصفوفة من السجلات (Bulk Insert)

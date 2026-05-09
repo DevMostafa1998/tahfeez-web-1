@@ -69,7 +69,11 @@ class UserController extends Controller
 
         return view('profile.edit', compact('user', 'categories', 'all_courses'));
     }
-
+    public function restore($id)
+    {
+        $this->userLogic->restoreUser($id);
+        return redirect()->route('user.index')->with('success', 'تم استعادة المستخدم بنجاح');
+    }
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);

@@ -71,13 +71,39 @@
 
 @section('content')
     <div class="container-fluid p-4" dir="rtl">
-        <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <div class="page-header d-flex justify-content-between align-items-center mb-4" dir="ltr">
+            <div class="d-flex align-items-center">
+                <!-- زر إضافة مستخدم جديد -->
+                <a href="{{ route('user.create') }}" class="btn btn-primary px-4 fw-bold shadow-sm"
+                    style="border-radius: 10px;">
+                    <i class="bi bi-plus-lg ms-1"></i> مستخدم جديد
+                </a>
+
+                <!-- فاصل عمودي بسيط -->
+                <div class="mx-3 text-secondary opacity-25">|</div>
+
+                <!-- أزرار التبديل (الطلاب الحاليين والأرشيف) -->
+
+                <div class="d-flex gap-2">
+                    <button type="button" id="btn-archived" onclick="filterUsers(true)"
+                        class="btn btn-outline-danger px-3 fw-bold d-flex align-items-center shadow-sm"
+                        style="border-radius: 8px; background-color: white;">
+                        <i class="bi bi-trash ms-2"></i> الأرشيف
+                    </button>
+                    <button type="button" id="btn-active" onclick="filterUsers(false)"
+                        class="btn btn-primary px-3 fw-bold d-flex align-items-center shadow-sm"
+                        style="border-radius: 8px; border: 1px solid #0d6efd;">
+                        <i class="bi bi-people-fill ms-2"></i> المستخدمين الحاليين
+                    </button>
+
+
+                </div>
+            </div>
+
+            <!-- عنوان الصفحة -->
             <h1 class="h3 text-primary fw-bold mb-0">
-                <i class="bi bi-people-fill me-2"></i>إدارة المستخدمين
+                إدارة المستخدمين <i class="bi bi-people-fill me-2"></i>
             </h1>
-            <a href="{{ route('user.create') }}" class="btn btn-primary px-4 shadow-sm fw-bold rounded-pill">
-                <i class="bi bi-plus-lg ms-1"></i> مستخدم جديد
-            </a>
         </div>
 
         <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
@@ -154,11 +180,21 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        // متغير لتحديد حالة العرض الحالية (حاليين أم أرشيف)
+        let showArchived = false;
+
         $(document).ready(function() {
+            // تعريف الجدول
             var table = $('#usersTable').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('user.index') }}", // تأكد أن الـ Controller يتعامل مع طلب الـ Ajax
+                // تعديل الرابط ليرسل حالة الأرشيف في كل طلب
+                ajax: {
+                    url: "{{ route('user.index') }}",
+                    data: function(d) {
+                        d.archived = showArchived;
+                    }
+                },
                 columns: [{
                         data: 'full_name',
                         name: 'full_name'
@@ -220,6 +256,7 @@
                 }]
             });
 
+            // رسائل التنبيه بعد العمليات
             @if (session('success'))
                 Swal.fire({
                     icon: 'success',
@@ -241,11 +278,31 @@
             @endif
         });
 
+        /**
+         * وظيفة التبديل بين المستخدمين الحاليين والأرشيف
+         */
+        function filterUsers(isArchived) {
+            showArchived = isArchived;
 
+            // تحديث تنسيق الأزرار بصرياً لتوضيح الحالة المختارة
+            if (isArchived) {
+                $('#btn-archived').addClass('btn-danger text-white').removeClass('btn-outline-danger');
+                $('#btn-active').addClass('btn-outline-primary').removeClass('btn-primary text-white');
+            } else {
+                $('#btn-active').addClass('btn-primary text-white').removeClass('btn-outline-primary');
+                $('#btn-archived').addClass('btn-outline-danger').removeClass('btn-danger text-white');
+            }
+
+            // إعادة تحميل بيانات الجدول من السيرفر بناءً على الفلتر الجديد
+            $('#usersTable').DataTable().ajax.reload();
+        }
+
+        /**
+         * فتح مودال التعديل وجلب بيانات المستخدم
+         */
         function editUser(id) {
             $.get("{{ url('user') }}/" + id + "/edit-data", function(user) {
                 $('#editUserForm').attr('action', "{{ url('user') }}/" + id);
-
                 $('#edit_full_name').val(user.full_name);
                 $('#edit_id_number').val(user.id_number);
                 $('#edit_phone_number').val(user.phone_number);
@@ -266,7 +323,6 @@
                     $('#professional_section_wrapper').show();
                     $('#edit_is_admin').val("0");
                     $('#adminPrivilegeDiv').show();
-
                     $('#edit_whatsapp_number').val(user.whatsapp_number);
                     $('#edit_qualification').val(user.qualification);
                     $('#edit_specialization').val(user.specialization);
@@ -283,6 +339,9 @@
             });
         }
 
+        /**
+         * إدارة دورات المستخدم
+         */
         $(document).on('click', '.course-btn', function() {
             const userId = $(this).data('user-id');
             const userName = $(this).data('user-name');
@@ -300,15 +359,18 @@
             $('#courseUserModal').modal('show');
         });
 
+        /**
+         * تأكيد حذف المستخدم
+         */
         function confirmDelete(id) {
             Swal.fire({
                 title: 'هل أنت متأكد؟',
-                text: "سيتم حذف هذا المستخدم نهائياً من النظام!",
+                text: "سيتم نقل هذا المستخدم إلى الأرشيف!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#dc3545',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: 'نعم، احذف',
+                confirmButtonText: 'نعم، حذف',
                 cancelButtonText: 'تراجع',
                 reverseButtons: true
             }).then((result) => {
@@ -316,14 +378,32 @@
                     let form = document.createElement('form');
                     form.action = "{{ url('user') }}/" + id;
                     form.method = 'POST';
-                    form.innerHTML = `
-                        @csrf
-                        @method('DELETE')
-                    `;
+                    form.innerHTML = `@csrf @method('DELETE')`;
                     document.body.appendChild(form);
                     form.submit();
                 }
             });
         }
+
+        /**
+         * استعادة مستخدم محذوف من الأرشيف
+         */
+        function restoreUser(id) {
+            Swal.fire({
+                title: 'استعادة المستخدم؟',
+                text: "سيتم إعادة تفعيل حساب المستخدم وإخراجه من الأرشيف.",
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#198754',
+                confirmButtonText: 'نعم، استعادة',
+                cancelButtonText: 'إلغاء'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // ملاحظة: تأكد من إضافة Route مناسب لعملية الاستعادة في web.php
+                    window.location.href = "{{ url('user') }}/" + id + "/restore";
+                }
+            });
+        }
     </script>
+    ```[cite: 3]
 @endpush

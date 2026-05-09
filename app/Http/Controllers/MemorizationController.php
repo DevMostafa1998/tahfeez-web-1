@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\BusinessLogic\MemorizationLogic;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class MemorizationController extends Controller
 {
@@ -21,7 +22,58 @@ class MemorizationController extends Controller
     {
         //
     }
+    public function getAttendanceHistory(Request $request)
+    {
+        $request->validate([
+            'group_id' => 'required|integer',
+            'date' => 'required|date',
+        ]);
 
+        $user = $request->user();
+        $groupId = $request->group_id;
+        $date = $request->date;
+
+        // التحقق من صلاحية الوصول للمجموعة
+        if (!$user->is_admin) {
+            // التحقق من أن المجموعة تابعة للمعلم
+            $hasAccess = DB::table('group')
+                ->where('id', $groupId)
+                ->where('UserId', $user->id)
+                ->exists();
+
+            if (!$hasAccess) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'ليس لديك صلاحية لعرض هذه المجموعة'
+                ], 403);
+            }
+        }
+
+        // جلب الطلاب مع حالة الحضور
+        $students = DB::table('student')
+            ->join('student_group', 'student.id', '=', 'student_group.student_id')
+            ->leftJoin('student_attendances', function ($join) use ($date) {
+                $join->on('student.id', '=', 'student_attendances.student_id')
+                    ->where('student_attendances.attendance_date', '=', $date);
+            })
+            ->where('student_group.group_id', $groupId)
+            ->select(
+                'student.id',
+                'student.full_name',
+                'student_attendances.status',
+                'student_attendances.notes',
+                DB::raw("'synced' as sync_status")
+            )
+            ->orderBy('student.full_name', 'asc')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $students,
+            'date' => $date,
+            'group_id' => $groupId
+        ]);
+    }
     /**
      * Show the form for creating a new resource.
      */
@@ -59,34 +111,29 @@ class MemorizationController extends Controller
     {
         $data = $request->input('memorizations');
 
-        if (!is_array($data)) {
-            return response()->json(['error' => 'بيانات غير صالحة'], 400);
+        if (empty($data)) {
+            return response()->json(['error' => 'لا توجد بيانات'], 400);
         }
 
-        // جلب معرف المحفظ من التوكن (Sanctum)
         $teacherId = $request->user() ? $request->user()->id : null;
 
         try {
             DB::beginTransaction();
 
             foreach ($data as $item) {
-                // 1. تسجيل أو تحديث بيانات التسميع اليومي
-                DB::table('student_daily_memorizations')->updateOrInsert(
-                    [
-                        'student_id'  => $item['student_id'],
-                        'date'        => $item['recitation_date'],
-                        'sura_name'   => $item['surah_name'],
-                    ],
-                    [
-                        'verses_from' => $item['from_verse'],
-                        'verses_to'   => $item['to_verse'],
-                        'note'        => $item['notes'] ?? null,
-                        'created_at'  => now(),
-                        'updated_at'  => now(),
-                    ]
-                );
+                // للسماح بالتسميع أكثر من مرة للطالب
+                DB::table('student_daily_memorizations')->insert([
+                    'student_id'  => $item['student_id'],
+                    'date'        => $item['recitation_date'],
+                    'sura_name'   => $item['surah_name'],
+                    'verses_from' => $item['from_verse'],
+                    'verses_to'   => $item['to_verse'],
+                    'note'        => $item['notes'] ?? null,
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
+                ]);
 
-                // 2. تسجيل الحضور تلقائياً (جعل الحالة "حاضر")
+                // تسجيل الحضور أو تحديثه بناءً على تاريخ التسميع
                 DB::table('student_attendances')->updateOrInsert(
                     [
                         'student_id'      => $item['student_id'],
@@ -94,22 +141,18 @@ class MemorizationController extends Controller
                     ],
                     [
                         'status'      => 'حاضر',
-                        'recorded_by' => $teacherId, 
-                        'notes'       => 'تسجيل تلقائي (نظام التسميع)',
-                        'created_at'  => now(),
+                        'recorded_by' => $teacherId,
                         'updated_at'  => now(),
                     ]
                 );
             }
 
             DB::commit();
-            return response()->json(['success' => true, 'message' => 'تمت المزامنة وتسجيل الحضور بنجاح']);
+            return response()->json(['success' => true, 'message' => 'تم الحفظ بنجاح']);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'error' => 'فشلت المزامنة: ' . $e->getMessage()
-            ], 500);
+            Log::error('فشل المزامنة النهائي: ' . $e->getMessage());
+            return response()->json(['error' => 'حدث خطأ في قاعدة البيانات'], 500);
         }
     }
     public function getSurahs()
@@ -119,5 +162,36 @@ class MemorizationController extends Controller
             ->get();
 
         return response()->json(['data' => $surahs]);
+    }
+    // داخل كلاس MemorizationController في ملف MemorizationController.php
+
+    // Laravel: MemorizationController.php
+    public function syncAttendance(Request $request)
+    {
+        $data = $request->input('attendance');
+        $teacherId = $request->user()->id;
+
+        try {
+            DB::beginTransaction();
+            foreach ($data as $item) {
+                DB::table('student_attendances')->updateOrInsert(
+                    [
+                        'student_id'      => $item['student_id'],
+                        'attendance_date' => $item['attendance_date'],
+                    ],
+                    [
+                        'status'      => $item['status'],
+                        'notes'       => $item['notes'] ?? null,
+                        'recorded_by' => 'تطبيق الجوال يدوي',
+                        'updated_at'  => now(),
+                    ]
+                );
+            }
+            DB::commit();
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }

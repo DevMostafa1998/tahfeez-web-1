@@ -117,6 +117,8 @@ class UserLogic
         $user->save();
         return $user->delete();
     }
+    // UserLogic.php
+
     public function getUsersForDataTable($request)
     {
         $draw = $request->get('draw');
@@ -124,11 +126,9 @@ class UserLogic
         $length = $request->get('length');
         $search = $request->get('search')['value'];
 
-        // جلب معلومات الترتيب من الطلب
-        $orderColumnIndex = $request->get('order')[0]['column'] ?? 0;
-        $orderDirection = $request->get('order')[0]['dir'] ?? 'desc';
+        // فحص إذا كان المطلوب هو الأرشيف
+        $isArchived = $request->get('archived') === 'true';
 
-        // خريطة الأعمدة لربط كود الـ JavaScript بأسماء الحقول في قاعدة البيانات
         $columns = [
             0 => 'full_name',
             1 => 'id_number',
@@ -138,11 +138,16 @@ class UserLogic
             5 => 'is_admin'
         ];
 
+        // تعديل الاستعلام ليشمل المحذوفين إذا طلب الأرشيف
         $query = User::with(['courses', 'category']);
 
-        $totalRecords = User::count();
+        if ($isArchived) {
+            $query->onlyTrashed(); // جلب المحذوفين فقط (deleted_at is not null)
+        }
 
-        // 1. منطق البحث العام
+        $totalRecords = $isArchived ? User::onlyTrashed()->count() : User::count();
+
+        // منطق البحث
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('full_name', 'like', "%$search%")
@@ -151,15 +156,13 @@ class UserLogic
             });
         }
 
-        // 2. منطق الترتيب (Sorting) - هذا ما يحل مشكلة الأسهم في رأس الجدول
+        $orderColumnIndex = $request->get('order')[0]['column'] ?? 0;
+        $orderDirection = $request->get('order')[0]['dir'] ?? 'desc';
         $orderBy = $columns[$orderColumnIndex] ?? 'id';
         $query->orderBy($orderBy, $orderDirection);
 
         $filteredRecords = $query->count();
-
-        $users = $query->skip($start)
-            ->take($length)
-            ->get();
+        $users = $query->skip($start)->take($length)->get();
 
         $data = [];
         foreach ($users as $user) {
@@ -171,7 +174,7 @@ class UserLogic
                 'category' => $user->category->name ?? '---',
                 'role' => $this->renderRoleBadge($user),
                 'courses_count' => (!$user->is_admin) ? '<span class="badge bg-warning text-dark rounded-pill px-3">' . $user->courses->count() . ' دورات</span>' : '--',
-                'actions' => $this->renderActions($user)
+                'actions' => $isArchived ? $this->renderRestoreActions($user) : $this->renderActions($user)
             ];
         }
 
@@ -181,6 +184,13 @@ class UserLogic
             "recordsFiltered" => $filteredRecords,
             "data" => $data
         ]);
+    }
+
+    private function renderRestoreActions($user)
+    {
+        return '<button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="restoreUser(' . $user->id . ')">
+                    <i class="bi bi-arrow-counterclockwise"></i> استعادة
+                </button>';
     }
 
     private function renderGenderBadge($user)
@@ -253,7 +263,11 @@ class UserLogic
         $btns .= '</div>';
         return $btns;
     }
-
+    public function restoreUser($id)
+    {
+        $user = User::withTrashed()->findOrFail($id);
+        return $user->restore();
+    }
     public function getAllTeachers()
     {
         return User::where('is_admin', false)->get();

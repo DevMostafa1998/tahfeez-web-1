@@ -32,7 +32,7 @@ Route::get('/student_public', [StudentPublicController::class, 'index'])->name('
 Route::post('/student_public', [StudentPublicController::class, 'store'])->name('student_public.store');
 Route::prefix('excel-manage')->group(function () {
 
-Route::get('/{groupId}', [ExcelExportImportController::class, 'showExcelPage'])->name('excel.manage.page');
+    Route::get('/{groupId}', [ExcelExportImportController::class, 'showExcelPage'])->name('excel.manage.page');
 
     // عمليات التصدير والاستيراد
     Route::get('/export/{groupId}', [ExcelExportImportController::class, 'exportExcel'])->name('excel.export');
@@ -91,7 +91,7 @@ Route::middleware('auth')->group(function () {
         Route::get('users/export-excel', [UserController::class, 'exportFullExcel'])->name('user.export.excel');
         Route::get('student-restore/{id}', [StudentController::class, 'restore'])->name('student.restore.get');
         Route::post('student/{id}/restore', [StudentController::class, 'restore'])->name('student.restore');
-
+        Route::get('user/{id}/restore', [UserController::class, 'restore'])->name('user.restore');
         Route::resources([
             'user'         => UserController::class,
             'category'     => CategoryController::class,
