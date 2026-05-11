@@ -298,112 +298,107 @@
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div
-                                class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-2xl transition-all duration-300 hover:-translate-y-1 group">
-                                <div
-                                    class="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl shadow-sm transition-all duration-300 group-hover:bg-amber-500 group-hover:text-white group-hover:rotate-12">
-                                    <i class="fas fa-id-card"></i>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-slate-400 font-bold">رقم الهوية</p>
-                                    <p class="font-bold text-slate-700 font-mono">{{ $student->id_number }}</p>
-                                </div>
+                        <!-- رقم هوية الطالب -->
+                        <div class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-2xl transition-all duration-300 hover:-translate-y-1 group">
+                            <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl shadow-sm transition-all duration-300 group-hover:bg-amber-500 group-hover:text-white group-hover:rotate-12">
+                                <i class="fas fa-id-card"></i>
                             </div>
-
-                            <div
-                                class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-2xl transition-all duration-300 hover:-translate-y-1 group">
-                                <div
-                                    class="w-12 h-12 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center text-xl shadow-sm transition-all duration-300 group-hover:bg-rose-500 group-hover:text-white group-hover:rotate-12">
-                                    <i class="fas fa-venus-mars"></i>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-slate-400 font-bold">الجنس</p>
-                                    <p class="font-bold text-slate-700">
-                                        {{ $student->gender == 'male' ? 'ذكر' : 'أنثى' }}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div
-                                class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-2xl transition-all duration-300 hover:-translate-y-1 group">
-                                <div
-                                    class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-500 flex items-center justify-center text-xl shadow-sm transition-all duration-300 group-hover:bg-indigo-500 group-hover:text-white group-hover:rotate-12">
-                                    <i class="fas fa-phone"></i>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-slate-400 font-bold">رقم الهاتف</p>
-                                    <p class="font-bold text-slate-700 font-mono">{{ $student->phone_number ?? '---' }}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div
-                                class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-2xl transition-all duration-300 hover:-translate-y-1 group">
-                                <div
-                                    class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center text-xl shadow-sm transition-all duration-300 group-hover:bg-emerald-500 group-hover:text-white group-hover:rotate-12">
-                                    <i class="fab fa-whatsapp"></i>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-slate-400 font-bold">رقم الواتساب</p>
-                                    <p class="font-bold text-slate-700 font-mono">{{ $student->whatsapp_number ?? '---' }}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div
-                                class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-2xl transition-all duration-300 hover:-translate-y-1 group">
-                                <div
-                                    class="w-12 h-12 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center text-xl shadow-sm transition-all duration-300 group-hover:bg-blue-500 group-hover:text-white group-hover:rotate-12">
-                                    <i class="fas fa-birthday-cake"></i>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-slate-400 font-bold">تاريخ الميلاد</p>
-                                    <p class="font-bold text-slate-700">
-                                        {{ \Carbon\Carbon::parse($student->date_of_birth)->format('Y-m-d') }}
-                                        <span class="text-xs text-slate-400 mr-1">({{ $age }} سنة)</span>
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div
-                                class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-2xl transition-all duration-300 hover:-translate-y-1 group">
-                                <div
-                                    class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center text-xl shadow-sm transition-all duration-300 group-hover:bg-emerald-600 group-hover:text-white group-hover:rotate-12">
-                                    <i class="fas fa-hospital-user"></i>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-slate-400 font-bold">مكان الميلاد</p>
-                                    <p class="font-bold text-slate-700">{{ $student->birth_place ?? 'غير مسجل' }}</p>
-                                </div>
-                            </div>
-
-                            <div
-                                class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-2xl transition-all duration-300 hover:-translate-y-1 group">
-                                <div
-                                    class="w-12 h-12 rounded-xl bg-purple-50 text-purple-500 flex items-center justify-center text-xl shadow-sm transition-all duration-300 group-hover:bg-purple-500 group-hover:text-white group-hover:rotate-12">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-slate-400 font-bold">العنوان</p>
-                                    <p class="font-bold text-slate-700">{{ $student->address }}</p>
-                                </div>
-                            </div>
-
-                            <div
-                                class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-2xl transition-all duration-300 hover:-translate-y-1 group">
-                                <div
-                                    class="w-12 h-12 rounded-xl bg-teal-50 text-teal-500 flex items-center justify-center text-xl shadow-sm transition-all duration-300 group-hover:bg-teal-500 group-hover:text-white group-hover:rotate-12">
-                                    <i class="fas fa-user-tag"></i>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-slate-400 font-bold">حالة الإقامة</p>
-                                    <p
-                                        class="font-bold {{ $student->is_displaced ? 'text-red-500' : 'text-emerald-600' }}">
-                                        {{ $student->is_displaced ? 'نازح' : 'مقيم' }}
-                                    </p>
-                                </div>
+                            <div>
+                                <p class="text-xs text-slate-400 font-bold">رقم هوية الطالب</p>
+                                <p class="font-bold text-slate-700 font-mono">{{ $student->id_number }}</p>
                             </div>
                         </div>
+
+                        <!-- رقم هوية الأب -->
+                        <div class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-2xl transition-all duration-300 hover:-translate-y-1 group">
+                            <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl shadow-sm transition-all duration-300 group-hover:bg-amber-500 group-hover:text-white group-hover:rotate-12">
+                                <i class="fas fa-id-card"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-400 font-bold">رقم هوية الأب</p>
+                                <p class="font-bold text-slate-700 font-mono">{{ $student->father_id ?? '---' }}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-2xl transition-all duration-300 hover:-translate-y-1 group">
+                            <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center text-xl shadow-sm transition-all duration-300 group-hover:bg-rose-500 group-hover:text-white group-hover:rotate-12">
+                                <i class="fas fa-venus-mars"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-400 font-bold">الجنس</p>
+                                <p class="font-bold text-slate-700">
+                                    {{ $student->gender == 'male' ? 'ذكر' : 'أنثى' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-2xl transition-all duration-300 hover:-translate-y-1 group">
+                            <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-500 flex items-center justify-center text-xl shadow-sm transition-all duration-300 group-hover:bg-indigo-500 group-hover:text-white group-hover:rotate-12">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-400 font-bold">رقم الهاتف</p>
+                                <p class="font-bold text-slate-700 font-mono">{{ $student->phone_number ?? '---' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-2xl transition-all duration-300 hover:-translate-y-1 group">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center text-xl shadow-sm transition-all duration-300 group-hover:bg-emerald-500 group-hover:text-white group-hover:rotate-12">
+                                <i class="fab fa-whatsapp"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-400 font-bold">رقم الواتساب</p>
+                                <p class="font-bold text-slate-700 font-mono">{{ $student->whatsapp_number ?? '---' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-2xl transition-all duration-300 hover:-translate-y-1 group">
+                            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center text-xl shadow-sm transition-all duration-300 group-hover:bg-blue-500 group-hover:text-white group-hover:rotate-12">
+                                <i class="fas fa-birthday-cake"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-400 font-bold">تاريخ الميلاد</p>
+                                <p class="font-bold text-slate-700">
+                                    {{ \Carbon\Carbon::parse($student->date_of_birth)->format('Y-m-d') }}
+                                    <span class="text-xs text-slate-400 mr-1">({{ $age }} سنة)</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-2xl transition-all duration-300 hover:-translate-y-1 group">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center text-xl shadow-sm transition-all duration-300 group-hover:bg-emerald-600 group-hover:text-white group-hover:rotate-12">
+                                <i class="fas fa-hospital-user"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-400 font-bold">مكان الميلاد</p>
+                                <p class="font-bold text-slate-700">{{ $student->birth_place ?? 'غير مسجل' }}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-2xl transition-all duration-300 hover:-translate-y-1 group">
+                            <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-500 flex items-center justify-center text-xl shadow-sm transition-all duration-300 group-hover:bg-purple-500 group-hover:text-white group-hover:rotate-12">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-400 font-bold">العنوان</p>
+                                <p class="font-bold text-slate-700">{{ $student->address }}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-2xl transition-all duration-300 hover:-translate-y-1 group">
+                            <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-500 flex items-center justify-center text-xl shadow-sm transition-all duration-300 group-hover:bg-teal-500 group-hover:text-white group-hover:rotate-12">
+                                <i class="fas fa-user-tag"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-400 font-bold">حالة الإقامة</p>
+                                <p class="font-bold {{ $student->is_displaced ? 'text-red-500' : 'text-emerald-600' }}">
+                                    {{ $student->is_displaced ? 'نازح' : 'مقيم' }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                     </section>
 
                     <section
@@ -499,7 +494,7 @@
                                         <td class="px-6 py-4">
                                             @php
                                                 $statusColor = 'bg-slate-100 text-slate-600';
-                                                $icon = 'fas fa-minus'; 
+                                                $icon = 'fas fa-minus';
 
                                                 // فحص الحالة
                                                 if (str_contains($test->result_status, 'ناجح')) {

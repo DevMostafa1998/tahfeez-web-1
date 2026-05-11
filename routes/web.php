@@ -22,7 +22,8 @@ use App\Http\Controllers\{
     StudentReportController,
     ParentController,
     StudentPublicController,
-    ExcelExportImportController
+    ExcelExportImportController,
+    NotificationController
 };
 
 
@@ -31,6 +32,8 @@ Route::get('/', fn() => Auth::check() ? redirect()->route('dashboard') : redirec
 Route::get('/student_public', [StudentPublicController::class, 'index'])->name('student_public.index');
 Route::post('/student_public', [StudentPublicController::class, 'store'])->name('student_public.store');
 Route::get('user/restore/{id}', [App\Http\Controllers\UserController::class, 'restore'])->name('user.restore');
+Route::get('/notifications/read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+Route::get('/notifications/mark-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
 Route::prefix('excel-manage')->group(function () {
 
 Route::get('/{groupId}', [ExcelExportImportController::class, 'showExcelPage'])->name('excel.manage.page');
@@ -119,4 +122,7 @@ Route::middleware('auth')->group(function () {
         $request->session()->regenerateToken();
         return redirect()->route('login');
     })->name('logout');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/send', [NotificationController::class, 'send'])->name('notifications.send');
 });

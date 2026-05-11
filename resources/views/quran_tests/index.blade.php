@@ -3,93 +3,125 @@
 @section('title', 'سجل اختبارات تسميع القرآن')
 
 @push('css')
-    {{-- استيراد نفس مكتبات التنسيق من الملف المرجعي --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.bootstrap4.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <style>
-        /* التنسيقات الموحدة من الملف الآخر */
+        /* تنسيق صف الفلاتر العلوي داخل الجدول */
         .dataTables_wrapper .row:first-child {
             display: flex !important;
-            flex-direction: row !important;
             justify-content: space-between !important;
             align-items: center;
-            width: 100%;
-            margin: 0 0 1rem 0;
-            padding: 0 15px;
+            background: #f8f9fa;
+            padding: 10px 15px;
+            margin: 0 0 1rem 0 !important;
+            border-radius: 8px;
+            border: 1px solid #ebedef;
         }
 
-        #testsTable {
-            width: 100% !important;
-            margin: 0 !important;
+        /* تنسيق حقول التاريخ المصغرة */
+        .date-filter-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .date-filter-box input {
+            width: 130px !important;
+            height: 30px !important;
+            padding: 2px 8px !important;
+            font-size: 0.8rem !important;
+            border-radius: 5px;
+        }
+
+        /* تصحيح لون خلفية "النوع" */
+        .bg-soft-info {
+            background-color: #e7f1ff !important;
+            color: #0d6efd !important; /* اللون الأزرق */
+            border: 1px solid #cfe2ff;
+            font-weight: 500;
         }
 
         .action-btn {
-            width: 34px;
-            height: 34px;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
+            transition: 0.2s;
         }
 
-        .action-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .btn-excel {
+        .btn-excel-top {
             background-color: #1d6f42 !important;
             color: white !important;
-            border-radius: 8px !important;
-            padding: 5px 15px !important;
-            font-weight: bold !important;
-            display: flex !important;
-            align-items: center !important;
-            gap: 5px !important;
+            border: none !important;
         }
 
-        .bg-soft-info {
-            background-color: #e7f1ff !important;
-            color: #0d6efd !important;
-        }
+        .btn-excel-top:hover { background-color: #155a35 !important; }
 
-        @media (max-width: 768px) {
-            .page-header {
-                flex-direction: column;
-                gap: 15px;
-                align-items: flex-start !important;
-            }
-
-            .dataTables_wrapper .row:first-child {
-                flex-direction: column !important;
-                gap: 10px;
-            }
+        /* موازنة المسافات في قائمة عدد الصفوف والبحث */
+        .dataTables_length select {
+            height: 30px !important;
+            padding: 0 5px !important;
+            margin: 0 5px;
         }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            filter: hue-rotate(180deg) brightness(0.8);
+            opacity: 1;
+        }
+        input[type="date"]:focus {
+            box-shadow: none !important;
+            outline: none !important;
+        }
+        #testsTable { width: 100% !important; margin: 0 !important; }
     </style>
 @endpush
 
 @section('content')
     <div class="container-fluid p-4" dir="rtl">
-        {{-- الهيدر الموحد بنفس الستايل --}}
+        {{-- الهيدر العلوي --}}
         <div class="page-header d-flex justify-content-between align-items-center mb-4">
             <div class="d-flex align-items-center gap-3">
-                <div class="bg-white p-2 rounded-3 shadow-sm">
+                <div class="bg-white p-2 rounded-3 shadow-sm border">
                     <i class="bi bi-journal-check fs-3 text-primary"></i>
                 </div>
-                <div>
-                    <h1 class="page-title m-0 h3">سجل اختبارات تسميع القرآن</h1>
-                </div>
+                <h1 class="page-title m-0 h4 fw-bold">سجل اختبارات تسميع القرآن</h1>
             </div>
-            <a href="{{ route('quran_tests.create') }}"
-                class="btn btn-success d-flex align-items-center gap-2 px-4 py-2 rounded-3 shadow-sm">
-                <i class="bi bi-plus-lg"></i><span>إضافة اختبار جديد</span>
-            </a>
+
+            <div class="d-flex gap-2">
+                <button id="exportExcelCustom" class="btn btn-excel-top btn-sm d-flex align-items-center gap-2 px-3 py-2 rounded-3 shadow-sm">
+                    <i class="bi bi-file-earmark-excel"></i><span>تصدير إكسل</span>
+                </button>
+
+                <a href="{{ route('quran_tests.create') }}"
+                    class="btn btn-success btn-sm d-flex align-items-center gap-2 px-3 py-2 rounded-3 shadow-sm">
+                    <i class="bi bi-plus-lg"></i><span>إضافة اختبار جديد</span>
+                </a>
+            </div>
         </div>
 
         <div class="card shadow-sm border-0 overflow-hidden">
             <div class="card-body p-3">
                 <div class="table-responsive">
+                    <div id="filterContainer" class="d-none">
+                        <div class="d-flex align-items-center justify-content-center">
+
+                            <label class="small mx-2">&emsp; فلتر التاريخ من :</label>
+                            <input type="date" id="minDate" class="form-control form-control-sm" style="width: 150px; cursor: pointer;">
+
+                            <label class="small mx-2">إلي :</label>
+                            <input type="date" id="maxDate" class="form-control form-control-sm" style="width: 150px; cursor: pointer;">
+
+                            <button id="resetDate" class="btn btn-light btn-sm border ms-2">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </button>
+
+                        </div>
+                    </div>
+
                     <table id="testsTable" class="table table-striped table-bordered align-middle mb-0">
                         <thead class="bg-light text-secondary">
                             <tr>
@@ -106,37 +138,24 @@
                                 <tr>
                                     <td class="ps-4 fw-bold text-start">{{ $test->student?->full_name }}</td>
                                     <td class="text-center">{{ $test->date->format('Y-m-d') }}</td>
-                                    <td class="text-center"><span class="badge badge-light border">{{ $test->juz_count }}
-                                            أجزاء</span></td>
+                                    <td class="text-center"><span class="badge badge-light border">{{ $test->juz_count }} أجزاء</span></td>
+                                    <td class="text-center"><span class="badge bg-soft-info px-3">{{ $test->examType }}</span></td>
                                     <td class="text-center">
-                                        <span class="badge bg-soft-info px-3">{{ $test->examType }}</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span
-                                            class="badge {{ $test->result_status == 'ناجح' ? 'bg-success' : 'bg-danger' }} text-white px-3">
+                                        <span class="badge {{ $test->result_status == 'ناجح' ? 'bg-success' : 'bg-danger' }} text-white px-3">
                                             {{ $test->result_status }}
                                         </span>
                                     </td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-2">
-                                            {{-- زر التعديل --}}
-                                            <button type="button"
-                                                class="btn btn-sm btn-outline-primary rounded-circle action-btn edit-test-btn"
-                                                data-bs-toggle="modal" data-bs-target="#editTestModal"
-                                                data-id="{{ $test->id }}" data-student="{{ $test->studentId }}"
-                                                data-student-name="{{ $test->student?->full_name }}"
-                                                data-date="{{ $test->date->format('Y-m-d') }}"
+                                            <button type="button" class="btn btn-sm btn-outline-primary rounded-circle action-btn edit-test-btn"
+                                                data-bs-toggle="modal" data-bs-target="#editTestModal" data-id="{{ $test->id }}"
+                                                data-student-name="{{ $test->student?->full_name }}" data-date="{{ $test->date->format('Y-m-d') }}"
                                                 data-juz="{{ $test->juz_count }}" data-type="{{ $test->examType }}"
-                                                data-status="{{ $test->result_status }}" data-note="{{ $test->note }}"
-                                                title="تعديل">
+                                                data-status="{{ $test->result_status }}" data-note="{{ $test->note }}">
                                                 <i class="bi bi-pencil-square"></i>
                                             </button>
-
-                                            {{-- زر الحذف --}}
-                                            <button type="button"
-                                                class="btn btn-sm btn-outline-danger rounded-circle action-btn delete-test-btn"
-                                                data-id="{{ $test->id }}" data-name="{{ $test->student?->full_name }}"
-                                                title="حذف">
+                                            <button type="button" class="btn btn-sm btn-outline-danger rounded-circle action-btn delete-test-btn"
+                                                data-id="{{ $test->id }}" data-name="{{ $test->student?->full_name }}">
                                                 <i class="bi bi-trash3"></i>
                                             </button>
                                         </div>
@@ -154,7 +173,6 @@
 @endsection
 
 @push('scripts')
-    {{-- استيراد مكتبات JS اللازمة لـ DataTables --}}
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/2.3.6/js/dataTables.js"></script>
@@ -167,118 +185,75 @@
 
     <script>
         $(document).ready(function() {
-            // إعداد DataTables بنفس إعدادات الملف الآخر
-            var d = new Date();
-            var dateString = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
-
-            if (!$.fn.dataTable.isDataTable('#testsTable')) {
-                $('#testsTable').DataTable({
-                    "responsive": true,
-                    "language": {
-                        "sProcessing": "جاري التحميل...",
-                        "sLengthMenu": "أظهر _MENU_ طلاب",
-                        "sSearch": "بحث سريع:",
-                        "sInfo": "عرض _START_ إلى _END_ من أصل _TOTAL_ طالب",
-                        "paginate": {
-                            "first": "«",
-                            "last": "»",
-                            "next": "›",
-                            "previous": "‹"
-                        }
-                    },
-                    "dom": "<'row mb-3 align-items-center'<'col-md-4 text-right'l><'col-md-4 text-center'B><'col-md-4 text-left'f>>" +
-                        "<'row'<'col-sm-12' <'table-responsive' tr> >>" +
-                        "<'row mt-3'<'col-sm-12'p>>" +
-                        "<'row'<'col-sm-12 text-center'i>>",
-                    "buttons": [{
-                        extend: 'excelHtml5',
-                        text: '<i class="bi bi-file-earmark-excel-fill ms-1"></i> تصدير إكسل',
-                        className: 'btn btn-excel',
-                        title: 'سجل الاختبارات - ' + dateString,
-                        filename: 'سجل_الاختبارات_' + dateString,
-                        exportOptions: {
-                            columns: [0, 1, 2, 3, 4]
-                        }
-                    }]
-                });
-            }
-
-            // --- منطق AJAX الخاص بالتعديل والحذف (من ملفك الأصلي) ---
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            // محرك فلترة التاريخ
+            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                var min = $('#minDate').val();
+                var max = $('#maxDate').val();
+                var date = data[1];
+                if ((min === "" && max === "") || (min === "" && date <= max) || (min <= date && max === "") || (min <= date && date <= max)) {
+                    return true;
                 }
+                return false;
             });
 
-            $(document).on('click', '.edit-test-btn', function() {
-                const id = $(this).data('id');
-                $('#editTestForm').attr('action', `/quran_tests/${id}`);
-                $('#edit_student_name_display').val($(this).data('student-name'));
-                $('#edit_studentId').val($(this).data('student'));
-                $('#edit_date').val($(this).data('date'));
-                $('#edit_juz_count').val($(this).data('juz'));
-                $('#edit_examType').val($(this).data('type'));
-                $('#edit_result_status').val($(this).data('status'));
-                $('#edit_note').val($(this).data('note'));
+            var table = $('#testsTable').DataTable({
+                "responsive": true,
+                "language": {
+                    "sSearch": "البحث:",
+                    "sLengthMenu": "إظهار _MENU_ سجلات",
+                    "sInfo": "عرض _TOTAL_ سجل",
+                    "paginate": { "next": "›", "previous": "‹" }
+                },
+                // إعادة هيكلة DOM لإظهار قائمة عدد الصفوف (l) بجانب الفلتر والبحث (f)
+                "dom": "<'row mb-2'<'col-md-auto'l><'col-md-auto' <'#datePlaceholder'>><'col-md'f>>" +
+                       "<'row'<'col-sm-12'tr>>" +
+                       "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                "buttons": [{
+                    extend: 'excelHtml5',
+                    exportOptions: { columns: [0, 1, 2, 3, 4] }
+                }]
             });
 
-            $('#editTestForm').on('submit', function(e) {
-                e.preventDefault();
-                $.ajax({
-                    url: $(this).attr('action'),
-                    type: 'POST',
-                    data: $(this).serialize(),
-                    success: function(response) {
-                        $('#editTestModal').modal('hide');
-                        Swal.fire({
-                                icon: 'success',
-                                title: 'تم التحديث!',
-                                text: response.message,
-                                timer: 1500,
-                                showConfirmButton: false
-                            })
-                            .then(() => location.reload());
-                    },
-                    error: function(xhr) {
-                        if (xhr.status === 422) {
-                            let errors = xhr.responseJSON.errors;
-                            $('.is-invalid').removeClass('is-invalid');
-                            $.each(errors, function(key, value) {
-                                let input = $(`[name="${key}"]`);
-                                input.addClass('is-invalid').after(
-                                    `<div class="invalid-feedback d-block">${value[0]}</div>`
-                                );
-                            });
-                        }
-                    }
-                });
+            // وضع فلاتر التاريخ في مكانها المخصص داخل الجدول
+            $('#datePlaceholder').append($('#filterContainer').contents());
+            $('#filterContainer').remove();
+
+            // الفلترة الفورية
+            $(document).on('change', '#minDate, #maxDate', function() {
+                table.draw();
             });
 
+            // إعادة ضبط التاريخ
+            $(document).on('click', '#resetDate', function() {
+                $('#minDate, #maxDate').val('');
+                table.draw();
+            });
+
+            // زر التصدير العلوي
+            $('#exportExcelCustom').on('click', function() {
+                table.button('.buttons-excel').trigger();
+            });
+
+            // منطق الحذف AJAX
             $(document).on('click', '.delete-test-btn', function() {
                 const id = $(this).data('id');
-                const studentName = $(this).data('name');
+                const name = $(this).data('name');
                 Swal.fire({
                     title: 'هل أنت متأكد؟',
-                    text: `سيتم حذف سجل اختبار "${studentName}" نهائياً!`,
+                    text: `سيتم حذف سجل ${name}`,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#dc3545',
-                    confirmButtonText: 'نعم، احذف',
-                    cancelButtonText: 'إلغاء',
-                    reverseButtons: true
+                    confirmButtonText: 'حذف',
+                    cancelButtonText: 'إلغاء'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
                             url: `/quran_tests/${id}`,
                             type: 'DELETE',
-                            success: function(response) {
-                                Swal.fire({
-                                        icon: 'success',
-                                        title: 'تم الحذف!',
-                                        timer: 1500,
-                                        showConfirmButton: false
-                                    })
-                                    .then(() => location.reload());
+                            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                            success: function() {
+                                Swal.fire('تم الحذف!', '', 'success').then(() => location.reload());
                             }
                         });
                     }

@@ -7,6 +7,7 @@ use App\Models\Student;
 use App\Models\Course;
 use App\Models\Group;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class StudentController extends Controller
 {
@@ -73,6 +74,7 @@ class StudentController extends Controller
         $validated = $request->validate([
             'full_name'       => 'required|string|max:255',
             'id_number'       => 'required|string|unique:student,id_number|digits:9',
+            'father_id'       => 'required|string|unique:student,father_id|digits:9',
             'date_of_birth'   => 'required|date',
             'phone_number'    => 'required|string|max:15',
             'address'         => 'required|string',
@@ -115,7 +117,8 @@ class StudentController extends Controller
 
         $validatedData = $request->validate([
             'full_name'      => 'required|string|max:255',
-            'id_number'      => 'required|string|digits:9',
+            'id_number'       => ['required', 'string', 'digits:9', Rule::unique('student')->ignore($id)],
+            'father_id'       => ['required', 'string', 'digits:9', Rule::unique('student')->ignore($id)],
             'date_of_birth'  => 'required|date',
             'phone_number'   => 'required|string|max:15',
             'address'        => 'required|string',

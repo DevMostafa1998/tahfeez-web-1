@@ -155,8 +155,21 @@
             /* رفعة بسيطة للأعلى */
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
+    #studentsTable td.id-column .badge,
+    #studentsTable td.id-column .bg-light,
+    #studentsTable td.id-column .text-white {
+        background: none !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        color: inherit !important;
+    }
 
-        /* التنسيق الخاص بالزر النشط */
+    #studentsTable td {
+        vertical-align: middle !important;
+    }
+
+     /* التنسيق الخاص بالزر النشط */
         .active-tab {
             background-color: #f0f7ff !important;
             border-color: #0d6efd !important;
@@ -230,7 +243,8 @@
                         <thead class="bg-light text-secondary text-center">
                             <tr>
                                 <th>اسم الطالب/ة</th>
-                                <th>رقم الهوية</th>
+                                <th>رقم هوية الطالب</th>
+                                <th>رقم هوية الأب</th>
                                 <th>الجنس</th>
                                 <th>الحالة</th>
                                 <th>الدورات</th>
@@ -363,8 +377,43 @@
                     {
                         data: 'id_number',
                         name: 'id_number',
-                        className: 'text-center'
-                    },
+                        className: 'text-center id-column', // أضفنا id-column هنا
+    render: function (data) {
+        if (!data) return '';
+        return '<span style="' +
+               'display: inline-block !important; ' +
+               'background-color: #ffffff !important; ' +
+               'color: #000000 !important; ' +
+               'border: 1px solid #ddd !important; ' +
+               'padding: 4px 12px !important; ' +
+               'border-radius: 4px !important; ' +
+               'font-weight: bold !important; ' + // تم تعديل font-dark إلى font-weight
+               'font-size: 14px !important; ' +
+               'min-width: 90px !important; ' +
+               'text-align: center !important;' +
+               '">' + data + '</span>';
+    }
+},
+                   {
+    data: 'father_id',
+    name: 'father_id',
+    className: 'text-center id-column', // أضفنا id-column هنا
+    render: function (data) {
+        if (!data) return '';
+        return '<span style="' +
+               'display: inline-block !important; ' +
+               'background-color: #ffffff !important; ' +
+               'color: #000000 !important; ' +
+               'border: 1px solid #ddd !important; ' +
+               'padding: 4px 12px !important; ' +
+               'border-radius: 4px !important; ' +
+               'font-weight: bold !important; ' +
+               'font-size: 14px !important; ' +
+               'min-width: 90px !important; ' +
+               'text-align: center !important;' +
+               '">' + data + '</span>';
+    }
+},
                     {
                         data: 'gender',
                         name: 'gender',
@@ -443,6 +492,7 @@
                         form.attr('action', `{{ url('student') }}/${id}`);
                         $('#edit_full_name').val(student.full_name);
                         $('#edit_id_number').val(student.id_number);
+                        $('#edit_father_id').val(student.father_id);
                         $('#edit_birth_place').val(student.birth_place);
                         $('#edit_gender').val(student.gender);
                         $('#edit_phone_number').val(student.phone_number);

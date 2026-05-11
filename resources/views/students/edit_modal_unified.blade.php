@@ -22,58 +22,73 @@
                     {{-- القسم الأول: المعلومات الأساسية --}}
                     <div class="mb-3">
                         <div class="d-flex align-items-center mb-2">
-                            <span class="badge rounded-pill bg-warning text-dark px-3 fw-bold small-xs">1. البيانات
-                                الشخصية</span>
+                            <span class="badge rounded-pill bg-warning text-dark px-3 fw-bold small-xs">1. البيانات الشخصية</span>
                             <hr class="flex-grow-1 me-2 my-0 opacity-10">
                         </div>
                         <div class="row g-2">
-                            <div class="col-md-4">
-                                <label
-                                    class="label-style fw-bold mb-1 d-flex flex-row-reverse justify-content-end align-items-center">
+                            <!-- الاسم رباعي -->
+                            <div class="col-md-3">
+                                <label class="label-style fw-bold mb-1 d-flex flex-row-reverse justify-content-end align-items-center">
                                     <span>الاسم رباعي</span>
                                     <i class="bi bi-person-bounding-box text-warning ms-2"></i>
                                 </label>
                                 <input type="text" name="full_name" id="edit_full_name"
-                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
-                                    required>
+                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start" required>
                             </div>
+
+                            <!-- هوية الطالب -->
+                    <div class="col-md-2">
+                        <label class="label-style fw-bold mb-1 d-flex flex-row-reverse justify-content-end align-items-center">
+                            <span>هوية الطالب</span>
+                            <i class="bi bi-person-vcard text-warning ms-2"></i>
+                        </label>
+                        <input type="text" name="id_number" id="edit_id_number"
+                            class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
+                            maxlength="9"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                            placeholder="9 أرقام"
+                            required>
+                    </div>
+
+                    <!-- هوية الأب -->
+                    <div class="col-md-2">
+                        <label class="label-style fw-bold mb-1 d-flex flex-row-reverse justify-content-end align-items-center">
+                            <span>هوية الأب</span>
+                            <i class="bi bi-person-vcard-fill text-warning ms-2"></i>
+                        </label>
+                        <input type="text" name="father_id" id="edit_father_id"
+                            class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
+                            maxlength="9"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                            placeholder="9 أرقام">
+                    </div>
+                            <!-- الميلاد -->
                             <div class="col-md-2">
-                                <label
-                                    class="label-style fw-bold mb-1 d-flex flex-row-reverse justify-content-end align-items-center">
-                                    <span>رقم الهوية</span>
-                                    <i class="bi bi-person-vcard text-warning ms-2"></i>
-                                </label>
-                                <input type="text" name="id_number" id="edit_id_number"
-                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
-                                    required>
-                            </div>
-                            <div class="col-md-2">
-                                <label
-                                    class="label-style fw-bold mb-1 d-flex flex-row-reverse justify-content-end align-items-center">
+                                <label class="label-style fw-bold mb-1 d-flex flex-row-reverse justify-content-end align-items-center">
                                     <span>الميلاد</span>
                                     <i class="bi bi-calendar-check text-warning ms-2"></i>
                                 </label>
                                 <input type="date" name="date_of_birth" id="edit_date_of_birth"
-                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
-                                    required>
+                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start" required>
                             </div>
-                            <div class="col-md-3">
-                                <label
-                                    class="label-style fw-bold mb-1 d-flex flex-row-reverse justify-content-end align-items-center">
+
+                            <!-- مكان الميلاد -->
+                            <div class="col-md-2">
+                                <label class="label-style fw-bold mb-1 d-flex flex-row-reverse justify-content-end align-items-center">
                                     <span>مكان الميلاد</span>
                                     <i class="bi bi-geo-alt text-warning ms-2"></i>
                                 </label>
                                 <input type="text" name="birth_place" id="edit_birth_place"
                                     class="form-control form-control-sm border-0 bg-light rounded-2 text-start">
                             </div>
+
+                            <!-- الجنس -->
                             <div class="col-md-1">
-                                <label
-                                    class="label-style fw-bold mb-1 d-flex flex-row-reverse justify-content-end align-items-right">
+                                <label class="label-style fw-bold mb-1 d-flex flex-row-reverse justify-content-end align-items-right">
                                     <span>الجنس</span>
                                     <i class="bi bi-gender-ambiguous text-warning ms-2"></i>
                                 </label>
-                                <select name="gender" id="edit_gender"
-                                    class="form-select form-select-sm bg-light border-0">
+                                <select name="gender" id="edit_gender" class="form-select form-select-sm bg-light border-0">
                                     <option value="male">ذكر</option>
                                     <option value="female">أنثى</option>
                                 </select>
@@ -134,40 +149,44 @@
                         </div>
                     </div>
 
-                    {{-- القسم الثالث: التفاصيل الإدارية --}}
+                   {{-- القسم الثالث: التفاصيل الإدارية --}}
                     <div>
                         <div class="d-flex align-items-center mb-2">
-                            <span class="badge rounded-pill bg-warning text-dark px-3 fw-bold small-xs">3. التفاصيل
-                                الإدارية</span>
+                            <span class="badge rounded-pill bg-warning text-dark px-3 fw-bold small-xs">3. التفاصيل الإدارية</span>
                             <hr class="flex-grow-1 me-2 my-0 opacity-10">
                         </div>
                         <div class="row g-2">
+                            {{-- اسم المركز --}}
                             <div class="col-md-3">
-                                <label
-                                    class="label-style fw-bold mb-1 d-flex flex-row-reverse justify-content-end align-items-center">
+                                <label class="label-style fw-bold mb-1 d-flex flex-row-reverse justify-content-end align-items-center">
                                     <span>اسم المركز</span>
                                     <i class="bi bi-building-gear text-warning ms-2"></i>
                                 </label>
                                 <input type="text" name="center_name" id="edit_center_name"
-                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start">
+                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
+                                    value="اهل الرحمن" readonly style="pointer-events: none; cursor: not-allowed;">
                             </div>
+
+                            {{-- اسم المسجد --}}
                             <div class="col-md-3">
-                                <label
-                                    class="label-style fw-bold mb-1 d-flex flex-row-reverse justify-content-end align-items-center">
+                                <label class="label-style fw-bold mb-1 d-flex flex-row-reverse justify-content-end align-items-center">
                                     <span>اسم المسجد</span>
                                     <i class="bi bi-moon-stars-fill text-warning ms-2"></i>
                                 </label>
                                 <input type="text" name="mosque_name" id="edit_mosque_name"
-                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start">
+                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
+                                    value="يافا" readonly style="pointer-events: none; cursor: not-allowed;">
                             </div>
+
+                            {{-- عنوان المسجد التفصيلي --}}
                             <div class="col-md-6">
-                                <label
-                                    class="label-style fw-bold mb-1 d-flex flex-row-reverse justify-content-end align-items-center">
+                                <label class="label-style fw-bold mb-1 d-flex flex-row-reverse justify-content-end align-items-center">
                                     <span>عنوان المسجد التفصيلي</span>
                                     <i class="bi bi-pin-map-fill text-warning ms-2"></i>
                                 </label>
                                 <input type="text" name="mosque_address" id="edit_mosque_address"
-                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start">
+                                    class="form-control form-control-sm border-0 bg-light rounded-2 text-start"
+                                    value="دير البلح - حي بشارة" readonly style="pointer-events: none; cursor: not-allowed;">
                             </div>
                         </div>
                     </div>

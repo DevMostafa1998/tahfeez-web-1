@@ -13,6 +13,7 @@ class StudentLogic
         $studentData = [
             'full_name'       => $data['full_name'],
             'id_number'       => $data['id_number'],
+            'father_id'       => $data['father_id'],
             'date_of_birth'   => $data['date_of_birth'],
             'phone_number'    => $data['phone_number'],
             'address'         => $data['address'],
@@ -92,6 +93,7 @@ class StudentLogic
         return [
             'full_name' => '<span class="fw-bold">' . $student->full_name . '</span>',
             'id_number' => '<span class="badge bg-light text-dark border px-4 py-2">' . $student->id_number . '</span>',
+            'father_id' => '<span class="badge bg-secondary text-white px-2">' . $student->father_id . '</span>',
             'gender'    => $student->gender == 'male' ? '<span class="badge bg-blue-subtle text-primary border px-3">ذكر</span>' : '<span class="badge bg-pink-subtle text-danger border px-3">أنثى</span>',
             'status'    => $showArchived ? '<span class="badge rounded-pill bg-danger text-white">محذوف</span>' : ($student->is_displaced ? '<span class="badge rounded-pill bg-warning-subtle text-dark">نازح</span>' : '<span class="badge rounded-pill bg-success-subtle text-success">مقيم</span>'),
             'courses'   => '<span class="badge bg-warning text-dark rounded-pill px-3">' . ($student->courses()->count()) . ' دورات</span>',
@@ -174,6 +176,7 @@ class StudentLogic
         $student->update([
             'full_name'       => $data['full_name'],
             'id_number'       => $data['id_number'],
+            'father_id'       => $data['father_id'],
             'date_of_birth'   => $data['date_of_birth'],
             'phone_number'    => $data['phone_number'],
             'address'         => $data['address'],
@@ -196,6 +199,7 @@ class StudentLogic
             return [
                 'full_name'    => $student->full_name,
                 'id_number'    => $student->id_number,
+                'father_id'     => $student->father_id,
                 'gender'       => ($student->gender == 'male') ? 'ذكر' : 'أنثى',
                 'status'       => ($student->is_displaced) ? 'نازح' : 'مقيم',
                 'courses_count' => $student->courses_count,
@@ -211,6 +215,7 @@ class StudentLogic
         $headers = [
             'اسم الطالب/ة',
             'رقم الهوية',
+            'رقم هوية الأب',
             'الجنس',
             'الحالة',
             'عدد الدورات'
@@ -219,12 +224,13 @@ class StudentLogic
         $columnsMapping = [
             'full_name',
             'id_number',
+            'father_id',
             'gender',
             'status',
             'courses_count'
         ];
 
-        $fileName = "تقرير_الطلاب_" . date('Y-m-d');
+        $fileName = "Students_Record_" . date('Y-m-d');
         $reportTitle = "قائمة الطلاب المسجلين بتاريخ: " . date('Y-m-d');
 
         return $logic->export($fileName, $reportTitle, $headers, $data, $columnsMapping);

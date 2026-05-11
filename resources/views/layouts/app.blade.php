@@ -149,15 +149,14 @@
     <div class="app-wrapper">
         @auth
             @include('includes.header')
-
             @include('includes.sidebar')
         @endauth
+
         <main class="app-main">
             @yield('content')
         </main>
 
         @include('includes.footer')
-
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/browser/overlayscrollbars.browser.es6.min.js"
@@ -166,6 +165,7 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
     <script src="{{ asset('assets/js/adminlte.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <script>
         const SELECTOR_SIDEBAR_WRAPPER = '.sidebar-wrapper';
@@ -188,8 +188,22 @@
         });
     </script>
 
+    @if(session('info'))
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: "{{ session('info')['title'] }}",
+                    text: "{{ session('info')['body'] }}",
+                    icon: 'info',
+                    confirmButtonText: 'حسناً',
+                    confirmButtonColor: '#0d6efd'
+                });
+            });
+        </script>
+    @endif
+
     @stack('scripts')
 
 </body>
-
 </html>

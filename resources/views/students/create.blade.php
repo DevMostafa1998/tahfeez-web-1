@@ -48,14 +48,15 @@
                                 {{-- القسم الأول: المعلومات الأساسية --}}
                                 <div class="mb-4">
                                     <div class="d-flex align-items-center mb-3 text-primary">
-                                        <span
-                                            class="badge rounded-pill bg-primary bg-opacity-10 text-primary px-3 py-2 fw-bold">
+                                        <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary px-3 py-2 fw-bold">
                                             <i class="bi bi-person-badge-fill me-1"></i> 1. البيانات الشخصية
                                         </span>
                                         <hr class="flex-grow-1 ms-3 my-0 opacity-10">
                                     </div>
+
                                     <div class="row g-3">
-                                        <div class="col-md-4 text-start">
+                                        {{-- الاسم رباعي --}}
+                                        <div class="col-md-3 text-start">
                                             <label class="form-label small fw-bold text-secondary mb-1">
                                                 <i class="bi bi-person-bounding-box text-primary me-1"></i>الاسم رباعي
                                             </label>
@@ -63,18 +64,33 @@
                                                 class="form-control form-control-sm border-0 bg-light px-3 py-2"
                                                 placeholder="الاسم الكامل" value="{{ old('full_name') }}" required>
                                         </div>
-                                        <div class="col-md-2 text-start">
+
+                                        {{-- رقم هوية الطالب --}}
+                                        <div class="col-md-3 text-start">
                                             <label class="form-label small fw-bold text-secondary mb-1">
-                                                <i class="bi bi-person-vcard text-primary me-1"></i>رقم الهوية
+                                                <i class="bi bi-person-vcard text-primary me-1"></i>هوية الطالب
                                             </label>
                                             <input type="text" name="id_number"
                                                 class="form-control form-control-sm border-0 bg-light px-3 py-2"
                                                 placeholder="9 أرقام" maxlength="9"
                                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                                                value="{{ old('id_number') }}" required>
+                                                value="{{ old('id_number', $student->id_number ?? '') }}" required>
                                         </div>
 
-                                        <div class="col-md-2 text-start">
+                                        {{-- رقم هوية الأب --}}
+                                        <div class="col-md-3 text-start">
+                                            <label class="form-label small fw-bold text-secondary mb-1">
+                                                <i class="bi bi-person-vcard-fill text-primary me-1"></i>هوية الأب
+                                            </label>
+                                            <input type="text" name="father_id"
+                                                class="form-control form-control-sm border-0 bg-light px-3 py-2"
+                                                placeholder="9 أرقام" maxlength="9"
+                                                oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                                value="{{ old('father_id', $student->father_id ?? '') }}" required>
+                                        </div>
+
+                                        {{-- تاريخ الميلاد --}}
+                                        <div class="col-md-3 text-start">
                                             <label class="form-label small fw-bold text-secondary mb-1">
                                                 <i class="bi bi-calendar-event text-primary me-1"></i>تاريخ الميلاد
                                             </label>
@@ -82,15 +98,19 @@
                                                 class="form-control form-control-sm border-0 bg-light px-3 py-2"
                                                 value="{{ old('date_of_birth') }}" required>
                                         </div>
+
+                                        {{-- مكان الميلاد --}}
                                         <div class="col-md-3 text-start">
                                             <label class="form-label small fw-bold text-secondary mb-1">
                                                 <i class="bi bi-geo text-primary me-1"></i>مكان الميلاد
                                             </label>
                                             <input type="text" name="birth_place"
                                                 class="form-control form-control-sm border-0 bg-light px-3 py-2"
-                                                placeholder="المدينة/القرية" value="{{ old('birth_place') }}" required>
+                                                placeholder="المدينة" value="{{ old('birth_place') }}" required>
                                         </div>
-                                        <div class="col-md-1 text-start">
+
+                                        {{-- الجنس --}}
+                                        <div class="col-md-3 text-start">
                                             <label class="form-label small fw-bold text-secondary mb-1">
                                                 <i class="bi bi-gender-ambiguous text-primary me-1"></i>الجنس
                                             </label>
@@ -98,10 +118,8 @@
                                                 class="form-select form-select-sm border-0 bg-light px-3 py-2 fw-bold"
                                                 required>
                                                 <option value="" selected disabled>اختر</option>
-                                                <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>ذكر
-                                                </option>
-                                                <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>
-                                                    أنثى</option>
+                                                <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>ذكر</option>
+                                                <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>أنثى</option>
                                             </select>
                                         </div>
                                     </div>
@@ -163,43 +181,29 @@
                                     </div>
                                 </div>
 
-                                {{-- القسم الثالث: المسجد والمركز --}}
-                                <div class="mb-2">
-                                    <div class="d-flex align-items-center mb-3 text-indigo">
-                                        <span class="badge rounded-pill bg-dark bg-opacity-10 text-dark px-3 py-2 fw-bold">
-                                            <i class="bi bi-mosque me-1"></i> 3. البيانات الإدارية
-                                        </span>
-                                        <hr class="flex-grow-1 ms-3 my-0 opacity-10">
+                              {{-- القسم الثالث: المسجد والمركز --}}
+                               <div class="row g-3">
+                                    {{-- اسم المركز --}}
+                                    <div class="col-md-3 text-start">
+                                        <label class="form-label small fw-bold text-secondary mb-1">اسم المركز</label>
+                                        <input type="text" class="form-control form-control-sm border-0 bg-light px-3 py-2" value="اهل الرحمن" disabled style="pointer-events: none;">
+                                        <input type="hidden" name="center_name" value="اهل الرحمن">
                                     </div>
-                                    <div class="row g-3">
-                                        <div class="col-md-3 text-start">
-                                            <label class="form-label small fw-bold text-secondary mb-1">
-                                                <i class="bi bi-building-fill text-dark me-1"></i>اسم المركز
-                                            </label>
-                                            <input type="text" name="center_name"
-                                                class="form-control form-control-sm border-0 bg-light px-3 py-2"
-                                                placeholder="اسم المركز التعليمي" value="{{ old('center_name') }}">
-                                        </div>
-                                        <div class="col-md-3 text-start">
-                                            <label class="form-label small fw-bold text-secondary mb-1">
-                                                <i class="bi bi-moon-stars-fill text-dark me-1"></i>اسم المسجد
-                                            </label>
-                                            <input type="text" name="mosque_name"
-                                                class="form-control form-control-sm border-0 bg-light px-3 py-2"
-                                                placeholder="اسم المسجد التابع له" value="{{ old('mosque_name') }}">
-                                        </div>
-                                        <div class="col-md-6 text-start">
-                                            <label class="form-label small fw-bold text-secondary mb-1">
-                                                <i class="bi bi-map-fill text-dark me-1"></i>عنوان المسجد بالتفصيل
-                                            </label>
-                                            <input type="text" name="mosque_address"
-                                                class="form-control form-control-sm border-0 bg-light px-3 py-2"
-                                                placeholder="وصف مكان المسجد" value="{{ old('mosque_address') }}">
-                                        </div>
+
+                                    {{-- اسم المسجد --}}
+                                    <div class="col-md-3 text-start">
+                                        <label class="form-label small fw-bold text-secondary mb-1">اسم المسجد</label>
+                                        <input type="text" class="form-control form-control-sm border-0 bg-light px-3 py-2" value="يافا" disabled style="pointer-events: none;">
+                                        <input type="hidden" name="mosque_name" value="يافا">
+                                    </div>
+
+                                    {{-- عنوان المسجد --}}
+                                    <div class="col-md-6 text-start">
+                                        <label class="form-label small fw-bold text-secondary mb-1">عنوان المسجد بالتفصيل</label>
+                                        <input type="text" class="form-control form-control-sm border-0 bg-light px-3 py-2" value="دير البلح - حي بشارة" disabled style="pointer-events: none;">
+                                        <input type="hidden" name="mosque_address" value="دير البلح - حي بشارة">
                                     </div>
                                 </div>
-
-                            </div>
                             <div class="card-footer bg-light border-0 py-3 rounded-bottom-4">
                                 <div class="d-flex justify-content-end gap-2 ps-2">
                                     <button type="submit" class="btn btn-primary px-5 fw-bold rounded-pill shadow-sm">
