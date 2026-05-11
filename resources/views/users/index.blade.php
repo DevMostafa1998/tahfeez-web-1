@@ -9,126 +9,127 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-    /* التنسيق العام لجدول البيانات */
-    .dataTables_wrapper .row:first-child {
-        display: flex !important;
-        flex-direction: row !important;
-        justify-content: space-between !important;
-        align-items: center;
-        width: 100%;
-        margin: 0 0 1rem 0;
-        padding: 0 15px;
-    }
-
-    /* ألوان الجنس (ذكر/أنثى) داخل الجدول */
-    .bg-blue-subtle {
-        background-color: #e7f1ff !important;
-        color: #0d6efd !important;
-    }
-
-    .bg-pink-subtle {
-        background-color: #fff0f3 !important;
-        color: #d63384 !important;
-    }
-
-    /* أزرار العمليات داخل الجدول */
-    .action-btn {
-        width: 34px;
-        height: 34px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
-    }
-
-    .action-btn:hover {
-        transform: scale(1.1);
-    }
-
-    /* زر تصدير الإكسيل */
-    .btn-excel {
-        background-color: #1d6f42 !important;
-        color: white !important;
-        border-radius: 8px !important;
-        padding: 5px 15px !important;
-        font-weight: bold !important;
-        display: flex !important;
-        align-items: center !important;
-        gap: 5px !important;
-        border: none;
-    }
-
-    /* التنسيق الأساسي لأزرار التبويبات (حاليين / أرشيف) */
-    .btn-tab-custom {
-        background-color: #ffffff;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        padding: 8px 16px;
-        border-radius: 8px;
-        border: 1px solid #e0e0e0;
-    }
-
-    /* تثبيت اللون الأزرق لزر المستخدمين الحاليين */
-    #btn-current {
-        color: #0d6efd !important;
-        border-color: #0d6efd !important;
-    }
-
-    /* تثبيت اللون الأحمر لزر الأرشيف */
-    #btn-archived {
-        color: #dc3545 !important;
-        border-color: #dc3545 !important;
-    }
-
-    /* حالة الزر النشط (تأثير تكبير الإطار باستخدام الظل) */
-    .active-tab {
-        background-color: #ffffff !important;
-        border-width: 2px !important;
-        z-index: 1;
-    }
-
-    /* ظل أزرق عند تفعيل زر الحاليين */
-    #btn-current.active-tab {
-        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25) !important;
-    }
-
-    /* ظل أحمر عند تفعيل زر الأرشيف */
-    #btn-archived.active-tab {
-        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25) !important;
-    }
-
-    /* زر إضافة جديد */
-    .btn-add-new {
-        border-radius: 8px;
-        font-weight: 600;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .btn-add-new:hover {
-        background-color: #0b5ed7;
-        transform: scale(1.05);
-        box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
-    }
-
-    /* تحسين شكل التنسيق عند تمرير الماوس فوق الأزرار غير النشطة */
-    .btn-tab-custom:hover:not(.active-tab) {
-        background-color: #f8f9fa;
-        transform: translateY(-1px);
-    }
-
-    /* التجاوب مع الجوال */
-    @media (max-width: 768px) {
-        .page-header {
-            flex-direction: column;
-            gap: 15px;
-            align-items: flex-start !important;
-        }
+        /* التنسيق العام لجدول البيانات */
         .dataTables_wrapper .row:first-child {
-            flex-direction: column !important;
-            gap: 10px;
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: center;
+            width: 100%;
+            margin: 0 0 1rem 0;
+            padding: 0 15px;
         }
-    }
-</style>
+
+        /* ألوان الجنس (ذكر/أنثى) داخل الجدول */
+        .bg-blue-subtle {
+            background-color: #e7f1ff !important;
+            color: #0d6efd !important;
+        }
+
+        .bg-pink-subtle {
+            background-color: #fff0f3 !important;
+            color: #d63384 !important;
+        }
+
+        /* أزرار العمليات داخل الجدول */
+        .action-btn {
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* زر تصدير الإكسيل */
+        .btn-excel {
+            background-color: #1d6f42 !important;
+            color: white !important;
+            border-radius: 8px !important;
+            padding: 5px 15px !important;
+            font-weight: bold !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 5px !important;
+            border: none;
+        }
+
+        /* التنسيق الأساسي لأزرار التبويبات (حاليين / أرشيف) */
+        .btn-tab-custom {
+            background-color: #ffffff;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        /* تثبيت اللون الأزرق لزر المستخدمين الحاليين */
+        #btn-current {
+            color: #0d6efd !important;
+            border-color: #0d6efd !important;
+        }
+
+        /* تثبيت اللون الأحمر لزر الأرشيف */
+        #btn-archived {
+            color: #dc3545 !important;
+            border-color: #dc3545 !important;
+        }
+
+        /* حالة الزر النشط (تأثير تكبير الإطار باستخدام الظل) */
+        .active-tab {
+            background-color: #ffffff !important;
+            border-width: 2px !important;
+            z-index: 1;
+        }
+
+        /* ظل أزرق عند تفعيل زر الحاليين */
+        #btn-current.active-tab {
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25) !important;
+        }
+
+        /* ظل أحمر عند تفعيل زر الأرشيف */
+        #btn-archived.active-tab {
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25) !important;
+        }
+
+        /* زر إضافة جديد */
+        .btn-add-new {
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-add-new:hover {
+            background-color: #0b5ed7;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
+        }
+
+        /* تحسين شكل التنسيق عند تمرير الماوس فوق الأزرار غير النشطة */
+        .btn-tab-custom:hover:not(.active-tab) {
+            background-color: #f8f9fa;
+            transform: translateY(-1px);
+        }
+
+        /* التجاوب مع الجوال */
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start !important;
+            }
+
+            .dataTables_wrapper .row:first-child {
+                flex-direction: column !important;
+                gap: 10px;
+            }
+        }
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endpush
 
@@ -167,7 +168,8 @@
             <div class="card-body p-0">
                 <div class="p-3">
                     <div class="table-responsive">
-                        <table id="usersTable" class="table table-striped table-bordered align-middle mb-0 text-center w-100">
+                        <table id="usersTable"
+                            class="table table-striped table-bordered align-middle mb-0 text-center w-100">
                             <thead class="bg-light text-secondary">
                                 <tr>
                                     <th class="text-start ps-4">اسم المستخدم</th>
@@ -205,7 +207,8 @@
                         <div class="row g-2">
                             @foreach ($all_courses as $course)
                                 <div class="col-6 mb-2">
-                                    <div class="p-2 bg-light rounded border d-flex align-items-center justify-content-start">
+                                    <div
+                                        class="p-2 bg-light rounded border d-flex align-items-center justify-content-start">
                                         <input class="form-check-input course-checkbox m-0 ms-2" type="checkbox"
                                             name="courses[]" value="{{ $course->id }}"
                                             id="user_course_{{ $course->id }}">
@@ -218,7 +221,8 @@
                         </div>
                     </div>
                     <div class="modal-footer border-0">
-                        <button type="submit" class="btn btn-info text-white px-5 rounded-pill fw-bold">حفظ التغييرات</button>
+                        <button type="submit" class="btn btn-info text-white px-5 rounded-pill fw-bold">حفظ
+                            التغييرات</button>
                     </div>
                 </div>
             </form>
@@ -250,26 +254,56 @@
                         d.archived = showArchived; // إرسال حالة الأرشيف للسيرفر
                     }
                 },
-                columns: [
-                    { data: 'full_name', name: 'full_name', className: 'text-start ps-4' },
-                    { data: 'id_number', name: 'id_number' },
-                    { data: 'phone_number', name: 'phone_number' },
-                    { data: 'gender', name: 'gender' },
-                    { data: 'category', name: 'category' },
-                    { data: 'role', name: 'role' },
-                    { data: 'courses_count', name: 'courses_count', orderable: false },
-                    { data: 'actions', name: 'actions', orderable: false, searchable: false }
+                columns: [{
+                        data: 'full_name',
+                        name: 'full_name',
+                        className: 'text-start ps-4'
+                    },
+                    {
+                        data: 'id_number',
+                        name: 'id_number'
+                    },
+                    {
+                        data: 'phone_number',
+                        name: 'phone_number'
+                    },
+                    {
+                        data: 'gender',
+                        name: 'gender'
+                    },
+                    {
+                        data: 'category',
+                        name: 'category'
+                    },
+                    {
+                        data: 'role',
+                        name: 'role'
+                    },
+                    {
+                        data: 'courses_count',
+                        name: 'courses_count',
+                        orderable: false
+                    },
+                    {
+                        data: 'actions',
+                        name: 'actions',
+                        orderable: false,
+                        searchable: false
+                    }
                 ],
                 language: {
                     "sProcessing": "جاري التحميل...",
                     "sLengthMenu": "أظهر _MENU_ سجلات",
                     "sSearch": "بحث سريع:",
                     "sInfo": "عرض _START_ إلى _END_ من أصل _TOTAL_ مستخدم",
-                    "paginate": { "next": "›", "previous": "‹" }
+                    "paginate": {
+                        "next": "›",
+                        "previous": "‹"
+                    }
                 },
                 dom: "<'row mb-3 align-items-center'<'col-md-4 text-right'l><'col-md-4 text-center'B><'col-md-4 text-left'f>>" +
-                     "<'row'<'col-sm-12' <'table-responsive' tr> >>" +
-                     "<'row mt-3'<'col-sm-12'p>>",
+                    "<'row'<'col-sm-12' <'table-responsive' tr> >>" +
+                    "<'row mt-3'<'col-sm-12'p>>",
                 buttons: [{
                     text: '<i class="bi bi-file-earmark-excel-fill ms-1"></i> تصدير إكسل (الكل)',
                     className: 'btn-excel',
@@ -280,23 +314,29 @@
             });
 
             // تبديل التبويبات
-           $('#btn-current').on('click', function() {
-    showArchived = false;
-    $(this).addClass('active-tab');
-    $('#btn-archived').removeClass('active-tab');
-    table.ajax.reload();
-});
+            $('#btn-current').on('click', function() {
+                showArchived = false;
+                $(this).addClass('active-tab');
+                $('#btn-archived').removeClass('active-tab');
+                table.ajax.reload();
+            });
 
-$('#btn-archived').on('click', function() {
-    showArchived = true;
-    $(this).addClass('active-tab');
-    $('#btn-current').removeClass('active-tab');
-    table.ajax.reload();
-});
+            $('#btn-archived').on('click', function() {
+                showArchived = true;
+                $(this).addClass('active-tab');
+                $('#btn-current').removeClass('active-tab');
+                table.ajax.reload();
+            });
 
             // معالجة التنبيهات
             @if (session('success'))
-                Swal.fire({ icon: 'success', title: 'تم بنجاح', text: "{{ session('success') }}", confirmButtonColor: '#0dcaf0', timer: 2500 });
+                Swal.fire({
+                    icon: 'success',
+                    title: 'تم بنجاح',
+                    text: "{{ session('success') }}",
+                    confirmButtonColor: '#0dcaf0',
+                    timer: 2500
+                });
             @endif
         });
 
@@ -313,7 +353,9 @@ $('#btn-archived').on('click', function() {
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    let form = $(`<form action="{{ url('user') }}/${id}" method="POST">@csrf @method('DELETE')</form>`);
+                    let form = $(
+                        `<form action="{{ url('user') }}/${id}" method="POST">@csrf @method('DELETE')</form>`
+                        );
                     $('body').append(form);
                     form.submit();
                 }
@@ -322,22 +364,22 @@ $('#btn-archived').on('click', function() {
 
         // دالة الاستعادة (Restore)
         function restoreUser(id) {
-    Swal.fire({
-        title: 'هل أنت متأكد؟',
-        text: "سيتم استعادة هذا المحفظ إلى القائمة النشطة!",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#28a745',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'نعم، استعادة!',
-        cancelButtonText: 'إلغاء'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // توجيه المتصفح إلى رابط الاستعادة الذي عرفناه في الـ web.php
-            window.location.href = "{{ url('user/restore') }}/" + id;
+            Swal.fire({
+                title: 'هل أنت متأكد؟',
+                text: "سيتم استعادة هذا المحفظ إلى القائمة النشطة!",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'نعم، استعادة!',
+                cancelButtonText: 'إلغاء'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // توجيه المتصفح إلى رابط الاستعادة الذي عرفناه في الـ web.php
+                    window.location.href = "{{ url('user/restore') }}/" + id;
+                }
+            });
         }
-    });
-}
 
         // دالة التعديل
         function editUser(id) {
@@ -380,7 +422,9 @@ $('#btn-archived').on('click', function() {
             $('#course_user_name').text(userName);
             $('.course-checkbox').prop('checked', false);
             if (Array.isArray(userCourses)) {
-                userCourses.forEach(id => { $(`#user_course_${id}`).prop('checked', true); });
+                userCourses.forEach(id => {
+                    $(`#user_course_${id}`).prop('checked', true);
+                });
             }
             $('#courseUserModal').modal('show');
         });

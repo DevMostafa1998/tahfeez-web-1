@@ -36,7 +36,7 @@ Route::get('/notifications/read/{id}', [NotificationController::class, 'markAsRe
 Route::get('/notifications/mark-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
 Route::prefix('excel-manage')->group(function () {
 
-Route::get('/{groupId}', [ExcelExportImportController::class, 'showExcelPage'])->name('excel.manage.page');
+    Route::get('/{groupId}', [ExcelExportImportController::class, 'showExcelPage'])->name('excel.manage.page');
 
     // عمليات التصدير والاستيراد
     Route::get('/export/{groupId}', [ExcelExportImportController::class, 'exportExcel'])->name('excel.export');
@@ -95,7 +95,7 @@ Route::middleware('auth')->group(function () {
         Route::get('users/export-excel', [UserController::class, 'exportFullExcel'])->name('user.export.excel');
         Route::get('student-restore/{id}', [StudentController::class, 'restore'])->name('student.restore.get');
         Route::post('student/{id}/restore', [StudentController::class, 'restore'])->name('student.restore');
-
+        Route::get('user/{id}/restore', [UserController::class, 'restore'])->name('user.restore');
         Route::resources([
             'user'         => UserController::class,
             'category'     => CategoryController::class,

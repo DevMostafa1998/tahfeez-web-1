@@ -46,6 +46,7 @@ class MemorizationApiController extends Controller
     public function syncUp(Request $request)
     {
         Log::info('بيانات المزامنة القادمة:', $request->all());
+        $teacherId = $request->user() ? $request->user()->id : null;
 
         $request->validate([
             'records' => 'required|array',
@@ -71,7 +72,7 @@ class MemorizationApiController extends Controller
                     ],
                     [
                         'status'      => 'حاضر',
-                        'recorded_by' => 'نظام التسميع',
+                        'recorded_by' => $teacherId,
                         'notes'       => 'تسجيل تلقائي عند التسميع',
                         'created_at'  => now(),
                         'updated_at'  => now(),

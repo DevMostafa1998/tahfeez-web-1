@@ -33,7 +33,9 @@ class MemorizationController extends Controller
         $groupId = $request->group_id;
         $date = $request->date;
 
+        // التحقق من صلاحية الوصول للمجموعة
         if (!$user->is_admin) {
+            // التحقق من أن المجموعة تابعة للمعلم
             $hasAccess = DB::table('group')
                 ->where('id', $groupId)
                 ->where('UserId', $user->id)
