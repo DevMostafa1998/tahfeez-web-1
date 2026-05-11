@@ -116,7 +116,7 @@ Route::middleware('auth')->group(function () {
         });
     });
 
-    Route::get('/logout', function (Request $request) {
+    Route::post('/logout', function (Request $request) {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
