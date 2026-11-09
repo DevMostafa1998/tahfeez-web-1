@@ -3,16 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\BusinessLogic\AttendanceReportLogic;
+use App\BusinessLogic\ExportExcel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AttendanceReportController extends Controller
 {
     protected $logic;
+    protected $exportExcel;
 
-    public function __construct(AttendanceReportLogic $logic)
+    public function __construct(AttendanceReportLogic $logic, ExportExcel $export)
     {
         $this->logic = $logic;
+        $this->exportExcel = $export;
     }
 
     public function index()
@@ -32,20 +35,17 @@ class AttendanceReportController extends Controller
         $filters = $this->logic->getDynamicFilters($request->all());
         return response()->json($filters);
     }
+
     public function exportExcel(Request $request)
     {
         $data = $this->logic->getAllAttendanceForExport(Auth::user(), $request->all());
 
-        $exporter = new \App\BusinessLogic\ExportExcel();
-        return $exporter->export(
-            'تقرير_الحضور',                    // اسم الملف
-            'تقرير حضور وغياب الطلاب المفصل',   // عنوان التقرير داخل الملف
-            ['التاريخ', 'اسم الطالب', 'الهوية', 'الهاتف', 'الحالة'], // الهيدرز
-            $data,                             // البيانات
-            ['date', 'name', 'id', 'phone', 'status'] // المابينج
+        return $this->exportExcel->export(
+            'تقرير_الحضور_' . date('Y-m-d'),
+            'تقرير حضور وغياب الطلاب المفصل',
+            ['التاريخ', 'اسم الطالب', 'رقم الهوية', 'الهاتف', 'الحالة', 'الملاحظات'],
+            $data,
+            ['date', 'name', 'id', 'phone', 'status', 'notes'] 
         );
     }
-
-    // تحديث ميثود جلب البيانات لتناسب DataTables
-
 }

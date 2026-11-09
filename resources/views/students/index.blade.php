@@ -79,17 +79,13 @@
             gap: 5px !important;
         }
 
-        /* تحسين استجابة الجدول على الشاشات الصغيرة */
         @media (max-width: 768px) {
-
-            /* جعل الهيدر عمودياً */
             .page-header {
                 flex-direction: column;
                 gap: 15px;
                 align-items: flex-start !important;
             }
 
-            /* ضبط أزرار الـ DataTables لتكون تحت بعضها أو متراصة بشكل أفضل */
             .dataTables_wrapper .row:first-child {
                 flex-direction: column !important;
                 gap: 10px;
@@ -102,34 +98,28 @@
                 width: 100%;
             }
 
-            /* جعل الجدول يدعم التمرير الأفقي بوضوح */
             .card-table .p-3 {
                 padding: 5px !important;
             }
 
-            /* تصغير حجم الخط والأيقونات في الأكشن */
             .action-btn {
                 width: 30px;
                 height: 30px;
             }
 
-            /* تحسين شكل المودال على الجوال */
             .modal-dialog {
                 margin: 10px;
             }
 
             .col-6 {
                 width: 100% !important;
-                /* جعل خيارات الدورات تأخذ العرض الكامل */
             }
         }
 
-        /* حل مشكلة تداخل الأزرار في الجدول */
         .table-responsive {
             border: none;
         }
 
-        /* تنسيق إضافي لزر الإكسل ليكون بعرض كامل على الجوال */
         @media (max-width: 576px) {
             .btn-excel {
                 width: 100%;
@@ -137,7 +127,6 @@
             }
         }
 
-        /* تنسيق أزرار التبويبات (حاليين / أرشيف) */
         .btn-tab-custom {
             background-color: #ffffff;
             border: 1px solid #e0e0e0;
@@ -147,36 +136,33 @@
             border-radius: 8px;
         }
 
-        /* تأثير التمرير للأزرار البيضاء */
         .btn-tab-custom:hover {
             background-color: #f8f9fa;
             border-color: #d0d0d0;
             transform: translateY(-2px);
-            /* رفعة بسيطة للأعلى */
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
-    #studentsTable td.id-column .badge,
-    #studentsTable td.id-column .bg-light,
-    #studentsTable td.id-column .text-white {
-        background: none !important;
-        border: none !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-        color: inherit !important;
-    }
 
-    #studentsTable td {
-        vertical-align: middle !important;
-    }
+        #studentsTable td.id-column .badge,
+        #studentsTable td.id-column .bg-light,
+        #studentsTable td.id-column .text-white {
+            background: none !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            color: inherit !important;
+        }
 
-     /* التنسيق الخاص بالزر النشط */
+        #studentsTable td {
+            vertical-align: middle !important;
+        }
+
         .active-tab {
             background-color: #f0f7ff !important;
             border-color: #0d6efd !important;
             color: #0d6efd !important;
         }
 
-        /* تأثير زر "طالب جديد" */
         .btn-add-new {
             border-radius: 8px;
             font-weight: 600;
@@ -185,13 +171,10 @@
 
         .btn-add-new:hover {
             background-color: #0b5ed7;
-            /* درجة أغمق قليلاً */
             transform: scale(1.05);
-            /* تكبير بسيط */
             box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
         }
 
-        /* تأثير خاص لزر الأرشيف عند التمرير */
         #btn-archived:hover {
             background-color: #fff5f5;
             border-color: #dc3545;
@@ -203,7 +186,6 @@
 @section('content')
     <div class="container-fluid p-3" dir="rtl">
         <div class="page-header d-flex justify-content-between align-items-center mb-3 px-3 flex-wrap">
-
             <div class="d-flex align-items-center gap-2">
                 <div class="bg-white p-1 rounded-2 shadow-sm d-flex align-items-center justify-content-center border"
                     style="width: 40px; height: 40px;">
@@ -213,24 +195,19 @@
             </div>
 
             <div class="d-flex align-items-center gap-2">
-
                 <div class="header-btns-wrapper d-flex gap-2">
                     <button type="button" id="btn-current" class="btn btn-tab-custom active-tab">
                         <i class="bi bi-people-fill ms-1"></i> الطلاب الحاليين
                     </button>
-
                     <button type="button" id="btn-archived" class="btn btn-tab-custom text-danger">
                         <i class="bi bi-trash3-fill ms-1"></i> الأرشيف
                     </button>
                 </div>
-
                 <div class="vr mx-2 text-muted opacity-25 d-none d-md-block" style="height: 30px;"></div>
-
                 <a href="{{ route('student.create') }}" class="btn btn-primary btn-add-new shadow-sm px-4 py-2">
                     <i class="bi bi-plus-lg ms-1"></i> طالب جديد
                 </a>
             </div>
-
         </div>
     </div>
 
@@ -246,6 +223,7 @@
                                 <th>رقم هوية الطالب</th>
                                 <th>رقم هوية الأب</th>
                                 <th>الجنس</th>
+                                <th>التصنيف</th>
                                 <th>الحالة</th>
                                 <th>الدورات</th>
                                 <th>الإجراءات</th>
@@ -253,54 +231,52 @@
                         </thead>
                         <tbody></tbody>
                     </table>
-
                     @include('students.edit_modal_unified')
                 </div>
             </div>
         </div>
     </div>
-    </div>
 
-    {{-- مودال إدارة الدورات --}}
-    <div class="modal fade" id="courseStudentModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-md modal-dialog-centered">
-            <form id="courseForm" method="POST">
-                @csrf @method('PUT')
-                <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-                    <div class="modal-header bg-info text-white border-0 py-3">
-                        <h5 class="modal-title fw-bold"><i class="bi bi-book-half ms-2"></i>دورات الطالب: <span
-                                id="modal_student_name"></span></h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body p-4 text-start">
-                        <input type="hidden" name="update_courses_only" value="1">
-                        <div class="row g-2">
-                            @foreach (\DB::table('courses')->whereIn('type', ['students', null])->orWhereNull('type')->get() as $course)
-                                <div class="col-6 mb-2">
-                                    <div class="p-2 bg-light rounded border d-flex align-items-center justify-content-start"
-                                        style="cursor: pointer;">
-                                        <input class="form-check-input course-checkbox m-0" type="checkbox" name="courses[]"
-                                            value="{{ $course->id }}" id="student_course_{{ $course->id }}"
-                                            style="position: relative; margin-left: 10px !important;">
-
-                                        <label class="form-check-label fw-bold mb-0 flex-grow-1 cursor-pointer"
-                                            for="student_course_{{ $course->id }}"
-                                            style="text-align: right; padding-right: 10px;">
-                                            {{ $course->name }}
-                                        </label>
-                                    </div>
+   {{-- مودال إدارة الدورات --}}
+<div class="modal fade" id="courseStudentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <form id="courseForm" method="POST">
+            @csrf @method('PUT')
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header bg-info text-white border-0 py-3">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-book-half ms-2"></i>دورات الطالب: <span id="modal_student_name"></span></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 text-start">
+                    <input type="hidden" name="update_courses_only" value="1">
+                    <div class="row g-2">
+                        @forelse ($student_courses as $course)
+                            <div class="col-6 mb-2">
+                                <div class="p-2 bg-light rounded border d-flex align-items-center justify-content-start" style="cursor: pointer;">
+                                    <input class="form-check-input course-checkbox m-0" type="checkbox" name="courses[]"
+                                        value="{{ $course->id }}" id="student_course_{{ $course->id }}"
+                                        style="position: relative; margin-left: 10px !important;">
+                                    <label class="form-check-label fw-bold mb-0 flex-grow-1 cursor-pointer"
+                                        for="student_course_{{ $course->id }}"
+                                        style="text-align: right; padding-right: 10px;">
+                                        {{ $course->name }}
+                                    </label>
                                 </div>
-                            @endforeach
-                        </div>
-                    </div>
-                    <div class="modal-footer border-0">
-                        <button type="submit" class="btn btn-info text-white px-5 fw-bold rounded-pill">حفظ
-                            التغييرات</button>
+                            </div>
+                        @empty
+                            <div class="col-12 text-center text-muted py-3">
+                                لا توجد دورات مخصصة لهذا المركز حالياً
+                            </div>
+                        @endforelse
                     </div>
                 </div>
-            </form>
-        </div>
+                <div class="modal-footer border-0">
+                    <button type="submit" class="btn btn-info text-white px-5 fw-bold rounded-pill">حفظ التغييرات</button>
+                </div>
+            </div>
+        </form>
     </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -314,10 +290,8 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
     <script>
-        // متغير للتحكم في نوع البيانات المعروضة (حالي أو مؤرشف)
         let showArchived = false;
 
-        // دالة حذف الطالب (نقل للأرشيف)
         function confirmDelete(id) {
             Swal.fire({
                 title: 'هل أنت متأكد؟',
@@ -330,17 +304,15 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    let form = $(`<form action="{{ url('student') }}/${id}" method="POST">
-                        @csrf
-                        @method('DELETE')
-                    </form>`);
+                    let form = $(
+                        `<form action="{{ url('student') }}/${id}" method="POST">@csrf @method('DELETE')</form>`
+                    );
                     $('body').append(form);
                     form.submit();
                 }
             });
         }
 
-        // دالة استعادة الطالب من الأرشيف
         function restoreStudent(id) {
             Swal.fire({
                 title: 'استعادة الطالب؟',
@@ -377,47 +349,33 @@
                     {
                         data: 'id_number',
                         name: 'id_number',
-                        className: 'text-center id-column', // أضفنا id-column هنا
-    render: function (data) {
-        if (!data) return '';
-        return '<span style="' +
-               'display: inline-block !important; ' +
-               'background-color: #ffffff !important; ' +
-               'color: #000000 !important; ' +
-               'border: 1px solid #ddd !important; ' +
-               'padding: 4px 12px !important; ' +
-               'border-radius: 4px !important; ' +
-               'font-weight: bold !important; ' + // تم تعديل font-dark إلى font-weight
-               'font-size: 14px !important; ' +
-               'min-width: 90px !important; ' +
-               'text-align: center !important;' +
-               '">' + data + '</span>';
-    }
-},
-                   {
-    data: 'father_id',
-    name: 'father_id',
-    className: 'text-center id-column', // أضفنا id-column هنا
-    render: function (data) {
-        if (!data) return '';
-        return '<span style="' +
-               'display: inline-block !important; ' +
-               'background-color: #ffffff !important; ' +
-               'color: #000000 !important; ' +
-               'border: 1px solid #ddd !important; ' +
-               'padding: 4px 12px !important; ' +
-               'border-radius: 4px !important; ' +
-               'font-weight: bold !important; ' +
-               'font-size: 14px !important; ' +
-               'min-width: 90px !important; ' +
-               'text-align: center !important;' +
-               '">' + data + '</span>';
-    }
-},
+                        className: 'text-center id-column',
+                        render: function(data) {
+                            if (!data) return '';
+                            return '<span style="display: inline-block !important; background-color: #ffffff !important; color: #000000 !important; border: 1px solid #ddd !important; padding: 4px 12px !important; border-radius: 4px !important; font-weight: bold !important; font-size: 14px !important; min-width: 90px !important; text-align: center !important;">' +
+                                data + '</span>';
+                        }
+                    },
+                    {
+                        data: 'father_id',
+                        name: 'father_id',
+                        className: 'text-center id-column',
+                        render: function(data) {
+                            if (!data) return '';
+                            return '<span style="display: inline-block !important; background-color: #ffffff !important; color: #000000 !important; border: 1px solid #ddd !important; padding: 4px 12px !important; border-radius: 4px !important; font-weight: bold !important; font-size: 14px !important; min-width: 90px !important; text-align: center !important;">' +
+                                data + '</span>';
+                        }
+                    },
                     {
                         data: 'gender',
                         name: 'gender',
                         className: 'text-center'
+                    },
+                    {
+                        data: 'category',
+                        name: 'category',
+                        className: 'text-center',
+                        orderable: false
                     },
                     {
                         data: 'status',
@@ -463,7 +421,6 @@
                 }]
             });
 
-            // منطق أزرار التبديل (الطلاب الحاليين / الأرشيف)
             $('#btn-current').on('click', function() {
                 showArchived = false;
                 $(this).addClass('active-status shadow-sm').removeClass('text-secondary');
@@ -478,7 +435,6 @@
                 table.ajax.reload();
             });
 
-            // فتح مودال التعديل عبر AJAX
             $(document).on('click', '.edit-student-btn', function() {
                 const id = $(this).data('id');
                 const modal = $('#unifiedEditModal');
@@ -498,14 +454,14 @@
                         $('#edit_phone_number').val(student.phone_number);
                         $('#edit_whatsapp_number').val(student.whatsapp_number);
                         $('#edit_address').val(student.address);
-                        $('#edit_center_name').val(student.center_name);
+                        $('#edit_center_id').val(student.center_id);
                         $('#edit_mosque_name').val(student.mosque_name);
                         $('#edit_mosque_address').val(student.mosque_address);
                         if (student.date_of_birth) {
                             $('#edit_date_of_birth').val(student.date_of_birth.substring(0,
                                 10));
                         }
-
+                        $('#edit_categorie_id').val(student.categorie_id);
                         $('#edit_is_displaced option').each(function() {
                             if ($(this).val() == student.is_displaced) {
                                 $(this).prop('selected', true);
@@ -513,12 +469,10 @@
                         });
 
                         modal.modal('show');
-
                     }
                 });
             });
 
-            // فتح مودال إدارة الدورات
             $(document).on('click', '.course-btn', function() {
                 const studentId = $(this).data('id');
                 const studentName = $(this).data('name');

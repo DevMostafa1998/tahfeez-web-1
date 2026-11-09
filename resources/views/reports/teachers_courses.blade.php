@@ -22,6 +22,15 @@
                                     @endforeach
                                 </select>
                             </div>
+                            {{-- الفلتر الجديد للجنس --}}
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">الجنس</label>
+                                <select name="gender" id="gender" class="form-select filter-input">
+                                    <option value="">-- الكل --</option>
+                                    <option value="male">ذكر</option>
+                                    <option value="female">أنثى</option>
+                                </select>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -36,6 +45,7 @@
                         <thead class="bg-primary text-white">
                             <tr>
                                 <th>اسم المحفظ/ة</th>
+
                                 <th>رقم الهوية</th>
                                 <th>تاريخ الميلاد</th>
                                 <th>مكان الميلاد</th>
@@ -160,6 +170,7 @@
                     "type": "GET",
                     "data": function(d) {
                         d.teacher_id = $('#teacher_id').val();
+                        d.gender = $('#gender').val(); // إرسال الجنس المختار إلى الخادم
                     }
                 },
                 "columns": [{
@@ -246,12 +257,14 @@
                     text: '<i class="fas fa-file-excel me-1"></i> تصدير إكسل (الكل)',
                     className: 'btn btn-success fw-bold btn-excel',
                     action: function(e, dt, node, config) {
-                        // جلب الفلاتر الحالية
                         let teacherId = $('#teacher_id').val() || '';
+                        let gender = $('#gender').val() ||
+                            ''; // جلب قيمة فلتر الجنس عند التصدير
                         let searchQuery = dt.search() || '';
 
                         let exportUrl = "{{ route('reports.teachers_courses') }}?export=1" +
                             "&teacher_id=" + teacherId +
+                            "&gender=" + gender +
                             "&search_value=" + encodeURIComponent(searchQuery);
 
                         window.location.href = exportUrl;
@@ -262,7 +275,8 @@
                 "searching": true
             });
 
-            $('#teacher_id').on('change', function() {
+            // تحديث الجدول عند تغيير فلتر المحفظ أو الجنس
+            $('#teacher_id, #gender').on('change', function() {
                 table.draw();
             });
 

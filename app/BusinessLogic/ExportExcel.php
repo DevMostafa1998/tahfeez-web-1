@@ -8,7 +8,12 @@ class ExportExcel
 {
     public function export($fileName, $reportTitle, $headers, $data, $columnsMapping)
     {
-        $columnCount = count($headers);
+        $headersArray = is_array($headers) ? $headers : [];
+        $columnCount = count($headersArray);
+
+        if (empty($fileName)) {
+            $fileName = 'تقرير_المحفظين_' . date('Y-m-d');
+        }
 
         $output = '
         <html dir="rtl">
@@ -47,11 +52,12 @@ class ExportExcel
         <body>
             <table>
                 <tr>
-                    <th colspan="' . $columnCount . '" class="title-row">' . $reportTitle . '</th>
+                    <th colspan="' . $columnCount . '" class="title-row">' . htmlspecialchars($reportTitle) . '</th>
                 </tr>
                 <tr class="header-row">';
-        foreach ($headers as $header) {
-            $output .= '<td>' . $header . '</td>';
+
+        foreach ($headersArray as $header) {
+            $output .= '<td>' . htmlspecialchars($header) . '</td>';
         }
         $output .= '</tr>';
 
@@ -60,21 +66,26 @@ class ExportExcel
             foreach ($columnsMapping as $field) {
                 $value = $row[$field] ?? '';
                 $style = "";
-                if (is_numeric($value) && (strlen($value) > 9 || strpos($value, '0') === 0)) {
+
+                if (is_numeric($value) && (strlen((string)$value) > 9 || strpos((string)$value, '0') === 0)) {
                     $style = 'class="text-format"';
                 }
 
-                $output .= '<td ' . $style . '>' . $value . '</td>';
+                $output .= '<td ' . $style . '>' . htmlspecialchars($value) . '</td>';
             }
             $output .= '</tr>';
         }
 
         $output .= '</table></body></html>';
 
+        $cleanFileName = str_replace(['/', '\\', ':', '*', '?', '"', '<', '>', '|'], '_', $fileName);
+        $encodedFileName = rawurlencode($cleanFileName) . '.xls';
+
         return Response::make($output, 200, [
-            "Content-type"        => "application/vnd.ms-excel",
-            "Content-Disposition" => "attachment; filename={$fileName}.xls",
-            "Cache-Control"       => "max-age=0",
+            'Content-Type'        => 'application/vnd.ms-excel; charset=utf-8',
+            'Content-Disposition' => "attachment; filename=\"{$encodedFileName}\"; filename*=UTF-8''{$encodedFileName}",
+            'Cache-Control'       => 'max-age=0, must-revalidate',
+            'Pragma'              => 'public',
         ]);
     }
 }

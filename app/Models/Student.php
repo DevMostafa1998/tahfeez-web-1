@@ -27,11 +27,12 @@ class Student extends Model
         'updated_by',
         'deleted_by',
         'birth_place',
-        'center_name',
         'mosque_name',
         'mosque_address',
         'whatsapp_number',
         'gender',
+        'categorie_id',
+        'center_id',
     ];
     protected $casts = [
         'date_of_birth' => 'date',
@@ -57,7 +58,6 @@ class Student extends Model
             ->withPivot('creation_at')
             ->orderByPivot('creation_at', 'desc');
     }
-    // جلب المعلم الحالي من خلال أحدث مجموعة
     public function getCurrentTeacherAttribute()
     {
         $latestGroup = $this->groups->first();
@@ -73,16 +73,27 @@ class Student extends Model
     }
 
     public function latestMemorization()
-{
-    return $this->hasOne(StudentDailyMemorization::class, 'student_id')->ofMany(['date' => 'max','id' => 'max',]);
-                                       
-}
-public function memorizations()
-{
-    return $this->hasMany(StudentDailyMemorization::class, 'student_id');
-}
+    {
+        return $this->hasOne(StudentDailyMemorization::class, 'student_id')->ofMany(['date' => 'max', 'id' => 'max',]);
+    }
+    public function memorizations()
+    {
+        return $this->hasMany(StudentDailyMemorization::class, 'student_id');
+    }
     public function quranTests()
     {
         return $this->hasMany(QuranMemTest::class, 'studentId');
+    }
+    public function QuranMemTests()
+    {
+        return $this->hasMany(QuranMemTest::class, 'studentId');
+    }
+    public function categorie()
+    {
+        return $this->belongsTo(Category::class, 'categorie_id');
+    }
+        public function center()
+    {
+        return $this->belongsTo(\App\Models\Center::class, 'center_id');
     }
 }

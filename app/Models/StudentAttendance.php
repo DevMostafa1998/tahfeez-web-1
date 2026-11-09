@@ -11,6 +11,7 @@ class StudentAttendance extends Model
 
     protected $fillable = [
         'student_id',
+        'group_id',
         'attendance_date',
         'status',
         'notes',
@@ -21,5 +22,16 @@ class StudentAttendance extends Model
     public function student()
     {
         return $this->belongsTo(Student::class, 'student_id');
+    }
+
+    // علاقة السجل بالمجموعة (كل سجل حضور يتبع لمجموعة معينة)
+    public function group()
+    {
+        return $this->belongsTo(Group::class, 'group_id');
+    }
+
+    public function recorder()
+    {
+        return $this->belongsTo(User::class, 'recorded_by');
     }
 }

@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Student;
+use App\Models\Center;
 use Illuminate\Support\Facades\DB;
+
 
 class ParentController extends Controller
 {
@@ -14,9 +16,10 @@ class ParentController extends Controller
         if (!$id_number) return redirect()->route('parent.login');
 
         $student = Student::where('id_number', $id_number)->first();
-        if($student == null) return redirect()->route('parent.login')->withErrors(['message' => 'رقم الهوية غير موجود']);
-        //  جلب أحدث عملية تسميع (منطقة التوقف الحالية)
-        // رتبنا حسب الـ id لضمان الحصول على آخر إدخال فعلي حتى لو تساوت التواريخ
+        if ($student == null) return redirect()->route('parent.login')->withErrors(['message' => 'رقم الهوية غير موجود']);
+
+        $centers = Center::all();
+
         $lastMemo = DB::table('student_daily_memorizations')
             ->where('student_id', $student->id)
             ->orderBy('date', 'desc')
@@ -29,7 +32,7 @@ class ParentController extends Controller
             ->where('student_id', $student->id)
             ->groupBy('sura_name')
             ->get()
-            ->map(function($item) {
+            ->map(function ($item) {
                 $surahInfo = DB::table('surahs')->where('name_ar', $item->sura_name)->first();
 
                 $totalVerses = $surahInfo->verses_count ?? 1;
@@ -45,47 +48,78 @@ class ParentController extends Controller
 
                 return $item;
             });
-            
-            $tests = $student->quranTests()
-                    ->orderBy('date', 'desc')
-                    ->get();
-            //  الحسابات الإجمالية بناءً على الصفحات
-            $totalSavedPages = $memorizedSurahs->sum('equivalent_pages');
 
-            // عدد الأجزاء (كل 20.13 صفحة تعادل جزءاً في مصحف المدينة)
-            $completedPartsCount = round($totalSavedPages / 20.13, 2);
+        $tests = $student->quranTests()
+            ->orderBy('date', 'desc')
+            ->get();
 
-            // النسبة المئوية من كامل المصحف (604 صفحة)
-            $percentage = ($totalSavedPages / 604) * 100;
+        //  الحسابات الإجمالية بناءً على الصفحات
+        $totalSavedPages = $memorizedSurahs->sum('equivalent_pages');
 
-            // قيود الحدود القصوى
-            $completedPartsCount = min($completedPartsCount, 30);
-            $percentage = min($percentage, 100);
+        // عدد الأجزاء (كل 20.13 صفحة تعادل جزءاً في مصحف المدينة)
+        $completedPartsCount = round($totalSavedPages / 20.13, 2);
 
-            $teacher = $student->groups->first() ? $student->groups->first()->teacher : null;
-            $age = $student->date_of_birth ? Carbon::parse($student->date_of_birth)->age : 0;
+        // النسبة المئوية من كامل المصحف (604 صفحة)
+        $percentage = ($totalSavedPages / 604) * 100;
 
-            //  تحديد مسار الحفظ (من الفاتحة أم من الناس)
-            // نجلب أول عملية حفظ سجلت للطالب تاريخياً
-            $firstMemo = DB::table('student_daily_memorizations')
-                ->where('student_id', $student->id)
-                ->orderBy('date', 'asc')
-                ->orderBy('id', 'asc')
-                ->first();
+        // قيود الحدود القصوى
+        $completedPartsCount = min($completedPartsCount, 30);
+        $percentage = min($percentage, 100);
 
-            // إذا كانت أول سورة هي الناس أو رقمها 114 (أو ضمن جزء عم)، نعتبره بدأ من الناس
-            $startFromEnd = false;
-            if ($firstMemo) {
-                $firstSurah = DB::table('surahs')->where('name_ar', $firstMemo->sura_name)->first();
-                // إذا بدأ من سورة رقمها أكبر من 78 (جزء عم) نعتبر المسار من الناس
-                if ($firstSurah && $firstSurah->number >= 78) {
-                    $startFromEnd = true;
-                }
+        $teacher = $student->groups->first() ? $student->groups->first()->teacher : null;
+        $age = $student->date_of_birth ? Carbon::parse($student->date_of_birth)->age : 0;
+
+        //  تحديد مسار الحفظ (من الفاتحة أم من الناس)
+        $firstMemo = DB::table('student_daily_memorizations')
+            ->where('student_id', $student->id)
+            ->orderBy('date', 'asc')
+            ->orderBy('id', 'asc')
+            ->first();
+
+        $startFromEnd = false;
+        if ($firstMemo) {
+            $firstSurah = DB::table('surahs')->where('name_ar', $firstMemo->sura_name)->first();
+            if ($firstSurah && $firstSurah->number >= 78) {
+                $startFromEnd = true;
             }
-
-            return view('parents.index', compact(
-                'student', 'age', 'completedPartsCount', 'percentage',
-                'lastMemo', 'teacher', 'memorizedSurahs', 'startFromEnd','tests'
-            ));
         }
+
+        // 3. تمرير $centers مع الـ view 👈
+        return view('parents.index', compact(
+            'student',
+            'age',
+            'completedPartsCount',
+            'percentage',
+            'lastMemo',
+            'teacher',
+            'memorizedSurahs',
+            'startFromEnd',
+            'tests',
+            'centers'
+        ));
+    }
+
+    public function verifyStudentPublic(Request $request)
+    {
+        $request->validate([
+            'student_id' => 'required|string|digits:9',
+        ], [
+            'student_id.required' => 'يرجى إدخال رقم هوية الطالب.',
+            'student_id.digits'   => 'رقم هوية الطالب يجب أن يتكون من 9 أرقام.',
+        ]);
+
+        $student = \App\Models\Student::where('id_number', $request->student_id)->first();
+
+        if ($student) {
+            return response()->json([
+                'success' => true,
+                'student' => $student
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'عذراً، رقم هوية الطالب غير مسجل في النظام.'
+        ]);
+    }
 }

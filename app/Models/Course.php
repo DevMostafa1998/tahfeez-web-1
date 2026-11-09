@@ -8,7 +8,7 @@ class Course extends Model
 {
     protected $table = 'courses';
 
-    protected $fillable = ['name', 'type'];
+    protected $fillable = ['name', 'type', 'center_id'];
 
     public function users()
     {
@@ -24,13 +24,17 @@ class Course extends Model
                     ->using(CourseStudent::class)
                     ->withTimestamps();
     }
-    protected static function boot()
-{
-    parent::boot();
+    public function center()
+    {
+        return $this->belongsTo(Center::class);
+    }
+        protected static function boot()
+    {
+        parent::boot();
 
-    static::deleting(function ($course) {
-        $course->users()->detach();
-        $course->students()->detach();
-    });
-}
+        static::deleting(function ($course) {
+            $course->users()->detach();
+            $course->students()->detach();
+        });
+    }
 }

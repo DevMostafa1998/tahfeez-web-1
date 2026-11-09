@@ -12,59 +12,13 @@ class StudentReportController extends Controller
 {
     protected $reportLogic;
     protected $excelService;
+
     public function __construct(StudentReportLogic $reportLogic, ExportExcel $excelService)
     {
         $this->reportLogic = $reportLogic;
         $this->excelService = $excelService;
     }
-    public function export(Request $request)
-    {
-        $user = Auth::user();
-        $filters = $request->all();
 
-        $query = $this->reportLogic->buildFilteredQuery($user, $filters);
-        $students = $query->get();
-
-        $data = $this->reportLogic->formatForExcel($students);
-
-        $headers = [
-            'الاسم الكامل',
-            'رقم الهوية',
-            'تاريخ الميلاد',
-            'مكان الميلاد',
-            'الهاتف',
-            'واتساب',
-            'العنوان',
-            'المركز',
-            'المسجد',
-            'المجموعة',
-            'المحفظ/ة',
-            'الحالة'
-        ];
-
-        $columnsMapping = [
-            'full_name',
-            'id_number',
-            'date_of_birth',
-            'birth_place',
-            'phone_number',
-            'whatsapp_number',
-            'address',
-            'center_name',
-            'mosque_name',
-            'group_name',
-            'teacher_name',
-            'is_displaced'
-        ];
-
-        return $this->excelService->export(
-            'تقرير_الطلاب_' . date('Y-m-d'),
-            'تقرير بيانات الطلاب والمجموعات',
-            $headers,
-            $data,
-            $columnsMapping
-        );
-    }
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -83,19 +37,52 @@ class StudentReportController extends Controller
             $formattedData = $this->reportLogic->formatStudentData($students);
 
             return response()->json([
-                "draw" => intval($request->draw),
-                "recordsTotal" => $totalRecords,
+                "draw"            => intval($request->draw),
+                "recordsTotal"    => $totalRecords,
                 "recordsFiltered" => $totalRecords,
-                "data" => $formattedData
+                "data"            => $formattedData
             ]);
         }
 
         $teachers = $this->reportLogic->getTeachers();
         $groups = $this->reportLogic->getGroupsForUser($user);
+        $centers = $this->reportLogic->getCenters();
 
-        return view('reports.students_report', compact('teachers', 'groups'));
+        return view('reports.students_report', compact('teachers', 'groups', 'centers'));
     }
 
+    public function export(Request $request)
+    {
+        $user = Auth::user();
+        $filters = $request->all();
+
+        $query = $this->reportLogic->buildFilteredQuery($user, $filters);
+        $students = $query->get();
+
+        $data = $this->reportLogic->formatForExcel($students);
+
+        $headers = [
+            'الاسم الكامل', 'رقم الهوية', 'رقم هوية الأب', 'الجنس', 'التصنيف',
+            'تاريخ الميلاد', 'مكان الميلاد', 'الهاتف', 'واتساب', 'العنوان',
+            'المركز', 'المسجد', 'المجموعة', 'المحفظ/ة', 'الحالة',
+            'نوع الاختبار', 'تاريخ الاختبار', 'معدل الاختبار نسبة مئوية', 'تقييم ناجح أو راسب', 'اسم الشيخ المختبر'
+        ];
+
+        $columnsMapping = [
+            'full_name', 'id_number', 'father_id', 'gender', 'category',
+            'date_of_birth', 'birth_place', 'phone_number', 'whatsapp_number', 'address',
+            'center_name', 'mosque_name', 'group_name', 'teacher_name', 'is_displaced',
+            'exam_type', 'exam_date', 'score_percentage', 'result_status', 'testing_sheikh'
+        ];
+
+        return $this->excelService->export(
+            'تقرير_الطلاب_' . date('Y-m-d'),
+            'تقرير بيانات الطلاب والمجموعات',
+            $headers,
+            $data,
+            $columnsMapping
+        );
+    }
 
     public function getGroupsByTeacher($teacherId)
     {
@@ -108,7 +95,7 @@ class StudentReportController extends Controller
         $group = Group::with('teacher')->find($groupId);
         if ($group) {
             return response()->json([
-                'UserId' => $group->UserId,
+                'UserId'       => $group->UserId,
                 'teacher_name' => $group->teacher ? $group->teacher->full_name : 'غير محدد'
             ]);
         }

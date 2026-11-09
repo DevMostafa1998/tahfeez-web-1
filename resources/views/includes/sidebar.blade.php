@@ -137,7 +137,9 @@
                 @endif
 
                 {{-- الحلقات والبرامج --}}
-                @php $isEduActive = request()->routeIs('group.*') || request()->routeIs('quran_tests.*'); @endphp
+                @php
+                    $isEduActive = request()->routeIs('group.*') || request()->routeIs('quran_tests.*');
+                @endphp
                 <li class="nav-item {{ $isEduActive ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ $isEduActive ? 'active' : '' }}">
                         <i class="nav-icon bi bi-book"></i>
@@ -164,7 +166,6 @@
                         @endif
                     </ul>
                 </li>
-
                 {{-- متابعة الحضور --}}
                 @php $isAttendanceActive = request()->routeIs('attendance.*') || request()->routeIs('teachers.attendance'); @endphp
                 <li class="nav-item {{ $isAttendanceActive ? 'menu-open' : '' }}">
@@ -204,28 +205,32 @@
                         <li class="nav-item">
                             <a href="{{ route('reports.teachers_courses') }}"
                                 class="nav-link {{ request()->routeIs('reports.teachers_courses') ? 'active' : '' }}">
-                                <i class="nav-icon bi {{ request()->routeIs('reports.teachers_courses') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
+                                <i
+                                    class="nav-icon bi {{ request()->routeIs('reports.teachers_courses') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
                                 <p>تقرير المحفظين</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="{{ route('reports.students') }}"
                                 class="nav-link {{ request()->routeIs('reports.students') ? 'active' : '' }}">
-                                <i class="nav-icon bi {{ request()->routeIs('reports.students') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
+                                <i
+                                    class="nav-icon bi {{ request()->routeIs('reports.students') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
                                 <p>تقرير الطلاب</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="{{ route('reports.memorization') }}"
                                 class="nav-link {{ request()->routeIs('reports.memorization') ? 'active' : '' }}">
-                                <i class="nav-icon bi {{ request()->routeIs('reports.memorization') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
+                                <i
+                                    class="nav-icon bi {{ request()->routeIs('reports.memorization') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
                                 <p>تقرير التسميع</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="{{ route('reports.attendance') }}"
                                 class="nav-link {{ request()->routeIs('reports.attendance') ? 'active' : '' }}">
-                                <i class="nav-icon bi {{ request()->routeIs('reports.attendance') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
+                                <i
+                                    class="nav-icon bi {{ request()->routeIs('reports.attendance') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
                                 <p>تقرير الحضور للطلاب</p>
                             </a>
                         </li>
@@ -236,7 +241,12 @@
                 {{-- إعدادات الإدارة --}}
                 @if (auth()->user()->is_admin == 1 || auth()->user()->is_admin_rouls == 1)
                     @php
-                        $isAdminSettingsActive = request()->routeIs('courses.*') || request()->routeIs('category.*');
+                        // تم إضافة شرط الراوت الجديد 'lov.*' هنا لتبقى قائمة إعدادات الإدارة مفتوحة عند الدخول لصفحة الـ LOV
+                        $isAdminSettingsActive =
+                            request()->routeIs('courses.*') ||
+                            request()->routeIs('category.*') ||
+                            request()->routeIs('settings.grades.edit') ||
+                            request()->routeIs('lov.*');
                     @endphp
                     <li class="nav-item {{ $isAdminSettingsActive ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link {{ $isAdminSettingsActive ? 'active' : '' }}">
@@ -250,15 +260,44 @@
                             <li class="nav-item">
                                 <a href="{{ route('courses.index') }}"
                                     class="nav-link {{ request()->routeIs('courses.*') ? 'active' : '' }}">
-                                    <i class="nav-icon bi {{ request()->routeIs('courses.*') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
+                                    <i
+                                        class="nav-icon bi {{ request()->routeIs('courses.*') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
                                     <p>الدورات العلمية</p>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{ route('category.index') }}"
                                     class="nav-link {{ request()->routeIs('category.*') ? 'active' : '' }}">
-                                    <i class="nav-icon bi {{ request()->routeIs('category.*') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
+                                    <i
+                                        class="nav-icon bi {{ request()->routeIs('category.*') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
                                     <p>التصنيفات</p>
+                                </a>
+                            </li>
+
+                            {{-- زر إعدادات نسب الاختبارات --}}
+                            <li class="nav-item">
+                                <a href="{{ route('settings.grades.edit') }}"
+                                    class="nav-link {{ request()->routeIs('settings.grades.edit') ? 'active' : '' }}">
+                                    <i
+                                        class="nav-icon bi {{ request()->routeIs('settings.grades.edit') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
+                                    <p>إعدادات نسب الاختبارات</p>
+                                </a>
+                            </li>
+
+                            {{-- الزر  لصفحة القوائم المنسدلة الموحدة LOV --}}
+                            <li class="nav-item">
+                                <a href="{{ route('lov.index') }}"
+                                    class="nav-link {{ request()->routeIs('lov.*') ? 'active' : '' }}">
+                                    <i
+                                        class="nav-icon bi {{ request()->routeIs('lov.*') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
+                                    <p>إدارة القوائم المنسدلة (LOV)</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('centers.index') }}"
+                                    class="nav-link {{ request()->routeIs('centers.index') ? 'active' : '' }}">
+                                    <i class="nav-icon bi {{ request()->routeIs('centers.index') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
+                                    <p>إدارة المراكز</p>
                                 </a>
                             </li>
                         </ul>
@@ -266,16 +305,36 @@
                 @endif
 
                 {{-- قسم إرسال التنبيهات - خارجي ومستقل --}}
-                @if (auth()->user()->is_admin == 1 || auth()->user()->is_admin_rouls == 1)
-                <li class="nav-item">
-                    <a href="{{ route('notifications.index') }}"
-                        class="nav-link {{ request()->routeIs('notifications.index') ? 'active' : '' }}">
-                        <i class="nav-icon bi {{ request()->routeIs('notifications.index') ? 'bi-bell-fill' : 'bi-bell' }}"></i>
-                        <p>إرسال التنبيهات</p>
-                    </a>
-                </li>
-                @endif
-                {{-- ولي الأمر --}}
+                    @if (auth()->user()->is_admin == 1 || auth()->user()->is_admin_rouls == 1)
+                        <li class="nav-item">
+                            <a href="{{ route('notifications.index') }}"
+                                class="nav-link {{ request()->routeIs('notifications.index') ? 'active' : '' }}">
+                                <i
+                                    class="nav-icon bi {{ request()->routeIs('notifications.index') ? 'bi-bell-fill' : 'bi-bell' }}"></i>
+                                <p>إرسال التنبيهات</p>
+                            </a>
+                        </li>
+                    @endif
+
+                    {{-- قسم الرسائل والمحادثات ( للمسؤولين والمحفظين) --}}
+                    @php
+                        $sidebarUnreadCount = \App\Models\Message::where('receiver_id', auth()->id())
+                            ->where('is_read', false)
+                            ->count();
+                    @endphp
+                    <li class="nav-item">
+                        <a href="{{ route('messages.index') }}"
+                            class="nav-link {{ request()->routeIs('messages.*') ? 'active' : '' }}">
+                            <i class="nav-icon bi {{ request()->routeIs('messages.*') ? 'bi-chat-dots-fill' : 'bi-chat-dots' }}"></i>
+                            <p>
+                                الرسائل والمحادثات
+                                @if($sidebarUnreadCount > 0)
+                                    <span class="badge bg-danger float-start">{{ $sidebarUnreadCount }}</span>
+                                @endif
+                            </p>
+                        </a>
+                    </li>
+                    {{-- ولي الأمر --}}
                 <li class="nav-item">
                     <a href="{{ route('parent.login') }}"
                         class="nav-link {{ request()->routeIs('parent.login') || request()->routeIs('parents.index') ? 'active' : '' }}">
@@ -330,7 +389,7 @@
 
                 <p class="text-white-50 small mb-3">امسح الكود بالكاميرا للتحميل المباشر</p>
 
-                @php $app_url = 'https://ahlalrahman.com/public/apps/Tahfiz_v1.apk'; @endphp
+                @php $app_url = 'https://ahlalrahman.com/public/apps/tahfeez-app.apk'; @endphp
 
                 <a href="{{ $app_url }}" target="_blank" rel="noopener noreferrer"
                     class="btn btn-success w-100 rounded-pill py-2 fw-bold shadow">

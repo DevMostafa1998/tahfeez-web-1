@@ -3,7 +3,6 @@
 namespace App\BusinessLogic;
 
 use App\Models\QuranMemTest;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class QuranMemTestLogic
@@ -13,7 +12,7 @@ class QuranMemTestLogic
      */
     public function getAllTests()
     {
-        return QuranMemTest::with('student')->get();
+        return QuranMemTest::with('student')->whereNull('deleted_at')->get();
     }
 
     /**
@@ -21,6 +20,7 @@ class QuranMemTestLogic
      */
     public function storeTest(array $data)
     {
+        $data['creation_by'] = Auth::id();
         return QuranMemTest::create($data);
     }
 
@@ -30,11 +30,12 @@ class QuranMemTestLogic
     public function updateTest($id, array $data)
     {
         $test = QuranMemTest::findOrFail($id);
+
+        $data['updated_by'] = Auth::id();
+        $data['updated_at'] = now();
+
         $test->update($data);
-        $test->update([
-            'updated_by' => Auth::user()->id,
-            'updated_at' => now(),
-        ]);
+
         return $test;
     }
 
@@ -44,10 +45,14 @@ class QuranMemTestLogic
     public function deleteTest($id)
     {
         $test = QuranMemTest::findOrFail($id);
-        $test->update([
-            'deleted_by' => Auth::user()->id,
-            'deleted_at' => now(),
-        ]);
+
+        if (in_array('deleted_by', $test->getFillable())) {
+            $test->update([
+                'deleted_by' => Auth::id(),
+                'deleted_at' => now(),
+            ]);
+        }
+
         return $test->delete();
     }
 }

@@ -98,65 +98,64 @@
                         </div>
                     </div>
                     <div id="professional_section_wrapper"> {{-- القسم الثاني: البيانات المهنية (تظهر للجميع أو يتم التحكم بها عبر JS) --}}
-                        <div id="professional_section">
-                            <div class="d-flex align-items-center mb-2">
-                                <span class="badge rounded-pill bg-warning text-dark px-3 fw-bold small-xs">2. البيانات
-                                    المهنية والقرآنية</span>
-                                <hr class="flex-grow-1 me-2 my-0 opacity-10">
+                       <div id="professional_section">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge rounded-pill bg-warning text-dark px-3 fw-bold small-xs">2. البيانات المهنية والقرآنية</span>
+                            <hr class="flex-grow-1 me-2 my-0 opacity-10">
+                        </div>
+                        <div class="row gx-3 mb-4">
+                            <div class="col-md-2 text-start">
+                                <label class="fw-bold small"><i class="bi bi-whatsapp text-warning"></i> رقم الواتساب</label>
+                                <input type="tel" name="whatsapp_number" id="edit_whatsapp_number" class="form-control bg-light border-0 py-2">
                             </div>
-                            <div class="row gx-3 mb-4">
-                                <div class="col-md-2 text-start">
-                                    <label class="fw-bold small"><i class="bi bi-whatsapp text-warning"></i> رقم
-                                        الواتساب</label>
-                                    <input type="tel" name="whatsapp_number" id="edit_whatsapp_number"
-                                        class="form-control bg-light border-0 py-2">
-                                </div>
-                                <div class="col-md-2 text-start">
-                                    <label class="fw-bold small"><i class="bi bi-mortarboard text-warning"></i> المؤهل
-                                        العلمي</label>
-                                    <input type="text" name="qualification" id="edit_qualification"
-                                        class="form-control bg-light border-0 py-2">
-                                </div>
-                                <div class="col-md-2 text-start">
-                                    <label class="fw-bold small"><i class="bi bi-briefcase text-warning"></i>
-                                        التخصص</label>
-                                    <input type="text" name="specialization" id="edit_specialization"
-                                        class="form-control bg-light border-0 py-2">
-                                </div>
-                                <div class="col-md-2 text-start">
-                                    <label class="fw-bold small"><i class="bi bi-book text-warning"></i> الأجزاء</label>
-                                    <input type="number" name="parts_memorized" id="edit_parts_memorized"
-                                        class="form-control bg-light border-0 py-2">
-                                </div>
-                                <div class="col-md-2 text-start">
-                                    <label class="fw-bold small"><i class="bi bi-house-door text-warning"></i> اسم
-                                        المسجد</label>
-                                    <input type="text" name="mosque_name" id="edit_mosque_name"
-                                        class="form-control bg-light border-0 py-2">
-                                </div>
-                                <div class="col-md-2 text-start">
-                                    <label class="fw-bold small"><i class="bi bi-wallet2 text-warning"></i> رقم
-                                        المحفظة</label>
-                                    <input type="text" name="wallet_number" id="edit_wallet_number"
-                                        class="form-control bg-light border-0 py-2">
-                                </div>
-                                <div class="col-md-2 text-start mt-2">
-                                    <label class="fw-bold small"><i class="bi bi-map text-warning"></i> مكان
-                                        الميلاد</label>
-                                    <input type="text" name="birth_place" id="edit_birth_place"
-                                        class="form-control bg-light border-0 py-2">
-                                </div>
-                                <div class="col-md-2 text-start mt-2">
-                                    <label class="fw-bold small"><i class="bi bi-gender-ambiguous text-warning"></i>
-                                        الجنس</label>
-                                    <select name="gender" id="edit_gender"
-                                        class="form-select bg-light border-0 py-2">
-                                        <option value="male">ذكر</option>
-                                        <option value="female">أنثى</option>
-                                    </select>
-                                </div>
+                            <div class="col-md-2 text-start">
+                                <label class="fw-bold small"><i class="bi bi-mortarboard text-warning"></i> المؤهل العلمي</label>
+                                <input type="text" name="qualification" id="edit_qualification" class="form-control bg-light border-0 py-2">
+                            </div>
+                            <div class="col-md-2 text-start">
+                                <label class="fw-bold small"><i class="bi bi-briefcase text-warning"></i> التخصص</label>
+                                <input type="text" name="specialization" id="edit_specialization" class="form-control bg-light border-0 py-2">
+                            </div>
+                            <div class="col-md-2 text-start">
+                                <label class="fw-bold small"><i class="bi bi-book text-warning"></i> الأجزاء</label>
+                                <input type="number" name="parts_memorized" id="edit_parts_memorized" class="form-control bg-light border-0 py-2">
+                            </div>
+                            <div class="col-md-2 text-start">
+                        <label class="fw-bold small"><i class="bi bi-house-door text-warning"></i> اسم المسجد</label>
+                        <select name="mosque_name" id="edit_mosque_name" class="form-select bg-light border-0 py-2">
+                            <option value="">غير محدد</option>
+                            @foreach ($mosques as $mosque)
+                                <option value="{{ $mosque->description }}">{{ $mosque->description }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                            <div class="col-md-2 text-start">
+                                <label class="fw-bold small"><i class="bi bi-wallet2 text-warning"></i> رقم المحفظة</label>
+                                <input type="text" name="wallet_number" id="edit_wallet_number" class="form-control bg-light border-0 py-2">
+                            </div>
+                            <div class="col-md-2 text-start mt-2">
+                                <label class="fw-bold small"><i class="bi bi-map text-warning"></i> مكان الميلاد</label>
+                                <input type="text" name="birth_place" id="edit_birth_place" class="form-control bg-light border-0 py-2">
+                            </div>
+                            <div class="col-md-2 text-start mt-2">
+                                <label class="fw-bold small"><i class="bi bi-gender-ambiguous text-warning"></i> الجنس</label>
+                                <select name="gender" id="edit_gender" class="form-select bg-light border-0 py-2">
+                                    <option value="male">ذكر</option>
+                                    <option value="female">أنثى</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-2 text-start mt-2">
+                                <label class="fw-bold small"><i class="bi bi-building-gear text-warning"></i> اسم المركز</label>
+                                <select name="center_id" id="edit_center_id" class="form-select bg-light border-0 py-2">
+                                    <option value="">غير محدد</option>
+                                    @foreach ($centers as $center)
+                                        <option value="{{ $center->id }}">{{ $center->name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
+                    </div>
                     </div>
                     {{-- القسم الثالث: الحساب والأمان --}}
                     <div class="d-flex align-items-center mb-2">

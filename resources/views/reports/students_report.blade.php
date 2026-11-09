@@ -34,7 +34,7 @@
 @endpush
 
 @section('content')
-    <div class="container-fluid p-2" dir="rtl text-right">
+    <div class="container-fluid p-2 text-end" dir="rtl">
         <div class="d-flex justify-content-between align-items-center mb-3 no-print">
             <h4 class="fw-bold text-primary">تقرير الطلاب والمجموعات</h4>
             <div id="excel_button_container"></div>
@@ -65,6 +65,17 @@
                                 @endforeach
                             </select>
                         </div>
+
+                        @if (auth()->user()->is_admin)
+                            <div class="col-md-3">
+                                <label class="form-label small fw-bold">الجنس</label>
+                                <select name="gender" id="gender" class="form-select form-select-sm filter-input">
+                                    <option value="">-- الكل --</option>
+                                    <option value="male">ذكر</option>
+                                    <option value="female">أنثى</option>
+                                </select>
+                            </div>
+                        @endif
                     </div>
                 </form>
             </div>
@@ -72,13 +83,15 @@
 
         <div class="card shadow-sm border-0" style="border-radius: 10px;">
             <div class="card-body p-1">
-                <div class="table-wrapper">
-                    <table id="reportTable" class="table table-sm table-bordered table-hover align-middle text-center m-0"
-                        style="width:100%">
+                <div class="table-responsive">
+                    <table id="reportTable" class="table table-sm table-bordered table-hover align-middle text-center m-0" style="width:100%">
                         <thead class="bg-primary text-white">
                             <tr>
                                 <th>الاسم الكامل</th>
-                                <th>رقم الهوية</th>
+                                <th>رقم هوية الطالب</th>
+                                <th>رقم هوية الأب</th>
+                                <th>الجنس</th>
+                                <th>التصنيف</th>
                                 <th>تاريخ الميلاد</th>
                                 <th>مكان الميلاد</th>
                                 <th>الهاتف</th>
@@ -89,6 +102,11 @@
                                 <th>المجموعة</th>
                                 <th>المحفظ/ة</th>
                                 <th>الحالة</th>
+                                <th>نوع الاختبار</th>
+                                <th>تاريخ الاختبار</th>
+                                <th>معدل الاختبار (%)</th>
+                                <th>تقييم ناجح/راسب</th>
+                                <th>الشيخ المختبر</th>
                             </tr>
                         </thead>
                     </table>
@@ -109,7 +127,6 @@
 
     <script>
         $(document).ready(function() {
-            // حفظ القيم الأصلية للقوائم عند تحميل الصفحة
             const originalTeachersHtml = $('#UserId').html();
             const originalGroupsHtml = $('#group_id').html();
             let isAutoUpdating = false;
@@ -122,75 +139,50 @@
                     data: function(d) {
                         d.UserId = $('#UserId').val();
                         d.group_id = $('#group_id').val();
+                        d.gender = $('#gender').val();
                     }
                 },
-
-                columns: [{
-                        data: 'full_name',
-                        orderable: true
-                    },
-                    {
-                        data: 'id_number',
-                        orderable: true
-                    },
-                    {
-                        data: 'date_of_birth',
-                        orderable: true
-                    },
-                    {
-                        data: 'birth_place',
-                        orderable: true
-                    },
-                    {
-                        data: 'phone_number',
-                        orderable: true
-                    },
-                    {
-                        data: 'whatsapp_number',
-                        orderable: true
-                    },
-                    {
-                        data: 'address',
-                        orderable: true
-                    },
-                    {
-                        data: 'center_name',
-                        orderable: true
-                    },
-                    {
-                        data: 'mosque_name',
-                        orderable: true
-                    },
-                    {
-                        data: 'groups',
-                        orderable: false
-                    },
-                    {
-                        data: 'teacher_name',
-                        orderable: false
-                    },
-                    {
-                        data: 'is_displaced',
-                        name: 'is_displaced',
-                        orderable: true
-                    }
+                columns: [
+                    { data: 'full_name', name: 'full_name', orderable: true },
+                    { data: 'id_number', name: 'id_number', orderable: true },
+                    { data: 'father_id', name: 'father_id', orderable: true },
+                    { data: 'gender', name: 'gender', orderable: true },
+                    { data: 'category', name: 'category', orderable: false },
+                    { data: 'date_of_birth', name: 'date_of_birth', orderable: true },
+                    { data: 'birth_place', name: 'birth_place', orderable: true },
+                    { data: 'phone_number', name: 'phone_number', orderable: true },
+                    { data: 'whatsapp_number', name: 'whatsapp_number', orderable: true },
+                    { data: 'address', name: 'address', orderable: true },
+                    { data: 'center_name', name: 'center_name', orderable: false, defaultContent: '-' },
+                    { data: 'mosque_name', name: 'mosque_name', orderable: true },
+                    { data: 'groups', name: 'groups', orderable: false },
+                    { data: 'teacher_name', name: 'teacher_name', orderable: false },
+                    { data: 'is_displaced', name: 'is_displaced', orderable: true },
+                    { data: 'exam_type', name: 'exam_type', orderable: false },
+                    { data: 'exam_date', name: 'exam_date', orderable: false },
+                    { data: 'score_percentage', name: 'score_percentage', orderable: false },
+                    { data: 'result_status', name: 'result_status', orderable: false },
+                    { data: 'testing_sheikh', name: 'testing_sheikh', orderable: false }
                 ],
                 dom: "<'row mb-3'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6 text-end'B>>" +
-                    "<'row'<'col-sm-12' <'table-responsive' tr> >>" +
+                    "<'row'<'col-sm-12' tr>>" +
                     "<'row mt-3'<'col-sm-12'p>>" +
                     "<'row'<'col-sm-12 text-center'i>>",
-
                 buttons: [{
                     text: '<i class="bi bi-file-earmark-excel"></i> تصدير إكسل (الكل)',
                     className: 'btn btn-success btn-sm',
                     action: function(e, dt, node, config) {
                         let userId = $('#UserId').val() || '';
                         let groupId = $('#group_id').val() || '';
+                        let gender = $('#gender').val() || '';
                         let searchValue = dt.search() || '';
+
                         let url = "{{ route('reports.students.export') }}?" +
-                            "UserId=" + userId +
-                            "&group_id=" + groupId +
-                            "&search[value]=" + searchValue;
+                            "UserId=" + encodeURIComponent(userId) +
+                            "&group_id=" + encodeURIComponent(groupId) +
+                            "&gender=" + encodeURIComponent(gender) +
+                            "&search[value]=" + encodeURIComponent(searchValue);
+
                         window.location.href = url;
                     }
                 }],
@@ -215,7 +207,11 @@
 
             table.buttons().container().appendTo('#excel_button_container');
 
-            // وظيفة لاستعادة الحالة الكاملة للقوائم
+            // تحديث الجدول عند تغيير فلتر الجنس
+            $('#gender').on('change', function() {
+                table.draw();
+            });
+
             function restoreFullLists() {
                 isAutoUpdating = true;
                 $('#UserId').html(originalTeachersHtml);
@@ -235,23 +231,19 @@
                         success: function(groups) {
                             isAutoUpdating = true;
                             let groupSelect = $('#group_id');
-                            groupSelect.html(
-                                '<option value="">-- كل مجموعات هذا المحفظ --</option>');
+                            groupSelect.html('<option value="">-- كل مجموعات هذا المحفظ --</option>');
                             $.each(groups, function(key, group) {
-                                groupSelect.append(
-                                    `<option value="${group.id}">${group.GroupName}</option>`
-                                );
+                                groupSelect.append(`<option value="${group.id}">${group.GroupName}</option>`);
                             });
                             isAutoUpdating = false;
-                            table.ajax.reload();
+                            table.draw();
                         }
                     });
                 } else {
-                    // إذا اختار "كل المحفظين"
                     restoreFullLists();
                     $('#UserId').val('');
                     $('#group_id').val('');
-                    table.ajax.reload();
+                    table.draw();
                 }
             });
 
@@ -267,21 +259,18 @@
                         success: function(response) {
                             isAutoUpdating = true;
                             if (response.UserId) {
-                                $('#UserId').html(
-                                    `<option value="${response.UserId}">${response.teacher_name}</option>`
-                                );
+                                $('#UserId').html(`<option value="${response.UserId}">${response.teacher_name}</option>`);
                                 $('#UserId').val(response.UserId);
                             }
                             isAutoUpdating = false;
-                            table.ajax.reload();
+                            table.draw();
                         }
                     });
                 } else {
-                    // إذا اختار "كل المجموعات"
                     restoreFullLists();
                     $('#UserId').val('');
                     $('#group_id').val('');
-                    table.ajax.reload();
+                    table.draw();
                 }
             });
         });
