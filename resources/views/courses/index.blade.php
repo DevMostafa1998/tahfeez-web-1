@@ -12,6 +12,13 @@
             </div>
         @endif
 
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show mb-4 border-0 shadow-sm" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="h3 text-primary fw-bold"><i class="bi bi-book-half me-2"></i>إدارة الدورات العلمية</h1>
             <button class="btn btn-primary px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#addCourseModal">
@@ -28,6 +35,7 @@
                                 <th>#</th>
                                 <th>اسم الدورة</th>
                                 <th>الفئة المستهدفة</th>
+                                <th>المركز التابع له</th>
                                 <th>تاريخ الإضافة</th>
                                 <th>الإجراءات</th>
                             </tr>
@@ -46,21 +54,32 @@
                                             <span class="badge bg-dark">الجميع</span>
                                         @endif
                                     </td>
-                                    <td class="small text-muted">{{ $course->created_at->format('Y-m-d') }}</td>
+                                    <td>
+                                        @if($course->center)
+                                            <span class="badge bg-info text-dark"><i class="bi bi-geo-alt me-1"></i>{{ $course->center->name }}</span>
+                                        @else
+                                            <span class="badge bg-secondary">عام (جميع المراكز)</span>
+                                        @endif
+                                    </td>
+                                    <td class="small text-muted">{{ $course->created_at ? $course->created_at->format('Y-m-d') : '-' }}</td>
                                     <td>
                                         <button
-                                            class="btn btn-sm btn-outline-primary rounded-circle action-btn edit-test-btn"
-                                            data-bs-toggle="modal" data-bs-target="#editCourseModal"
-                                            data-id="{{ $course->id }}" data-name="{{ $course->name }}"
-                                            data-type="{{ $course->type }}">
+                                            type="button"
+                                            class="btn btn-sm btn-outline-primary rounded-circle action-btn edit-course-btn"
+                                            data-id="{{ $course->id }}"
+                                            data-name="{{ $course->name }}"
+                                            data-type="{{ $course->type ?? 'all' }}"
+                                            data-center-id="{{ $course->center_id ?? '' }}"
+                                            data-url="{{ route('courses.update', $course->id) }}"
+                                            title="تعديل">
                                             <i class="bi bi-pencil"></i>
                                         </button>
+
                                         <form action="{{ route('courses.destroy', $course->id) }}" method="POST"
                                             class="d-inline" onsubmit="return confirm('هل أنت متأكد من الحذف؟')">
-                                            @csrf @method('DELETE')
-                                            <button
-                                                class="btn btn-sm btn-outline-danger rounded-circle action-btn delete-test-btn">
-
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle action-btn delete-test-btn" title="حذف">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
@@ -68,7 +87,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-muted py-4">لا توجد دورات مضافة حالياً</td>
+                                    <td colspan="6" class="text-muted py-4">لا توجد دورات مضافة حالياً</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -104,12 +123,22 @@
                                     <option value="students">الطلاب</option>
                                 </select>
                             </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold mb-2">المركز التابع له</label>
+                                <select name="center_id" class="form-select form-select-lg bg-light border-0">
+                                    <option value="">عام (متاح لجميع المراكز)</option>
+                                    @foreach($centers as $center)
+                                        <option value="{{ $center->id }}" {{ session('selected_center_id') == $center->id ? 'selected' : '' }}>
+                                            {{ $center->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer border-0 bg-light p-3 d-flex justify-content-end gap-1">
                         <button type="submit" class="btn btn-primary px-5 fw-bold rounded-pill">حفظ</button>
-                        <button type="button" class="btn btn-secondary px-4 rounded-pill"
-                            data-bs-dismiss="modal">إلغاء</button>
+                        <button type="button" class="btn btn-secondary px-4 rounded-pill" data-bs-dismiss="modal">إلغاء</button>
                     </div>
                 </div>
             </form>
@@ -119,7 +148,7 @@
     {{-- مودال التعديل --}}
     <div class="modal fade" id="editCourseModal" tabindex="-1" aria-hidden="true" dir="rtl">
         <div class="modal-dialog modal-lg modal-dialog-centered custom-modal">
-            <form id="editCourseForm" method="POST" class="w-100">
+            <form id="editCourseForm" method="POST" action="" class="w-100">
                 @csrf
                 @method('PUT')
                 <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
@@ -143,12 +172,20 @@
                                     <option value="students">الطلاب</option>
                                 </select>
                             </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold mb-2">المركز التابع له</label>
+                                <select name="center_id" id="edit_center_id" class="form-select form-select-lg bg-light border-0">
+                                    <option value="">عام (متاح لجميع المراكز)</option>
+                                    @foreach($centers as $center)
+                                        <option value="{{ $center->id }}">{{ $center->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer border-0 bg-light p-3 d-flex justify-content-end gap-1">
                         <button type="submit" class="btn btn-warning px-5 fw-bold rounded-pill">تحديث</button>
-                        <button type="button" class="btn btn-secondary px-4 rounded-pill"
-                            data-bs-dismiss="modal">إلغاء</button>
+                        <button type="button" class="btn btn-secondary px-4 rounded-pill" data-bs-dismiss="modal">إلغاء</button>
                     </div>
                 </div>
             </form>
@@ -158,18 +195,31 @@
 @endsection
 
 @push('scripts')
-    <script>
-        document.querySelectorAll('.edit-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                let id = this.dataset.id;
-                let name = this.dataset.name;
-                let type = this.dataset.type;
-                let form = document.getElementById('editCourseForm');
-                form.action = `/courses/${id}`;
-                document.getElementById('edit_name').value = name;
-                let finalType = (type === "" || type === "null") ? 'all' : type;
-                document.getElementById('edit_type').value = finalType;
-            });
-        });
-    </script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const editModalEl = document.getElementById('editCourseModal');
+    const editForm = document.getElementById('editCourseForm');
+    const modalInstance = new bootstrap.Modal(editModalEl);
+
+    document.addEventListener('click', function (e) {
+        const button = e.target.closest('.edit-course-btn');
+        if (!button) return;
+
+        e.preventDefault();
+
+        const name = button.getAttribute('data-name');
+        const type = button.getAttribute('data-type');
+        const centerId = button.getAttribute('data-center-id');
+        const url = button.getAttribute('data-url');
+
+        editForm.setAttribute('action', url);
+
+        document.getElementById('edit_name').value = name ?? '';
+        document.getElementById('edit_type').value = (type && type !== 'null') ? type : 'all';
+        document.getElementById('edit_center_id').value = (centerId && centerId !== 'null') ? centerId : '';
+
+        modalInstance.show();
+    });
+});
+</script>
 @endpush

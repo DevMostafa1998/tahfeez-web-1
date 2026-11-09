@@ -2,7 +2,6 @@
 
 @section('title', 'إضافة طالب جديد')
 @push('css')
-
 @endpush
 @section('content')
 
@@ -107,6 +106,22 @@
                                                     أنثى</option>
                                             </select>
                                         </div>
+                                        <div class="col-md-2 text-start">
+                                            <label class="form-label small fw-bold text-secondary mb-1">
+                                                <i class="bi bi-tags-fill text-primary me-1"></i>نوع التصنيف
+                                            </label>
+                                            <select name="categorie_id"
+                                                class="form-select form-select-sm border-0 bg-light px-3 py-2 fw-bold"
+                                                required>
+                                                <option value="" selected disabled>اختر التصنيف</option>
+                                                @foreach ($categories as $category)
+                                                    <option value="{{ $category->id }}"
+                                                        {{ old('categorie_id') == $category->id ? 'selected' : '' }}>
+                                                        {{ $category->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -154,8 +169,7 @@
                                                 <i class="bi bi-house-door-fill text-success me-1"></i>حالة السكن
                                             </label>
                                             <select name="is_displaced"
-                                                class="form-select form-select-sm border-0 bg-light px-3 py-2 fw-bold"
-                                                required>
+                                                class="form-select form-select-sm border-0 bg-light px-3 py-2 fw-bold">
                                                 <option value="" selected disabled>اختر...</option>
                                                 <option value="0" {{ old('is_displaced') == '0' ? 'selected' : '' }}>
                                                     مقيم</option>
@@ -181,35 +195,62 @@
                                             </label>
                                             <input type="text" name="center_name"
                                                 class="form-control form-control-sm border-0 bg-light px-3 py-2"
-                                                placeholder="اسم المركز التعليمي" value="{{ old('center_name') }}">
+                                                placeholder="اسم المركز التعليمي"
+                                                value="{{ old('center_name', 'أهل الرحمن') }}">
                                         </div>
+
                                         <div class="col-md-3 text-start">
                                             <label class="form-label small fw-bold text-secondary mb-1">
                                                 <i class="bi bi-moon-stars-fill text-dark me-1"></i>اسم المسجد
                                             </label>
                                             <input type="text" name="mosque_name"
                                                 class="form-control form-control-sm border-0 bg-light px-3 py-2"
-                                                placeholder="اسم المسجد التابع له" value="{{ old('mosque_name') }}">
+                                                placeholder="اسم المسجد التابع له"
+                                                value="{{ old('mosque_name', 'يافا') }}">
                                         </div>
+
                                         <div class="col-md-6 text-start">
                                             <label class="form-label small fw-bold text-secondary mb-1">
                                                 <i class="bi bi-map-fill text-dark me-1"></i>عنوان المسجد بالتفصيل
                                             </label>
                                             <input type="text" name="mosque_address"
                                                 class="form-control form-control-sm border-0 bg-light px-3 py-2"
-                                                placeholder="وصف مكان المسجد" value="{{ old('mosque_address') }}">
+                                                placeholder="وصف مكان المسجد"
+                                                value="{{ old('mosque_address', 'دير البلح - حي بشارة') }}">
                                         </div>
 
-                                        {{-- choose teachers --}}
+                                        {{-- choose teachers & groups --}}
                                         <div class="col-md-6 text-start">
                                             <label class="form-label small fw-bold text-secondary mb-1">
                                                 <i class="bi bi-person-fill text-dark me-1"></i>المعلم المسؤول
                                             </label>
-                                            <select name="user_id" class="form-control form-control-sm border-0 bg-light px-3 py-2">
-                                                <option value="">اختر المعلم</option>
-                                                @foreach($teachers as $teacher)
-                                                    <option value="{{ $teacher->id }}" {{ old('user_id') == $teacher->id ? 'selected' : '' }}>
+                                            <select name="user_id" id="teacherSelect"
+                                                class="form-select form-select-sm border-0 bg-light px-3 py-2 fw-bold"
+                                                required>
+                                                <option value="" selected disabled>اختر المعلم</option>
+                                                @foreach ($teachers as $teacher)
+                                                    <option value="{{ $teacher->id }}"
+                                                        {{ old('user_id') == $teacher->id ? 'selected' : '' }}>
                                                         {{ $teacher->full_name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-6 text-start">
+                                            <label class="form-label small fw-bold text-secondary mb-1">
+                                                <i class="bi bi-grid-fill text-dark me-1"></i>المجموعة (الحلقة)
+                                            </label>
+                                            <select name="group_id" id="groupSelect"
+                                                class="form-select form-select-sm border-0 bg-light px-3 py-2 fw-bold"
+                                                required>
+                                                <option value="" selected disabled>اختر المجموعة</option>
+                                                @foreach ($groups as $group)
+                                                    <option value="{{ $group->id }}"
+                                                        data-teacher-id="{{ $group->UserId }}"
+                                                        {{ old('group_id') == $group->id ? 'selected' : '' }}
+                                                        style="display: none;">
+                                                        {{ $group->GroupName }}
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -240,23 +281,52 @@
 @push('scripts')
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-    {{-- السكربت الموجود لديك كما هو مع تحسين بسيط في شكل اللودر --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         $(document).ready(function() {
+            $('#teacherSelect').on('change', function() {
+                let teacherId = $(this).val();
+                let groupSelect = $('#groupSelect');
+
+                groupSelect.val('');
+
+                groupSelect.find('option').each(function() {
+                    let optionTeacherId = $(this).data('teacher-id');
+
+                    if (optionTeacherId === undefined) {
+                        $(this).show();
+                    } else if (optionTeacherId == teacherId) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+
+            if ($('#teacherSelect').val()) {
+                $('#teacherSelect').trigger('change');
+                $('#groupSelect').val("{{ old('group_id') }}");
+            }
             $('#createStudentForm').on('submit', function(e) {
                 e.preventDefault();
                 let form = $(this);
                 let submitBtn = form.find('button[type="submit"]');
+
                 submitBtn.prop('disabled', true).html(
                     '<span class="spinner-border spinner-border-sm me-2"></span> جاري الحفظ...');
+
+                let serializedData = form.serialize();
+
+                let encodedPayload = btoa(serializedData);
 
                 $.ajax({
                     url: form.attr('action'),
                     method: 'POST',
-                    data: form.serialize(),
+                    data: {
+                        _token: form.find('input[name="_token"]').val(), // تمرير التوكن الأساسي
+                        payload: encodedPayload
+                    },
                     success: function(response) {
                         if (response.success) {
                             Swal.fire({
@@ -266,7 +336,8 @@
                                     confirmButtonText: 'حسناً'
                                 })
                                 .then(() => {
-                                    window.location.href = "{{ route('student_public.index') }}";
+                                    window.location.href =
+                                        "{{ route('student_public.index') }}";
                                 });
                         }
                     },
@@ -274,7 +345,9 @@
                         submitBtn.prop('disabled', false).html(
                             '<i class="bi bi-check-circle-fill me-2"></i> حفظ بيانات الطالب'
                         );
+
                         if (xhr.status === 422) {
+                            // أخطاء التحقق من البيانات (Validation)
                             let errorHtml = '<ul class="text-start small">';
                             $.each(xhr.responseJSON.errors, (key, value) => {
                                 errorHtml += '<li>' + value[0] + '</li>';
@@ -285,12 +358,19 @@
                                 html: errorHtml + '</ul>'
                             });
                         } else {
-                            Swal.fire('خطأ!', 'حدث خطأ غير متوقع، حاول لاحقاً', 'error');
+                            // إذا استمر خطأ 500، سنظهر رسالة الخطأ القادمة من السيرفر مباشرة لتشخيصها
+                            let systemError =
+                                'حدث خطأ غير متوقع في السيرفر (500)، يرجى مراجعة ملف لارافل log أو إعدادات ModSecurity.';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                systemError = xhr.responseJSON.message;
+                            }
+                            Swal.fire('خطأ في السيرفر!', systemError, 'error');
                         }
                     }
                 });
+            });
 
-                @if (session('success'))
+            @if (session('success'))
                 Swal.fire({
                     icon: 'success',
                     title: 'تم بنجاح',
@@ -299,8 +379,6 @@
                     timer: 2500
                 });
             @endif
-
-            });
         });
     </script>
 @endpush

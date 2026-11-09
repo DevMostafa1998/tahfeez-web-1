@@ -18,6 +18,7 @@ class CreateRecitationReportView extends Migration
                 sdm.verses_from,
                 sdm.verses_to,
                 sdm.note,
+                sdm.examType_id,
                 s.id AS student_id,
                 s.full_name AS student_name,
                 s.id_number AS student_id_number,

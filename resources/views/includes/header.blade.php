@@ -11,12 +11,86 @@
             </li>
         </ul>
 
-        <ul class="navbar-nav ms-auto">
+        <!-- قائمة اختيار المركز والجنس -->
+        @if (Auth::user()->is_admin)
+            @if (isset($header_centers))
+                <div class="d-flex align-items-center mx-auto my-auto gap-3">
+                    <!-- اختيار المركز -->
+                    <form action="{{ route('center.select') }}" method="POST" id="headerCenterSelectForm"
+                        class="d-flex align-items-center m-0">
+                        @csrf
+                        <label for="header_center_id" class="me-2 mb-0 fw-bold text-nowrap" style="font-size: 0.85rem;">
+                            <i class="bi bi-building text-primary me-1"></i> المركز:
+                        </label>
+                        <select name="center_id" id="header_center_id" class="form-select form-select-sm shadow-sm"
+                            onchange="document.getElementById('headerCenterSelectForm').submit();"
+                            style="min-width: 170px;">
+                            <option value="">-- جميع المراكز --</option>
+                            @foreach ($header_centers as $center)
+                                <option value="{{ $center->id }}"
+                                    {{ isset($selected_center_id) && $selected_center_id == $center->id ? 'selected' : '' }}>
+                                    {{ $center->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </form>
 
+                    <!-- اختيار الجنس -->
+                    <div class="d-flex align-items-center m-0">
+
+                        <div class="btn-group" role="group">
+                            <!-- اختيار الفئة (طلاب/طالبات) -->
+                            <form action="{{ route('gender.select') }}" method="POST" id="headerGenderSelectForm"
+                                class="d-flex align-items-center m-0">
+                                @csrf
+                                <label for="header_gender" class="me-2 mb-0 fw-bold text-nowrap"
+                                    style="font-size: 0.85rem;">
+                                    <i class="bi bi-people-fill text-success me-1"></i> الفئة:
+                                </label>
+                                <select name="gender" id="header_gender" class="form-select form-select-sm shadow-sm"
+                                    onchange="document.getElementById('headerGenderSelectForm').submit();"
+                                    style="min-width: 130px;">
+                                    <option value=""
+                                        {{ !isset($selected_gender) || empty($selected_gender) ? 'selected' : '' }}>
+                                        -- الكل --
+                                    </option>
+                                    <option value="male"
+                                        {{ isset($selected_gender) && $selected_gender == 'male' ? 'selected' : '' }}>
+                                        طلاب
+                                    </option>
+                                    <option value="female"
+                                        {{ isset($selected_gender) && $selected_gender == 'female' ? 'selected' : '' }}>
+                                        طالبات
+                                    </option>
+                                </select>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        @endif
+        <ul class="navbar-nav ms-auto">
+            @php
+                $globalUnreadMessages = \App\Models\Message::where('receiver_id', auth()->id())
+                    ->where('is_read', false)
+                    ->count();
+            @endphp
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('messages.index') }}" style="position: relative;" title="الرسائل الواردة">
+                    <i class="bi bi-envelope-fill" style="font-size: 1.1rem;"></i>
+                    @if($globalUnreadMessages > 0)
+                        <span class="badge bg-danger rounded-circle"
+                            style="position: absolute; top: 5px; right: 2px; padding: 3px 5px; font-size: 0.6rem; border: 1px solid white;">
+                            {{ $globalUnreadMessages }}
+                        </span>
+                    @endif
+                </a>
+            </li>
+            <!-- التنبيهات -->
             <li class="nav-item dropdown">
                 <a class="nav-link" data-bs-toggle="dropdown" href="#" style="position: relative;">
                     <i class="bi bi-bell-fill"></i>
-                    @if(auth()->user()->unreadNotifications->count() > 0)
+                    @if (auth()->user()->unreadNotifications->count() > 0)
                         <span class="badge bg-danger rounded-circle"
                             style="position: absolute; top: 5px; right: 5px; padding: 3px 5px; font-size: 0.6rem; border: 1px solid white;">
                             {{ auth()->user()->unreadNotifications->count() }}
@@ -35,7 +109,8 @@
                             <span class="text-truncate" style="max-width: 150px; display: inline-block;">
                                 {{ $notification->data['title'] ?? 'تنبيه جديد' }}
                             </span>
-                            <span class="float-end text-muted text-sm">{{ $notification->created_at->diffForHumans() }}</span>
+                            <span
+                                class="float-end text-muted text-sm">{{ $notification->created_at->diffForHumans() }}</span>
                         </a>
                     @empty
                         <div class="dropdown-item text-center text-muted small">لا توجد تنبيهات جديدة</div>
@@ -43,8 +118,9 @@
 
                     <div class="dropdown-divider"></div>
 
-                    @if(auth()->user()->unreadNotifications->count() > 0)
-                        <a href="{{ route('notifications.markAllAsRead') }}" class="dropdown-item dropdown-footer text-primary fw-bold">
+                    @if (auth()->user()->unreadNotifications->count() > 0)
+                        <a href="{{ route('notifications.markAllAsRead') }}"
+                            class="dropdown-item dropdown-footer text-primary fw-bold">
                             تحديد الكل كمقروء
                         </a>
                     @else
@@ -53,6 +129,7 @@
                 </div>
             </li>
 
+            <!-- ملء الشاشة -->
             <li class="nav-item">
                 <a class="nav-link" href="#" data-lte-toggle="fullscreen">
                     <i data-lte-icon="maximize" class="bi bi-arrows-fullscreen"></i>
@@ -60,6 +137,7 @@
                 </a>
             </li>
 
+            <!-- قائمة المستخدم -->
             <li class="nav-item dropdown user-menu">
                 <a href="#" class="nav-link dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
                     <div class="rounded-circle shadow-sm bg-primary d-flex align-items-center justify-content-center text-white fw-bold"
@@ -69,7 +147,8 @@
                     <span class="d-none d-md-inline ms-2">{{ Auth::user()->full_name }}</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
-                    <li class="user-header text-bg-primary d-flex flex-column align-items-center justify-content-center">
+                    <li
+                        class="user-header text-bg-primary d-flex flex-column align-items-center justify-content-center">
                         <div class="rounded-circle shadow bg-white text-primary d-flex align-items-center justify-content-center fw-bold mb-2"
                             style="width: 55px; height: 55px; font-size: 30px; border: 3px solid rgba(255,255,255,0.5);">
                             {{ mb_substr(Auth::user()->full_name, 0, 1) }}

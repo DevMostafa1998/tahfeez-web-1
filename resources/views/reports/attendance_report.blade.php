@@ -25,7 +25,7 @@
                         </div>
 
                         @if (auth()->user()->is_admin)
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label class="form-label fw-bold">اسم المحفظ/ة</label>
                                 <select name="teacher_id" class="form-select filter-input">
                                     <option value="">-- الكل --</option>
@@ -45,7 +45,7 @@
                             </div>
                         @else
                             <input type="hidden" name="teacher_id" value="{{ auth()->id() }}">
-                            <div class="col-md-5">
+                            <div class="col-md-4">
                                 <label class="form-label fw-bold">اختر من مجموعاتك</label>
                                 <select name="group_id" class="form-select filter-input">
                                     <option value="">-- كل مجموعاتي --</option>
@@ -56,7 +56,7 @@
                             </div>
                         @endif
 
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label fw-bold">اسم الطالب/ة</label>
                             <select name="student_id" class="form-select filter-input">
                                 <option value="">-- الكل --</option>
@@ -65,6 +65,17 @@
                                 @endforeach
                             </select>
                         </div>
+                        @if (auth()->user()->is_admin)
+                            {{-- الفلتر المضاف حديثاً: الجنس --}}
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold">الجنس</label>
+                                <select name="gender" id="gender" class="form-select filter-input">
+                                    <option value="">-- الكل --</option>
+                                    <option value="male">ذكر</option>
+                                    <option value="female">أنثى</option>
+                                </select>
+                            </div>
+                        @endif
                     </div>
                 </form>
             </div>
@@ -110,8 +121,6 @@
             gap: 5px !important;
         }
 
-
-
         .badge-present {
             background-color: #28a745;
             color: white;
@@ -145,7 +154,7 @@
                 table = $('#attendanceTable').DataTable({
                     processing: true,
                     serverSide: true,
-                    searching: true, // تم التفعيل للسماح بالبحث السريع
+                    searching: true,
                     ajax: {
                         url: "{{ route('reports.attendance.data') }}",
                         type: 'GET',
@@ -155,6 +164,7 @@
                             d.teacher_id = $('[name="teacher_id"]').val();
                             d.group_id = $('select[name="group_id"]').val();
                             d.student_id = $('select[name="student_id"]').val();
+                            d.gender = $('#gender').val(); // تمرير متغير الجنس إلى الخادم
                         }
                     },
                     columns: [{
@@ -165,7 +175,6 @@
                             data: 'student_name',
                             name: 'student_name',
                             orderable: false,
-
                             className: 'fw-bold text-dark'
                         },
                         {
@@ -207,7 +216,6 @@
                             "previous": "‹"
                         }
                     },
-                    // f: تعني Search filter، ستظهر الآن في الأعلى جهة اليسار
                     dom: "<'row mb-3'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6'B>>" +
                         "<'row'<'col-sm-12' <'table-responsive' tr> >>" +
                         "<'row mt-3'<'col-sm-12'p>>" +
@@ -230,6 +238,7 @@
                 let teacherId = $('[name="teacher_id"]').val();
                 let groupId = $('select[name="group_id"]').val();
                 let studentId = $('select[name="student_id"]').val();
+                let gender = $('#gender').val(); // جلب الجنس الحالي لفلترة المجموعات والطلاب ديناميكياً
 
                 $.ajax({
                     url: "{{ route('reports.filters.data') }}",
@@ -238,6 +247,7 @@
                         teacher_id: teacherId,
                         group_id: groupId,
                         student_id: studentId,
+                        gender: gender, // تمرير الجنس لـ Controller الفلاتر المشتركة
                         changed_element: changedElement
                     },
                     success: function(response) {
@@ -274,7 +284,7 @@
              */
             $(document).on('change', '.filter-input', function() {
                 let name = $(this).attr('name');
-                if (['group_id', 'teacher_id', 'student_id'].includes(name)) {
+                if (['group_id', 'teacher_id', 'student_id', 'gender'].includes(name)) {
                     syncFilters(name);
                 }
                 table.draw();
@@ -290,9 +300,10 @@
                     teacher_id: $('[name="teacher_id"]').val(),
                     group_id: $('select[name="group_id"]').val(),
                     student_id: $('select[name="student_id"]').val(),
+                    gender: $('#gender').val(), // إدراج الفلتر بالتصدير
                     search: {
                         value: $('.dataTables_filter input').val()
-                    } // تضمين نص البحث في التصدير
+                    }
                 };
 
                 let queryString = $.param(queryData);

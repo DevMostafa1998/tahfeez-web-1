@@ -22,13 +22,11 @@ class GroupController extends Controller
     {
         $this->groupLogic = $groupLogic;
     }
-    public function index()
-    {
-        $userId = Auth::id();
-        // تمرير المعرف إلى دالة getIndexData
-        $data = $this->groupLogic->getIndexData($userId);
-        return view('groups.index', $data);
-    }
+   public function index()
+{
+    $data = $this->groupLogic->getIndexData();
+    return view('groups.index', $data);
+}
 
     /**
      * Show the form for creating a new resource.

@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\StudentGroup;
+// use App\Models\StudentGroup;
 use App\Models\StudentDailyMemorization;
 use App\Models\Group;
 use Illuminate\Support\Facades\DB;
-use App\Models\Attendance;
+// use App\Models\Attendance;
 use Illuminate\Support\Facades\Log;
 
 class MemorizationApiController extends Controller
@@ -22,9 +22,9 @@ class MemorizationApiController extends Controller
         $user = $request->user();
 
         if ($user->is_admin) {
-            $groupsQuery = Group::with('students:id,full_name,id_number');
+            $groupsQuery = Group::with('students:id,full_name,id_number', 'students.courses:id');
         } else {
-            $groupsQuery = $user->groups()->with('students:id,full_name,id_number');
+            $groupsQuery = $user->groups()->with('students:id,full_name,id_number', 'students.courses:id');
         }
 
         $data = $groupsQuery->get()->map(function ($group) {
@@ -35,9 +35,16 @@ class MemorizationApiController extends Controller
             ];
         });
 
+        // ------ الإضافة الجديدة: جلب الدورات الخاصة بالطلاب ------
+        $courses = \App\Models\Course::whereIn('type', ['students', 'all'])
+            ->orWhereNull('type')
+            ->select('id', 'name')
+            ->get();
+
         return response()->json([
             'status' => 'success',
-            'data' => $data
+            'data' => $data,
+            'courses' => $courses // إرسال الدورات للهاتف
         ]);
     }
     /**
@@ -45,8 +52,7 @@ class MemorizationApiController extends Controller
      */
     public function syncUp(Request $request)
     {
-        Log::info('بيانات المزامنة القادمة:', $request->all());
-        $teacherId = $request->user() ? $request->user()->id : null;
+        // Log::info('بيانات المزامنة القادمة:', $request->all());
 
         $request->validate([
             'records' => 'required|array',
@@ -72,7 +78,7 @@ class MemorizationApiController extends Controller
                     ],
                     [
                         'status'      => 'حاضر',
-                        'recorded_by' => $teacherId,
+                        'recorded_by' => 'نظام التسميع',
                         'notes'       => 'تسجيل تلقائي عند التسميع',
                         'created_at'  => now(),
                         'updated_at'  => now(),
@@ -85,6 +91,36 @@ class MemorizationApiController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('خطأ في المزامنة: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+    /**
+     * استقبال تسجيل الطلاب في الدورات من الجوال ورفعها للسيرفر
+     */
+    public function syncCourseRegistrations(Request $request)
+    {
+        Log::info('بيانات مزامنة الدورات القادمة:', $request->all());
+
+        $request->validate([
+            'registrations' => 'required|array',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            foreach ($request->registrations as $reg) {
+                $student = \App\Models\Student::find($reg['student_id']);
+
+                if ($student) {
+                    $student->courses()->sync($reg['course_ids']);
+                }
+            }
+
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => 'تم تسجيل الطلاب في الدورات بنجاح']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('خطأ في مزامنة الدورات: ' . $e->getMessage());
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }

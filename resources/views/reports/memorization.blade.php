@@ -59,6 +59,17 @@
                                 @endforeach
                             </select>
                         </div>
+                        @if (auth()->user()->is_admin)
+                            <!-- الفلتر المضاف حديثاً: الجنس -->
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold">الجنس</label>
+                                <select name="gender" id="gender" class="form-select filter-input">
+                                    <option value="">-- الكل --</option>
+                                    <option value="male">ذكر</option>
+                                    <option value="female">أنثى</option>
+                                </select>
+                            </div>
+                        @endif
                     </div>
                 </form>
             </div>
@@ -76,6 +87,7 @@
                                 <th class="py-3">رقم الهوية</th>
                                 <th class="py-3">المجموعة</th>
                                 <th class="py-3">المحفظ/ة</th>
+                                <th class="py-3">حالة التسميع</th>
                                 <th class="py-3">السورة</th>
                                 <th class="py-3">من آية</th>
                                 <th class="py-3">إلى آية</th>
@@ -132,15 +144,15 @@
                 serverSide: true,
                 searching: true,
                 ajax: {
-                    url: "{{ route('reports.memorization') }}", // المسار في الـ Controller
+                    url: "{{ route('reports.memorization') }}",
                     type: 'GET',
                     data: function(d) {
-                        // إرسال الفلاتر مع كل طلب للسيرفر
                         d.date_from = $('#date_from').val();
                         d.date_to = $('#date_to').val();
                         d.teacher_id = $('select[name="teacher_id"]').val();
                         d.group_id = $('select[name="group_id"]').val();
                         d.student_id = $('select[name="student_id"]').val();
+                        d.gender = $('#gender').val(); // تمرير فلتر الجنس المضاف حديثاً للسيرفر
                     }
                 },
                 columns: [{
@@ -168,17 +180,92 @@
                         name: 'teacher_name'
                     },
                     {
+                        data: 'examType_id',
+                        name: 'examType_id',
+                        render: function(data, type, row) {
+                            let examTypeId = data;
+                            let noteText = row.note || '';
+                            let suraName = row.sura_name || '';
+
+                            if (examTypeId == 0 || examTypeId === '0' || noteText.includes(
+                                    'لم يقم بالتسميع اليوم') || suraName === 'لم يسمع') {
+                                return `<span class="badge bg-danger-subtle text-danger border px-3 py-1 fw-bold" style="border-radius: 8px;">
+                            <i class="bi bi-x-circle ms-1"></i> لَمْ يُسَمِّعْ
+                        </span>`;
+                            }
+
+                            let typeText = row.exam_type_description || row.exam_type_name || row
+                                .description || '';
+
+                            if (!typeText || typeText.trim() === '') {
+                                if (noteText.includes('مراجعة')) {
+                                    typeText = 'مراجعة';
+                                } else if (noteText.includes('سرد') || noteText.includes(
+                                        'اختبار')) {
+                                    typeText = 'سرد سورة';
+                                } else if (examTypeId == 1 || examTypeId === '1') {
+                                    typeText = 'تسميع';
+                                } else if (examTypeId == 2 || examTypeId === '2') {
+                                    typeText = 'مراجعة';
+                                } else if (examTypeId == 3 || examTypeId === '3') {
+                                    typeText = 'سرد سورة';
+                                } else {
+                                    typeText = 'تسميع';
+                                }
+                            }
+
+                            let badgeColor = 'bg-primary-subtle text-primary border-primary';
+
+                            if (typeText.includes('مراجعة')) {
+                                badgeColor = 'bg-warning-subtle text-warning border-warning';
+                            } else if (typeText.includes('سرد') || typeText.includes('اختبار')) {
+                                badgeColor = 'bg-success-subtle text-success border-success';
+                            }
+
+                            return `<span class="badge ${badgeColor} border px-3 py-1 fw-bold" style="border-radius: 8px;">
+                        <i class="bi bi-check-circle ms-1"></i> ${typeText}
+                    </span>`;
+                        }
+                    },
+                    {
                         data: 'sura_name',
                         name: 'sura_name',
-                        className: 'text-success fw-bold'
+                        className: 'text-success fw-bold',
+                        render: function(data, type, row) {
+                            let noteText = row.note || '';
+                            let examTypeId = row.examType_id;
+                            if (data === 'لم يسمع' || examTypeId == 0 || noteText.includes(
+                                    'لم يقم بالتسميع اليوم')) {
+                                return '';
+                            }
+                            return data || '';
+                        }
                     },
                     {
                         data: 'verses_from',
-                        name: 'verses_from'
+                        name: 'verses_from',
+                        render: function(data, type, row) {
+                            let noteText = row.note || '';
+                            let examTypeId = row.examType_id;
+                            if (row.sura_name === 'لم يسمع' || examTypeId == 0 || noteText.includes(
+                                    'لم يقم بالتسميع اليوم')) {
+                                return '';
+                            }
+                            return (data == 0 || !data) ? '' : data;
+                        }
                     },
                     {
                         data: 'verses_to',
-                        name: 'verses_to'
+                        name: 'verses_to',
+                        render: function(data, type, row) {
+                            let noteText = row.note || '';
+                            let examTypeId = row.examType_id;
+                            if (row.sura_name === 'لم يسمع' || examTypeId == 0 || noteText.includes(
+                                    'لم يقم بالتسميع اليوم')) {
+                                return '';
+                            }
+                            return (data == 0 || !data) ? '' : data;
+                        }
                     },
                     {
                         data: 'note',
@@ -207,27 +294,21 @@
                 },
                 order: [
                     [0, 'desc']
-                ] // الترتيب الافتراضي حسب التاريخ
+                ]
             });
 
-            // 2. معالجة التصدير للإكسل (باستخدام كلاس ExportExcel في السيرفر)
+            // 2. معالجة التصدير للإكسل وتشمل فلتر الجنس
             $(document).on('click', '#btnExportExcel', function(e) {
                 e.preventDefault();
-
-                // تجميع الفلاتر الحالية لإرسالها لطلب الإكسل
                 let params = {
                     date_from: $('#date_from').val(),
                     date_to: $('#date_to').val(),
                     teacher_id: $('select[name="teacher_id"]').val(),
                     group_id: $('select[name="group_id"]').val(),
-                    student_id: $('select[name="student_id"]').val()
+                    student_id: $('select[name="student_id"]').val(),
+                    gender: $('#gender').val() // إضافة متغير الجنس لرابط الإكسل
                 };
-
-                // بناء الرابط مع الـ Query String
-                let url = "{{ route('reports.export') }}?" + $.param(params);
-
-                // فتح رابط التحميل
-                window.location.href = url;
+                window.location.href = "{{ route('reports.export') }}?" + $.param(params);
             });
 
             // 3. تحديث الفلاتر التبادلية (Ajax)
@@ -236,10 +317,11 @@
                     teacher_id: $('select[name="teacher_id"]').val(),
                     group_id: $('select[name="group_id"]').val(),
                     student_id: $('select[name="student_id"]').val(),
+                    gender: $('#gender').val(),
                 };
 
                 $.ajax({
-                    url: "{{ route('reports.filters.data') }}", //
+                    url: "{{ route('reports.filters.data') }}",
                     type: 'GET',
                     data: data,
                     success: function(response) {
@@ -247,10 +329,10 @@
                             updateSelect('teacher_id', response.teachers, 'id', 'full_name', data
                                 .teacher_id);
                         }
-                        if (changedElement !== 'group_id') {
+                        if (changedElement !== 'group_id' && $('select[name="group_id"]').length) {
                             updateSelect('group_id', response.groups, 'id', 'GroupName', data.group_id);
                         }
-                        if (changedElement !== 'student_id') {
+                        if (changedElement !== 'student_id' && $('select[name="student_id"]').length) {
                             updateSelect('student_id', response.students, 'id', 'full_name', data
                                 .student_id);
                         }
@@ -261,25 +343,24 @@
             function updateSelect(name, items, valueKey, textKey, currentValue) {
                 let select = $(`select[name="${name}"]`);
                 select.empty().append('<option value="">-- الكل --</option>');
-                $.each(items, function(i, item) {
-                    let selected = (item[valueKey] == currentValue) ? 'selected' : '';
-                    select.append(
-                        `<option value="${item[valueKey]}" ${selected}>${item[textKey]}</option>`);
-                });
+                if (items) {
+                    $.each(items, function(i, item) {
+                        let selected = (item[valueKey] == currentValue) ? 'selected' : '';
+                        select.append(
+                            `<option value="${item[valueKey]}" ${selected}>${item[textKey]}</option>`);
+                    });
+                }
             }
 
-            // 4. مراقبة التغييرات في الفلاتر
-            $(document).on('change', '.filter-input', function() {
-                let name = $(this).attr('name');
-
-                // تحديث القوائم المنسدلة بناءً على التغيير
-                if (['teacher_id', 'group_id', 'student_id'].includes(name)) {
-                    syncFilters(name);
-                }
-
-                // إعادة تحميل الجدول من السيرفر (DataTable Draw)
-                table.draw();
-            });
+            $(document).on('change',
+                'select[name="teacher_id"], select[name="group_id"], select[name="student_id"], #gender, #date_from, #date_to',
+                function() {
+                    let name = $(this).attr('name');
+                    if (name && ['teacher_id', 'group_id', 'student_id'].includes(name)) {
+                        syncFilters(name);
+                    }
+                    table.draw(); // إعادة رسم الجدول عند تغيير أي فلتر بما فيهم الجنس
+                });
         });
     </script>
 @endpush

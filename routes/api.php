@@ -11,8 +11,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // مسار رفع البيانات المسجلة Offline
     Route::post('/sync-up', [MemorizationApiController::class, 'syncUp']);
     Route::get('/attendance-history', [MemorizationController::class, 'getAttendanceHistory']);
+    Route::post('/sync-course-registrations', [MemorizationApiController::class, 'syncCourseRegistrations']);
 });
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/sync-memorizations', [MemorizationController::class, 'syncBulk']);
 Route::middleware('auth:sanctum')->post('/sync-attendance', [MemorizationController::class, 'syncAttendance']);
 Route::get('/surahs', [MemorizationController::class, 'getSurahs']);
+Route::get('/lov', [MemorizationController::class, 'getLov']);

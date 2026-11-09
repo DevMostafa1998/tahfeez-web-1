@@ -21,17 +21,28 @@ class UserController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            // نمرر الطلب بالكامل للمنطق لمعالجة الترتيب والبحث
             return $this->userLogic->getUsersForDataTable($request);
         }
 
         $categories = DB::table('categorie')->get();
+        $centers = DB::table('centers')->get();
+        $mosques = \App\Models\Lov::getOptions('mosque_list');
+
+        // جلب المركز المحدد من Session
+        $selectedCenterId = session('selected_center_id');
+
         $all_courses = Course::where(function ($query) {
             $query->where('type', 'teachers')->orWhereNull('type');
-        })->get();
+        })
+            ->when($selectedCenterId, function ($q) use ($selectedCenterId) {
+                // يجلب دورات المركز المحدد فقط ويستثني العامة والملغاة
+                return $q->where('center_id', $selectedCenterId);
+            })
+            ->get();
 
-        return view('users.index', compact('categories', 'all_courses'));
+        return view('users.index', compact('categories', 'all_courses', 'centers', 'mosques'));
     }
+
     public function show($id)
     {
         $teacher = User::with(['courses', 'groups' => function ($query) {
@@ -40,34 +51,45 @@ class UserController extends Controller
 
         return view('profile.index', compact('teacher'));
     }
+
     public function store(Request $request)
     {
         $request->validate([
-            'full_name'     => 'required|string|max:255',
-            'id_number'     => 'required|unique:user,id_number',
-            'password'      => 'required|string|min:6|confirmed',
-            'date_of_birth' => 'required|date',
-            'phone_number'  => 'required',
-            'address'       => 'required',
-            'category_id'   => 'required',
-            'courses'       => 'nullable|array',
-            'is_displaced'  => 'required|boolean',
-            'gender'       => 'sometimes|in:male,female',
+            'full_name'      => 'required|string|max:255',
+            'id_number'      => 'required|unique:user,id_number',
+            'password'       => 'required|string|min:6|confirmed',
+            'date_of_birth'  => 'required|date',
+            'phone_number'   => 'required',
+            'address'        => 'required',
+            'center_id'      => 'nullable|string|max:255',
+            'category_id'    => 'required',
+            'courses'        => 'nullable|array',
+            'is_displaced'   => 'required|boolean',
+            'gender'         => 'sometimes|in:male,female',
             'is_admin_rouls' => 'nullable|boolean',
         ]);
 
         $this->userLogic->storeUser($request->all());
         return redirect()->route('user.index')->with('success', 'تم إضافة المستخدم والدورات بنجاح!');
     }
+
     public function edit($id)
     {
         $user = User::findOrFail($id);
         $categories = DB::table('categorie')->get();
+        $centers = DB::table('centers')->get();
+
+        $selectedCenterId = session('selected_center_id');
+
         $all_courses = Course::where(function ($query) {
             $query->where('type', 'teachers')->orWhereNull('type');
-        })->get();
+        })
+            ->when($selectedCenterId, function ($q) use ($selectedCenterId) {
+                return $q->where('center_id', $selectedCenterId);
+            })
+            ->get();
 
-        return view('profile.edit', compact('user', 'categories', 'all_courses'));
+        return view('profile.edit', compact('user', 'categories', 'all_courses', 'centers'));
     }
 
     public function update(Request $request, $id)
@@ -79,25 +101,28 @@ class UserController extends Controller
             return redirect()->route('user.index')->with('success', 'تم تحديث الدورات بنجاح');
         }
 
-        // التحقق  لباقي العمليات
         $request->validate([
             'full_name'    => 'required|string|max:255',
             'id_number'    => 'required|unique:user,id_number,' . $id,
             'phone_number' => 'required',
             'address'      => 'required',
             'category_id'  => 'required',
+            'center_id'    => 'nullable|string|max:255',
             'password'     => 'nullable|string|min:6|confirmed',
             'courses'      => 'nullable|array',
             'is_displaced' => 'required|boolean',
             'gender'       => 'sometimes|in:male,female',
         ]);
+
         $data = $request->all();
         if (!$request->has('is_admin_rouls')) {
             $data['is_admin_rouls'] = 0;
         }
+
         $this->userLogic->updateUser($user, $data);
         return redirect()->route('user.index')->with('success', 'تم تحديث البيانات بنجاح');
     }
+
     public function restore($id)
     {
         $restored = $this->userLogic->restoreUser($id);
@@ -108,6 +133,7 @@ class UserController extends Controller
 
         return redirect()->back()->with('error', 'حدث خطأ أثناء محاولة الاستعادة');
     }
+
     public function destroy($id)
     {
         if ($id == 1) {
@@ -121,23 +147,54 @@ class UserController extends Controller
     public function create()
     {
         $categories = DB::table('categorie')->get();
+        $centers = DB::table('centers')->get();
+        $mosques = \App\Models\Lov::getOptions('mosque_list');
+
+        $selectedCenterId = session('selected_center_id');
+
         $all_courses = Course::where(function ($query) {
             $query->where('type', 'teachers')->orWhereNull('type');
-        })->get();
-        return view('users.create', compact('categories', 'all_courses'));
+        })
+            ->when($selectedCenterId, function ($q) use ($selectedCenterId) {
+                return $q->where('center_id', $selectedCenterId);
+            })
+            ->get();
+
+        return view('users.create', compact('categories', 'all_courses', 'centers', 'mosques'));
     }
+
     public function getEditData($id)
     {
         $user = User::findOrFail($id);
         return response()->json($user);
     }
+
     public function exportFullExcel()
     {
-        $users = User::with(['category', 'courses'])->get();
+        $selectedCenterId = session()->has('selected_center_id') && session('selected_center_id') != ''
+            ? session('selected_center_id')
+            : null;
 
+        // جلب اختيار الجنس من الـ Session
+        $selectedGender = session('selected_gender');
+
+        $usersQuery = User::with(['category', 'courses']);
+
+        if ($selectedCenterId) {
+            $usersQuery->where(function ($q) use ($selectedCenterId) {
+                $q->where('center_id', $selectedCenterId)
+                    ->orWhereNull('center_id');
+            });
+        }
+
+        // تطبيق فلتر الجنس إذا كان موجوداً
+        if ($selectedGender) {
+            $usersQuery->where('gender', $selectedGender);
+        }
+
+        $users = $usersQuery->get();
         $exporter = new ExportExcel();
 
-        // تعريف العناوين التي ستظهر في رأس ملف الإكسل
         $headers = [
             'الاسم الكامل',
             'رقم الهوية',
@@ -148,7 +205,6 @@ class UserController extends Controller
             'عدد الدورات'
         ];
 
-        // تحويل البيانات لمصفوفة تتناسب مع توقعات الكلاس
         $data = $users->map(function ($user) {
             return [
                 'full_name'     => $user->full_name,
@@ -161,7 +217,6 @@ class UserController extends Controller
             ];
         })->toArray();
 
-        // ترتيب المفاتيح كما هي في المصفوفة أعلاه
         $columnsMapping = [
             'full_name',
             'id_number',
@@ -173,11 +228,35 @@ class UserController extends Controller
         ];
 
         return $exporter->export(
-            'users_report_' . date('Y-m-d'), // اسم الملف
-            'تقرير جميع المستخدمين في النظام',  // عنوان الجدول بالداخل
+            'users_report_' . date('Y-m-d'),
+            'تقرير جميع المستخدمين في النظام',
+            'تقرير المستخدمين',
             $headers,
             $data,
             $columnsMapping
         );
+    }
+
+    public function getAllTeachers()
+    {
+        $selectedCenterId = session()->has('selected_center_id') && session('selected_center_id') != ''
+            ? session('selected_center_id')
+            : null;
+
+        // جلب اختيار الجنس
+        $selectedGender = session('selected_gender');
+
+        $query = User::where('is_admin', false);
+
+        if ($selectedCenterId) {
+            $query->where('center_id', $selectedCenterId);
+        }
+
+        // تطبيق الفلتر
+        if ($selectedGender) {
+            $query->where('gender', $selectedGender);
+        }
+
+        return $query->get();
     }
 }

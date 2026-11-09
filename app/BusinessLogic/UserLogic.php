@@ -25,17 +25,24 @@ class UserLogic
         if (!$isAdminMain) {
             $isAdminRouls = isset($data['is_admin_rouls']) ? true : false;
         }
+
+        // تحديد المركز الافتراضي من الـ Session إذا لم يُحدد في النموذج
+        $selectedCenterId = session()->has('selected_center_id') && session('selected_center_id') != ''
+            ? session('selected_center_id')
+            : null;
+
         $user = User::create([
-            'full_name'     => $data['full_name'],
-            'id_number'     => $data['id_number'],
-            'password'      => Hash::make($data['password']),
-            'date_of_birth' => $data['date_of_birth'],
-            'phone_number'  => $data['phone_number'],
-            'address'       => $data['address'],
-            'category_id'   => $data['category_id'],
-            'is_admin'      => $isAdminMain,
-            'is_admin_rouls' => $isAdminRouls,
-            'creation_by'   => Auth::user()->full_name ?? 'System',
+            'full_name'       => $data['full_name'],
+            'id_number'       => $data['id_number'],
+            'password'        => Hash::make($data['password']),
+            'date_of_birth'   => $data['date_of_birth'],
+            'phone_number'    => $data['phone_number'],
+            'address'         => $data['address'],
+            'category_id'     => $data['category_id'],
+            'center_id'       => $isAdminMain ? null : ($data['center_id'] ?? $selectedCenterId), // تفريغ المركز إذا كان مسؤولاً
+            'is_admin'        => $isAdminMain,
+            'is_admin_rouls'  => $isAdminRouls,
+            'creation_by'     => Auth::user()->full_name ?? 'System',
             'birth_place'     => $data['birth_place'] ?? null,
             'wallet_number'   => $data['wallet_number'] ?? null,
             'whatsapp_number' => $data['whatsapp_number'] ?? null,
@@ -56,6 +63,8 @@ class UserLogic
 
     public function updateUser($user, $data)
     {
+        $isAdminMain = isset($data['is_admin']) ? ($data['is_admin'] == '1' || $data['is_admin'] == 'مسؤول') : $user->is_admin;
+
         $updateData = [
             'full_name'       => $data['full_name'] ?? $user->full_name,
             'id_number'       => $data['id_number'] ?? $user->id_number,
@@ -63,6 +72,7 @@ class UserLogic
             'date_of_birth'   => $data['date_of_birth'] ?? $user->date_of_birth,
             'address'         => $data['address'] ?? $user->address,
             'category_id'     => $data['category_id'] ?? $user->category_id,
+            'center_id'       => $isAdminMain ? null : ($data['center_id'] ?? $user->center_id), // تفريغ المركز للمسؤول
             'updated_by'      => Auth::user()->full_name ?? 'System',
             'birth_place'     => $data['birth_place'] ?? $user->birth_place,
             'wallet_number'   => $data['wallet_number'] ?? $user->wallet_number,
@@ -80,7 +90,6 @@ class UserLogic
         }
 
         if (isset($data['is_admin'])) {
-            $isAdminMain = ($data['is_admin'] == '1' || $data['is_admin'] == 'مسؤول');
             $updateData['is_admin'] = $isAdminMain ? 1 : 0;
 
             if ($isAdminMain) {
@@ -108,7 +117,6 @@ class UserLogic
         return $user->delete();
     }
 
-    // دالة استعادة المستخدم
     public function restoreUser($id)
     {
         $user = User::withTrashed()->find($id);
@@ -122,13 +130,40 @@ class UserLogic
         $length = $request->get('length');
         $search = $request->get('search')['value'];
 
-        // حالة الأرشيف
         $showArchived = $request->get('archived') === 'true';
 
-        $query = $showArchived ? User::onlyTrashed() : User::query();
-        $query->with(['courses', 'category']);
+        // معرف المركز المحدد من الـ Session
+        $selectedCenterId = session()->has('selected_center_id') && session('selected_center_id') != ''
+            ? session('selected_center_id')
+            : null;
 
-        $totalRecords = $showArchived ? User::onlyTrashed()->count() : User::count();
+        // *** التعديل 1: جلب اختيار الجنس من الـ Session ***
+        $selectedGender = session('selected_gender');
+
+        $query = $showArchived ? User::onlyTrashed() : User::query();
+        $query->with(['courses', 'category', 'center']);
+
+        if ($selectedCenterId) {
+            $query->where('center_id', $selectedCenterId);
+        }
+
+        // *** التعديل 2: تطبيق فلتر الجنس إذا كان موجوداً على الاستعلام الأساسي ***
+        if ($selectedGender) {
+            $query->where('gender', $selectedGender);
+        }
+
+        // حساب إجمالي السجلات للجدول
+        $totalRecordsQuery = $showArchived ? User::onlyTrashed() : User::query();
+        if ($selectedCenterId) {
+            $totalRecordsQuery->where('center_id', $selectedCenterId);
+        }
+
+        // *** التعديل 3: تطبيق فلتر الجنس على استعلام إجمالي السجلات ***
+        if ($selectedGender) {
+            $totalRecordsQuery->where('gender', $selectedGender);
+        }
+
+        $totalRecords = $totalRecordsQuery->count();
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
@@ -158,6 +193,9 @@ class UserLogic
                 'phone_number' => '<span dir="ltr" class="fw-bold text-primary-emphasis">' . $user->phone_number . '</span>',
                 'gender' => $this->renderGenderBadge($user),
                 'category' => $user->category->name ?? '---',
+                'center' => $user->is_admin
+                    ? '<span class="text-muted">---</span>'
+                    : ($user->center->name ?? 'غير محدد'),
                 'role' => $this->renderRoleBadge($user),
                 'courses_count' => (!$user->is_admin) ? '<span class="badge bg-warning text-dark rounded-pill px-3">' . $user->courses->count() . ' دورات</span>' : '--',
                 'actions' => $this->renderActions($user, $showArchived)
@@ -179,10 +217,8 @@ class UserLogic
         }
         return '<span class="badge bg-pink-subtle text-danger border px-3"><i class="bi bi-person ms-1"></i> أنثى</span>';
     }
-
     private function renderRoleBadge($user)
     {
-        // تم إرجاع الألوان والمسميات كما كانت في كودك الأصلي تماماً
         $bgColor = $user->is_admin ? 'bg-primary' : 'bg-success';
 
         $html = '<span class="badge rounded-pill ' . $bgColor . ' px-3 py-1" style="font-size: 0.85rem;">';
@@ -201,7 +237,6 @@ class UserLogic
 
     private function renderActions($user, $isArchived)
     {
-        // إذا كان في الأرشيف نعرض زر الاستعادة فقط
         if ($isArchived) {
             return '<div class="d-flex justify-content-center">
                         <button onclick="restoreUser(' . $user->id . ')" class="btn btn-sm btn-outline-success rounded-pill px-3" title="استعادة">
@@ -212,7 +247,6 @@ class UserLogic
 
         $btns = '<div style="display: grid; grid-template-columns: repeat(4, 35px); justify-content: center; gap: 5px;">';
 
-        // 1. زر الدورات
         $btns .= '<div>';
         if (!$user->is_admin) {
             $btns .= '<button class="btn btn-sm btn-outline-info rounded-circle action-btn course-btn"
@@ -222,9 +256,8 @@ class UserLogic
         }
         $btns .= '</div>';
 
-        // 2. زر العرض
         $btns .= '<div class="position-relative">';
-        $btns .= '<a href="' . route('teachers.show', $user->id) . '" class="btn btn-sm btn-outline-primary rounded-circle action-btn" title="عرض الملف">
+        $btns .= '<a href="' . route('user.show', $user->id) . '" class="btn btn-sm btn-outline-primary rounded-circle action-btn" title="عرض الملف">
         <i class="bi bi-eye"></i></a>';
 
         if ($user->id == 1) {
@@ -233,7 +266,6 @@ class UserLogic
         }
         $btns .= '</div>';
 
-        // 3. زر التعديل
         $btns .= '<div>';
         if ($user->id !== 1) {
             $btns .= '<button type="button" onclick="editUser(' . $user->id . ')" class="btn btn-sm btn-outline-warning rounded-circle action-btn" title="تعديل">
@@ -241,7 +273,6 @@ class UserLogic
         }
         $btns .= '</div>';
 
-        // 4. زر الحذف
         $btns .= '<div>';
         if ($user->id !== 1) {
             $btns .= '<button type="button" onclick="confirmDelete(' . $user->id . ')" class="btn btn-sm btn-outline-danger rounded-circle action-btn" title="حذف">
@@ -251,10 +282,5 @@ class UserLogic
 
         $btns .= '</div>';
         return $btns;
-    }
-
-    public function getAllTeachers()
-    {
-        return User::where('is_admin', false)->get();
     }
 }

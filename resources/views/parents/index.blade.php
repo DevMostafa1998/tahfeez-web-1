@@ -70,7 +70,7 @@
                         <h1 class="text-2xl font-black text-slate-800">{{ $student->full_name }}</h1>
                         <div class="flex flex-wrap gap-2 mt-2 text-xs font-bold">
                             <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full flex items-center gap-2">
-                                <i class="fas fa-mosque"></i> {{ $student->center_name ?? 'المركز العام' }}
+                                <i class="fas fa-mosque"></i> {{ $student->center?->name ?? 'المركز العام' }}
                             </span>
                             <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full flex items-center gap-2">
                                 <i class="fas fa-users"></i>
@@ -614,7 +614,7 @@
                                 </div>
                                 <div>
                                     <p class="text-[10px] text-slate-400 uppercase tracking-wider font-bold">اسم المركز</p>
-                                    <p class="font-bold text-sm">{{ $student->center_name }}</p>
+                                    <p class="font-bold text-sm">{{ $student->center?->name ?? 'المركز العام' }}</p>
                                 </div>
                             </div>
 

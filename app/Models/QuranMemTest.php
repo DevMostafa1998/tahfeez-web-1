@@ -14,15 +14,17 @@ class QuranMemTest extends Model
     protected $fillable = [
         'studentId',
         'date',
+        'from_juz',
+        'to_juz',
         'juz_count',
+        'score_percentage',
+        'teacher_name',
+        'tester_name',
         'examType',
         'result_status',
         'note',
-        'creation_at',
-        'creation_by',
-        'updated_at',
+        'created_by',
         'updated_by',
-        'deleted_at',
         'deleted_by'
     ];
     protected $casts = [

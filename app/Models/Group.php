@@ -13,11 +13,12 @@ class Group extends Model
 
     const CREATED_AT = 'creation_at';
     const UPDATED_AT = 'updated_at';
-    
+
     protected $table = 'group';
     protected $fillable = [
         'UserId',
         'GroupName',
+        'center_id',
         'creation_at',
         'creation_by',
         'updated_at',

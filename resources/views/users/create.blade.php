@@ -62,9 +62,13 @@
                                                 <i class="bi bi-tags text-danger me-1"></i>تصنيف المستخدم
                                             </label>
                                             <select name="is_admin" id="userRoleSelect"
-                                                class="form-select form-select-sm border-0 bg-white px-3 py-2 fw-bold shadow-sm" required>
-                                                <option value="محفظ" {{ old('is_admin') == 'محفظ' || !old('is_admin') ? 'selected' : '' }}>محفظ</option>
-                                                <option value="مسؤول" {{ old('is_admin') == 'مسؤول' ? 'selected' : '' }}>مسؤول</option>
+                                                class="form-select form-select-sm border-0 bg-white px-3 py-2 fw-bold shadow-sm"
+                                                required>
+                                                <option value="محفظ"
+                                                    {{ old('is_admin') == 'محفظ' || !old('is_admin') ? 'selected' : '' }}>
+                                                    محفظ</option>
+                                                <option value="مسؤول" {{ old('is_admin') == 'مسؤول' ? 'selected' : '' }}>
+                                                    مسؤول</option>
                                             </select>
                                         </div>
 
@@ -74,7 +78,11 @@
                                                 <i class="bi bi-shield-check text-warning me-1"></i>صلاحيات إضافية
                                             </label>
                                             <div class="form-check form-switch mt-2">
-                                                <input class="form-check-input" type="checkbox" role="switch" id="is_admin_rouls" name="is_admin_rouls" value="1" {{ old('is_admin_rouls') ? 'checked' : '' }}>
+                                                <input class="form-check-input" type="checkbox" role="switch"
+                                                    id="is_admin_rouls"
+                                                    oninvalid="this.setCustomValidity('يرجى ملء هذا الحقل')"
+                                                    name="is_admin_rouls" value="1"
+                                                    {{ old('is_admin_rouls') ? 'checked' : '' }}>
                                                 <label class="form-check-label fw-bold text-dark" for="is_admin_rouls">
                                                     منح صلاحيات الأدمن كاملة
                                                 </label>
@@ -90,7 +98,9 @@
                                             <select name="category_id"
                                                 class="form-select form-select-sm border-0 bg-white px-3 py-2 fw-bold shadow-sm"
                                                 required>
-                                                <option value="" selected disabled>اختر النوع ...</option>
+                                                <option value=""
+                                                    oninvalid="this.setCustomValidity('يرجى ملء هذا الحقل')" selected
+                                                    disabled>اختر النوع ...</option>
                                                 @foreach ($categories as $cat)
                                                     <option value="{{ $cat->id }}"
                                                         {{ old('category_id') == $cat->id ? 'selected' : '' }}>
@@ -106,6 +116,7 @@
                                             <div class="input-group input-group-sm shadow-sm has-validation">
                                                 <input type="password" id="password" name="password"
                                                     class="form-control border-0 bg-white px-3 py-2" required
+                                                    oninvalid="this.setCustomValidity('يرجى ملء هذا الحقل')"
                                                     autocomplete="new-password">
 
                                             </div>
@@ -118,7 +129,8 @@
                                             <div class="input-group input-group-sm shadow-sm has-validation">
                                                 <input type="password" id="password_confirmation"
                                                     name="password_confirmation"
-                                                    class="form-control border-0 bg-white px-3 py-2" required>
+                                                    class="form-control border-0 bg-white px-3 py-2" required
+                                                    oninvalid="this.setCustomValidity('يرجى ملء هذا الحقل')">
                                             </div>
                                         </div>
                                     </div>
@@ -140,7 +152,8 @@
                                             </label>
                                             <input type="text" name="full_name"
                                                 class="form-control form-control-sm border-0 bg-light px-3 py-2 only-text"
-                                                placeholder="أدخل الاسم رباعي" value="{{ old('full_name') }}" required>
+                                                placeholder="أدخل الاسم رباعي" value="{{ old('full_name') }}" required
+                                                oninvalid="this.setCustomValidity('يرجى ملء هذا الحقل')">
                                         </div>
                                         <div class="col-md-2">
                                             <label class="form-label small fw-bold text-secondary mb-1">
@@ -148,7 +161,8 @@
                                             </label>
                                             <input type="text" name="id_number"
                                                 class="form-control form-control-sm border-0 bg-light px-3 py-2 only-numbers"
-                                                placeholder="رقم الهوية" value="{{ old('id_number') }}" required>
+                                                placeholder="رقم الهوية" value="{{ old('id_number') }}" required
+                                                oninvalid="this.setCustomValidity('يرجى ملء هذا الحقل')">
                                         </div>
                                         <div class="col-md-2">
                                             <label class="form-label small fw-bold text-secondary mb-1">
@@ -156,7 +170,8 @@
                                             </label>
                                             <input type="date" name="date_of_birth"
                                                 class="form-control form-control-sm border-0 bg-light px-3 py-2"
-                                                value="{{ old('date_of_birth') }}" required>
+                                                value="{{ old('date_of_birth') }}" required
+                                                oninvalid="this.setCustomValidity('يرجى ملء هذا الحقل')">
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label small fw-bold text-secondary mb-1">
@@ -164,15 +179,16 @@
                                             </label>
                                             <input type="text" name="birth_place"
                                                 class="form-control form-control-sm border-0 bg-light px-3 py-2"
-                                                placeholder="مدينة الميلاد" value="{{ old('birth_place') }}">
+                                                placeholder="مدينة الميلاد" value="{{ old('birth_place') }}"
+                                                oninvalid="this.setCustomValidity('يرجى ملء هذا الحقل')">
                                         </div>
                                         <div class="col-md-1 text-start">
                                             <label class="form-label small fw-bold text-secondary mb-1">
                                                 <i class="bi bi-gender-ambiguous text-primary me-1"></i>الجنس
                                             </label>
                                             <select name="gender"
-                                                class="form-select form-select-sm border-0 bg-light px-3 py-2 fw-bold"
-                                                required>
+                                                class="form-select form-select-sm border-0 bg-light px-3 py-2"
+                                                required oninvalid="this.setCustomValidity('يرجى ملء هذا الحقل')">
                                                 <option value="" selected disabled>اختر</option>
                                                 <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>ذكر
                                                 </option>
@@ -182,50 +198,68 @@
                                         </div>
                                     </div>
                                 </div>
+                                        {{-- القسم الثالث: التواصل والعنوان --}}
+                                        <div class="mb-5">
+                                            <div class="d-flex align-items-center mb-3 text-success">
+                                                <span class="badge rounded-pill bg-success bg-opacity-10 text-success px-3 py-2 fw-bold">
+                                                    <i class="bi bi-telephone-fill me-1"></i> 3. بيانات التواصل والعنوان
+                                                </span>
+                                                <hr class="flex-grow-1 ms-3 my-0 opacity-10">
+                                            </div>
+                                            <div class="row g-3 text-start">
+                                                <div class="col-md-3">
+                                                    <label class="form-label small fw-bold text-secondary mb-1">
+                                                        <i class="bi bi-telephone text-success me-1"></i>رقم الهاتف
+                                                    </label>
+                                                    <input type="tel" name="phone_number"
+                                                        class="form-control form-control-sm border-0 bg-light px-3 py-2 only-numbers"
+                                                        placeholder="05XXXXXXXX" value="{{ old('phone_number') }}" required
+                                                        oninvalid="this.setCustomValidity('يرجى ملء هذا الحقل')">
+                                                </div>
 
-                                {{-- القسم الثالث: التواصل والعنوان --}}
-                                <div class="mb-5">
-                                    <div class="d-flex align-items-center mb-3 text-success">
-                                        <span
-                                            class="badge rounded-pill bg-success bg-opacity-10 text-success px-3 py-2 fw-bold">
-                                            <i class="bi bi-telephone-fill me-1"></i> 3. بيانات التواصل والعنوان
-                                        </span>
-                                        <hr class="flex-grow-1 ms-3 my-0 opacity-10">
-                                    </div>
-                                    <div class="row g-3 text-start">
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-bold text-secondary mb-1">
-                                                <i class="bi bi-telephone text-success me-1"></i>رقم الهاتف
-                                            </label>
-                                            <input type="tel" name="phone_number"
-                                                class="form-control form-control-sm border-0 bg-light px-3 py-2 only-numbers"
-                                                placeholder="05XXXXXXXX" value="{{ old('phone_number') }}" required>
-                                        </div>
+                                                {{-- حقول سيتم إخفاؤها للمسؤول --}}
+                                                <div class="col-md-3 toggle-for-admin">
+                                                    <label class="form-label small fw-bold text-secondary mb-1">
+                                                        <i class="bi bi-whatsapp text-success me-1 "></i>رقم الواتساب
+                                                    </label>
+                                                    <input type="tel" name="whatsapp_number"
+                                                        class="form-control form-control-sm border-0 bg-light px-3 py-2 only-numbers"
+                                                        placeholder="05XXXXXXXX" value="{{ old('whatsapp_number') }}"
+                                                        oninvalid="this.setCustomValidity('يرجى ملء هذا الحقل')">
+                                                </div>
 
-                                        {{-- حقول سيتم إخفاؤها للمسؤول --}}
-                                        <div class="col-md-3 toggle-for-admin">
-                                            <label class="form-label small fw-bold text-secondary mb-1">
-                                                <i class="bi bi-whatsapp text-success me-1 "></i>رقم الواتساب
-                                            </label>
-                                            <input type="tel" name="whatsapp_number"
-                                                class="form-control form-control-sm border-0 bg-light px-3 py-2 only-numbers"
-                                                placeholder="05XXXXXXXX" value="{{ old('whatsapp_number') }}">
-                                        </div>
-                                        <div class="col-md-3 toggle-for-admin">
-                                            <label class="form-label small fw-bold text-secondary mb-1">
-                                                <i class="bi bi-wallet2 text-success me-1"></i>رقم المحفظة
-                                            </label>
-                                            <input type="text" name="wallet_number"
-                                                class="form-control form-control-sm border-0 bg-light px-3 py-2 only-numbers"
-                                                placeholder="رقم المحفظة الإلكترونية" value="{{ old('wallet_number') }}">
-                                        </div>
-                                        <div class="col-md-3 toggle-for-admin">
-                                            <label class="form-label small fw-bold text-secondary mb-1">
-                                                <i class="bi bi-mosque text-success me-1"></i>اسم المسجد
-                                            </label>
-                                            <input type="text" name="mosque_name"
-                                                class="form-control form-control-sm border-0 bg-light px-3 py-2 only-text"
-                                                placeholder="اسم المسجد" value="{{ old('mosque_name') }}">
+                                                <div class="col-md-3 toggle-for-admin">
+                                                    <label class="form-label small fw-bold text-secondary mb-1">
+                                                        <i class="bi bi-building-gear text-success me-1"></i>اسم المركز
+                                                    </label>
+                                                    <select name="center_id" class="form-select form-select-sm border-0 bg-light px-3 py-2" style="border-radius: 8px;">
+                                            <option value="" disabled selected>اختر المركز...</option>
+                                            @foreach ($centers as $center)
+                                                <option value="{{ $center->id }}" {{ old('center_id') == $center->id ? 'selected' : ($center->id == 1 ? 'selected' : '') }}>
+                                                    {{ $center->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                                </div>
+
+                                                <div class="col-md-3 toggle-for-admin">
+                                                    <label class="form-label small fw-bold text-secondary mb-1">
+                                                        <i class="bi bi-wallet2 text-success me-1"></i>رقم المحفظة
+                                                    </label>
+                                                    <input type="text" name="wallet_number"
+                                                        class="form-control form-control-sm border-0 bg-light px-3 py-2 only-numbers"
+                                                        placeholder="رقم المحفظة الإلكترونية" value="{{ old('wallet_number') }}"
+                                                        oninvalid="this.setCustomValidity('يرجى ملء هذا الحقل')">
+                                                </div>
+
+                                            <div class="col-md-3 text-start">
+                                            <label class="small"><i class="bi bi-house-door text-warning"></i> اسم المسجد</label>
+                                            <select name="mosque_name" id="mosque_name" class="form-select bg-light border-0 py-2" required>
+                                                <option value="">اختر المسجد...</option>
+                                                @foreach ($mosques as $mosque)
+                                                    <option value="{{ $mosque->description }}">{{ $mosque->description }}</option>
+                                                @endforeach
+                                            </select>
                                         </div>
 
                                         <div class="col-md-3">
@@ -233,21 +267,21 @@
                                                 <i class="bi bi-house-door-fill text-success me-1"></i>حالة السكن
                                             </label>
                                             <select name="is_displaced"
-                                                class="form-select form-select-sm border-0 bg-light px-3 py-2 fw-bold"
-                                                required>
-                                                <option value="0" {{ old('is_displaced') == '0' ? 'selected' : '' }}>
-                                                    مقيم</option>
-                                                <option value="1" {{ old('is_displaced') == '1' ? 'selected' : '' }}>
-                                                    نازح</option>
+                                                class="form-select form-select-sm border-0 bg-light px-3 py-2"
+                                                oninvalid="this.setCustomValidity('يرجى ملء هذا الحقل')" required>
+                                                <option value="0" {{ old('is_displaced') == '0' ? 'selected' : '' }}>مقيم</option>
+                                                <option value="1" {{ old('is_displaced') == '1' ? 'selected' : '' }}>نازح</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-6">
+
+                                        <div class="col-md-3">
                                             <label class="form-label small fw-bold text-secondary mb-1">
                                                 <i class="bi bi-geo-alt text-success me-1"></i>العنوان الحالي
                                             </label>
                                             <input type="text" name="address"
                                                 class="form-control form-control-sm border-0 bg-light px-3 py-2"
-                                                placeholder="المدينة، الحي" value="{{ old('address') }}" required>
+                                                placeholder="المدينة، الحي" value="{{ old('address') }}"
+                                                oninvalid="this.setCustomValidity('يرجى ملء هذا الحقل')" required>
                                         </div>
                                     </div>
                                 </div>
@@ -323,7 +357,7 @@
 
                     fieldsToToggle.forEach(el => el.style.display = 'none');
                     adminRoleCheckboxDiv.style.display = 'none';
-                if(adminRoleCheckbox) adminRoleCheckbox.checked = false;
+                    if (adminRoleCheckbox) adminRoleCheckbox.checked = false;
                 } else {
                     // إظهار القسم العلمي
                     scientificSection.style.display = 'block';

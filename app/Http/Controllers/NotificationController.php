@@ -7,98 +7,125 @@ use Google\Auth\Credentials\ServiceAccountCredentials;
 use Google\Auth\HttpHandler\HttpHandlerFactory;
 use Illuminate\Support\Facades\Http;
 use App\Models\User;
+use App\Models\Center;
 use App\Notifications\SystemUpdateNotification;
 use Illuminate\Support\Facades\Notification;
 
 class NotificationController extends Controller
 {
-    // عرض الصفحة
+    // عرض الصفحة مع جلب بيانات المركز الحالي
     public function index()
     {
-        return view('notifications.index');
-    }
-public function send(Request $request)
-{
-    $request->validate([
-        'title'  => 'required|string|max:255',
-        'body'   => 'required|string',
-        'target' => 'required|in:mobile,web,all',
-    ]);
+        $selectedCenterId = session('selected_center_id');
+        $currentCenter = null;
 
-    $statusMessage = "";
-    $target = $request->target;
-
-    try {
-        // أولاً: إرسال إشعار للموقع
-        if ($target == 'web' || $target == 'all') {
-            $users = User::all();
-            Notification::send($users, new SystemUpdateNotification($request->title, $request->body));
-            $statusMessage .= "تم إرسال إشعار الموقع بنجاح. ";
+        if ($selectedCenterId) {
+            $currentCenter = Center::find($selectedCenterId);
         }
 
-        // ثانياً: إرسال إشعار للجوال
-        if ($target == 'mobile' || $target == 'all') {
-            $projectId = 'thfeez-app';
+        return view('notifications.index', compact('currentCenter'));
+    }
 
-            // حل مشكلة SSL لجلب التوكن من السيرفر المحلي
-            $httpClient = new \GuzzleHttp\Client(['verify' => false]);
-            $handler = \Google\Auth\HttpHandler\HttpHandlerFactory::build($httpClient);
+    public function send(Request $request)
+    {
+        $request->validate([
+            'title'  => 'required|string|max:255',
+            'body'   => 'required|string',
+            'target' => 'required|in:mobile,web,all',
+        ]);
 
-            $credentials = new ServiceAccountCredentials(
-                'https://www.googleapis.com/auth/cloud-platform',
-                storage_path('app/firebase_credentials.json')
-            );
+        $statusMessage = "";
+        $target = $request->target;
 
-            $token = $credentials->fetchAuthToken($handler);
-            $accessToken = $token['access_token'];
+        // 1. جلب رقم المركز المحدد حالياً من الـ Session
+        $selectedCenterId = session('selected_center_id');
 
-            $url = "https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send";
+        try {
+            // أولاً: إرسال إشعار للموقع (فلترة المستخدمين حسب المركز)
+            if ($target == 'web' || $target == 'all') {
+                $usersQuery = User::query();
 
-                    $data = [
-                "message" => [
-                    "topic" => "all",
-                    "notification" => [
-                        "title" => $request->title,
-                        "body" => $request->body,
-                    ],
-                    "android" => [
-                        "priority" => "high",
-                        "notification" => [
-                            "channel_id" => "high_importance_channel",
-                            "sound" => "default",
-                            "notification_priority" => "PRIORITY_MAX",
-                        ]
-                    ],
-                    "data" => [
-                        "click_action" => "FLUTTER_NOTIFICATION_CLICK",
-                    ]
-                ]
-            ];
+                // إذا تم تحديد مركز من السيشن، نرسل للمحفظين/المستخدمين التابعين لهذا المركز فقط
+                if ($selectedCenterId) {
+                    $usersQuery->where('center_id', $selectedCenterId);
+                }
 
-            // إرسال الطلب الفعلي لجوجل
-            $response = Http::withoutVerifying()->withToken($accessToken)->post($url, $data);
+                $users = $usersQuery->get();
 
-            if ($response->successful()) {
-                $statusMessage .= "تم إرسال إشعار الجوال بنجاح.";
-            } else {
-                throw new \Exception("فشل إرسال الجوال: " . $response->body());
+                if ($users->isNotEmpty()) {
+                    Notification::send($users, new SystemUpdateNotification($request->title, $request->body));
+                    $statusMessage .= "تم إرسال إشعار الموقع بنجاح (" . $users->count() . " مستخدم). ";
+                } else {
+                    $statusMessage .= "لا يوجد مستخدمون مرتبطون بالمركز المحدد لإرسال إشعار الموقع. ";
+                }
             }
+
+            // ثانياً: إرسال إشعار للجوال
+            if ($target == 'mobile' || $target == 'all') {
+                $projectId = 'thfeez-app';
+
+                // حل مشكلة SSL لجلب التوكن من السيرفر المحلي
+                $httpClient = new \GuzzleHttp\Client(['verify' => false]);
+                $handler = HttpHandlerFactory::build($httpClient);
+
+                $credentials = new ServiceAccountCredentials(
+                    'https://www.googleapis.com/auth/cloud-platform',
+                    storage_path('app/firebase_credentials.json')
+                );
+
+                $token = $credentials->fetchAuthToken($handler);
+                $accessToken = $token['access_token'];
+
+                $url = "https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send";
+
+                // تحديد Topic الجوال بناءً على المركز المحدد
+                // إذا كان هناك مركز محدد يرسل لـ topic_center_ID، وإلا يرسل للكل "all"
+                $fcmTopic = $selectedCenterId ? "center_" . $selectedCenterId : "all";
+
+                $data = [
+                    "message" => [
+                        "topic" => $fcmTopic,
+                        "notification" => [
+                            "title" => $request->title,
+                            "body"  => $request->body,
+                        ],
+                        "android" => [
+                            "priority" => "high",
+                            "notification" => [
+                                "channel_id" => "high_importance_channel",
+                                "sound" => "default",
+                                "notification_priority" => "PRIORITY_MAX",
+                            ]
+                        ],
+                        "data" => [
+                            "click_action" => "FLUTTER_NOTIFICATION_CLICK",
+                            "click_url" => $request->input('click_url', 'default'),
+                            "center_id" => (string)$selectedCenterId,
+                        ]
+                    ]
+                ];
+
+                // إرسال الطلب الفعلي لجوجل
+                $response = Http::withoutVerifying()->withToken($accessToken)->post($url, $data);
+
+                if ($response->successful()) {
+                    $statusMessage .= "تم إرسال إشعار الجوال بنجاح (الموضوع: {$fcmTopic}).";
+                } else {
+                    throw new \Exception("فشل إرسال الجوال: " . $response->body());
+                }
+            }
+
+            return back()->with('success', $statusMessage);
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'حدث خطأ: ' . $e->getMessage());
         }
-
-        return back()->with('success', $statusMessage);
-
-    } catch (\Exception $e) {
-        return back()->with('error', 'حدث خطأ: ' . $e->getMessage());
     }
-}
 
-    // الدالة المعدلة لاخفاء الخط الأحمر نهائياً
     public function markAsRead($id)
     {
         $user = \Auth::user();
-
         $notification = $user->unreadNotifications()->where('id', $id)->firstOrFail();
-
         $notification->markAsRead();
 
         return back()->with('info', [
@@ -106,6 +133,7 @@ public function send(Request $request)
             'body'  => $notification->data['body'] ?? 'لا يوجد محتوى'
         ]);
     }
+
     public function markAllAsRead()
     {
         auth()->user()->unreadNotifications->markAsRead();

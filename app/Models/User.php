@@ -44,6 +44,7 @@ class User extends Authenticatable
         'is_admin_rouls',
         'is_displaced',
         'gender',
+        'center_id',
 
     ];
     protected $dates = ['deleted_at'];
@@ -87,5 +88,9 @@ class User extends Authenticatable
     public function groups()
     {
         return $this->hasMany(Group::class, 'UserId', 'id');
+    }
+    public function center()
+    {
+        return $this->belongsTo(\App\Models\Center::class, 'center_id');
     }
 }

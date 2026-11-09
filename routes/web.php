@@ -23,9 +23,13 @@ use App\Http\Controllers\{
     ParentController,
     StudentPublicController,
     ExcelExportImportController,
-    NotificationController
+    NotificationController,
+    LovController,
+    CenterController,
+    CenterSelectionController,
+    GenderSelectionController,
+    MessageController,
 };
-
 
 // --- الراوتات العامة ---
 Route::get('/', fn() => Auth::check() ? redirect()->route('dashboard') : redirect()->route('login'));
@@ -33,7 +37,14 @@ Route::get('/student_public', [StudentPublicController::class, 'index'])->name('
 Route::post('/student_public', [StudentPublicController::class, 'store'])->name('student_public.store');
 Route::get('user/restore/{id}', [App\Http\Controllers\UserController::class, 'restore'])->name('user.restore');
 Route::get('/notifications/read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+Route::get('/settings/exam-grades', [QuranMemTestController::class, 'editGradeSettings'])->name('settings.grades.edit');
+Route::resource('lov', LovController::class)->except(['create', 'edit', 'show']);
+Route::post('/settings/exam-grades/update', [QuranMemTestController::class, 'updateGradeSettings'])->name('settings.grades.update');
 Route::get('/notifications/mark-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+Route::get('/centers', [CenterController::class, 'index'])->name('centers.index');
+Route::post('/centers/store', [CenterController::class, 'store'])->name('centers.store');
+Route::put('/centers/{id}', [CenterController::class, 'update'])->name('centers.update');
+Route::delete('/centers/{id}', [CenterController::class, 'destroy'])->name('centers.destroy');
 Route::prefix('excel-manage')->group(function () {
 
     Route::get('/{groupId}', [ExcelExportImportController::class, 'showExcelPage'])->name('excel.manage.page');
@@ -55,17 +66,34 @@ Route::get('student-data/{id}', [StudentController::class, 'getStudentData'])->n
 Route::get('student-courses/{id}', [StudentController::class, 'getStudentCourses'])->name('student.courses');
 Route::get('/parents/{id_number?}', [ParentController::class, 'showStudentReport'])->name('parents.index');
 
-// --- راوتات المسجلين دخول ---
+Route::post('/parent/verify-student', [ParentController::class, 'verifyStudentPublic'])->name('parent.verify-student');
+Route::get('/student_public/{id}/edit', [StudentController::class, 'editPublic'])->name('student_public.edit');
+Route::put('/student_public/{id}', [StudentController::class, 'updatePublic'])->name('student_public.update');
+
+
+// --- راوتات المسجلين دخول (لوحة التحكم) ---
 Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::prefix('memorization')->name('memorization.')->group(function () {
+        Route::get('/student/{student_id}/edit-surahs', [MemorizationController::class, 'editStudentSurahs'])->name('edit_student_surahs');
+        Route::post('/update-record/{id}', [MemorizationController::class, 'updateRecord'])->name('update_record');
+    });
 
     Route::resources([
         'profile'      => ProfileController::class,
         'group'        => GroupController::class,
         'memorization' => MemorizationController::class,
     ]);
-
+    
+    Route::prefix('admin/messages')->name('messages.')->group(function () {
+        Route::get('/', [MessageController::class, 'index'])->name('index');
+        Route::get('/{teacherId}', [MessageController::class, 'index'])->name('chat');
+        Route::get('/{teacherId}/data', [MessageController::class, 'chatData'])->name('data');
+        Route::post('/send', [MessageController::class, 'store'])->name('send');
+        Route::patch('/message/{id}', [MessageController::class, 'update'])->name('update');
+    });
     Route::controller(AttendanceController::class)->group(function () {
         Route::get('/attendance', 'index')->name('attendance.index');
         Route::post('/attendance', 'store')->name('attendance.store');
@@ -122,7 +150,11 @@ Route::middleware('auth')->group(function () {
         $request->session()->regenerateToken();
         return redirect()->route('login');
     })->name('logout');
-
+    Route::get('/quran-tests/get-student-teacher', [QuranMemTestController::class, 'getStudentTeacher'])
+        ->name('quran_tests.student_teacher');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/send', [NotificationController::class, 'send'])->name('notifications.send');
+
+    Route::post('/select-center', [CenterSelectionController::class, 'setCenter'])->name('center.select');
 });
+Route::post('/select-gender', [GenderSelectionController::class, 'setGender'])->name('gender.select');
