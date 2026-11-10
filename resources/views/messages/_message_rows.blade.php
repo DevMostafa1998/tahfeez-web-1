@@ -36,15 +36,24 @@
                 @if($isMe)
                     <i class="bi {{ $msg->is_read ? 'bi-check2-all' : 'bi-check2' }} message-tick" style="{{ $msg->is_read ? 'color:#a5f3fc;' : '' }}"></i>
                 @endif
-                @if($canEdit)
-                    <button type="button" class="btn btn-link btn-sm edit-message-btn p-0 ms-1" title="تعديل الرسالة" data-id="{{ $msg->id }}">
-                        <i class="bi bi-pencil-square"></i>
-                    </button>
-                @endif
-                @if($canDelete)
-                    <button type="button" class="btn btn-link btn-sm delete-message-btn p-0 ms-1" title="حذف الرسالة" data-id="{{ $msg->id }}">
-                        <i class="bi bi-trash"></i>
-                    </button>
+                @if($canEdit || $canDelete)
+                    <span class="msg-actions">
+                        <button type="button" class="msg-actions-btn" title="خيارات الرسالة">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                        <span class="msg-actions-menu">
+                            @if($canEdit)
+                                <button type="button" class="msg-action-item msg-action-edit">
+                                    <i class="bi bi-pencil-square me-1"></i> تعديل الرسالة
+                                </button>
+                            @endif
+                            @if($canDelete)
+                                <button type="button" class="msg-action-item msg-action-delete">
+                                    <i class="bi bi-trash me-1"></i> حذف الرسالة
+                                </button>
+                            @endif
+                        </span>
+                    </span>
                 @endif
             </div>
         </div>

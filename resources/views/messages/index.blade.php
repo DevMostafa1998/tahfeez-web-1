@@ -167,10 +167,53 @@
         text-decoration: none !important;
     }
     .edit-message-btn:hover { opacity: 1; }
-    .delete-message-btn {
-        color: #f87171;
+    .msg-actions {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
     }
-    .delete-message-btn:hover { color: #ef4444; }
+    .msg-actions-btn {
+        background: none;
+        border: none;
+        color: inherit;
+        opacity: 0.55;
+        font-size: 0.95rem;
+        padding: 0 4px;
+        cursor: pointer;
+        line-height: 1;
+    }
+    .msg-actions-btn:hover { opacity: 1; }
+    .msg-actions-menu {
+        display: none;
+        position: absolute;
+        bottom: calc(100% + 4px);
+        inset-inline-end: 0;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.16);
+        overflow: hidden;
+        z-index: 30;
+        min-width: 130px;
+    }
+    .msg-actions.open .msg-actions-menu { display: block; }
+    .msg-action-item {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        border: none;
+        background: none;
+        padding: 8px 14px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-align: start;
+        cursor: pointer;
+        color: #1e293b;
+        white-space: nowrap;
+    }
+    .msg-action-item:hover { background: #f1f5f9; }
+    .msg-action-delete { color: #ef4444; }
+    .msg-action-delete:hover { background: #fef2f2; }
     .message-edit-box {
         display: flex;
         gap: 6px;
@@ -425,9 +468,29 @@
         });
     }
 
+    function decrementGlobalUnread(n) {
+        if (!n || n <= 0) return;
+        document.querySelectorAll('.unread-total-badge').forEach(el => {
+            const current = parseInt(el.textContent, 10) || 0;
+            const next = current - n;
+            if (next <= 0) {
+                el.remove();
+            } else {
+                el.textContent = next;
+            }
+        });
+    }
+
     function clearUnreadBadge(userId) {
-        const item = teachersList.querySelector(`.contact-item[data-user-id="${userId}"] .unread-badge`);
-        if (item) item.remove();
+        const item = teachersList.querySelector(`.contact-item[data-user-id="${userId}"]`);
+        if (!item) return;
+        const badge = item.querySelector('.unread-badge');
+        const count = badge
+            ? (parseInt(badge.textContent, 10) || parseInt(item.dataset.unread || '0', 10))
+            : 0;
+        if (badge) badge.remove();
+        item.dataset.unread = '0';
+        decrementGlobalUnread(count);
     }
 
     function updateChatHeader(teacher) {
@@ -595,17 +658,40 @@
     }
 
     chatMessages.addEventListener('click', function (e) {
-        const editBtn = e.target.closest('.edit-message-btn');
-        if (editBtn) {
-            startEdit(editBtn);
+        const actionsBtn = e.target.closest('.msg-actions-btn');
+        if (actionsBtn) {
+            e.stopPropagation();
+            const wrap = actionsBtn.closest('.msg-actions');
+            const wasOpen = wrap.classList.contains('open');
+            chatMessages.querySelectorAll('.msg-actions.open').forEach(el => el.classList.remove('open'));
+            if (!wasOpen) wrap.classList.add('open');
             return;
         }
-        const delBtn = e.target.closest('.delete-message-btn');
-        if (delBtn) {
-            confirmDeleteMessage(delBtn);
+
+        const editItem = e.target.closest('.msg-action-edit');
+        if (editItem) {
+            const row = editItem.closest('.message-row');
+            row.querySelector('.msg-actions')?.classList.remove('open');
+            startEdit(row);
+            return;
+        }
+
+        const delItem = e.target.closest('.msg-action-delete');
+        if (delItem) {
+            const row = delItem.closest('.message-row');
+            row.querySelector('.msg-actions')?.classList.remove('open');
+            confirmDeleteMessage(row);
         }
     });
 
+    // إغلاق قوائم خيارات الرسائل عند النقر خارجها
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.msg-actions')) {
+            chatMessages.querySelectorAll('.msg-actions.open').forEach(el => el.classList.remove('open'));
+        }
+    });
+
+    // حذف فواصل التاريخ التي لم يعد بعدها أي رسالة
     function cleanupDateSeparators() {
         chatMessages.querySelectorAll('.chat-date-separator').forEach(sep => {
             let next = sep.nextElementSibling;
@@ -619,9 +705,9 @@
     }
 
     // حذف رسالة (للمرسل خلال 15 دقيقة)
-    function confirmDeleteMessage(btn) {
+    function confirmDeleteMessage(row) {
         const doDelete = () => {
-            fetch(`${UPDATE_BASE}/${btn.dataset.id}`, {
+            fetch(`${UPDATE_BASE}/${row.dataset.id}`, {
                 method: 'DELETE',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
@@ -632,7 +718,6 @@
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
-                    const row = btn.closest('.message-row');
                     row.remove();
                     cleanupDateSeparators();
                     refreshOldestId();
@@ -659,8 +744,7 @@
         }
     }
 
-    function startEdit(btn) {
-        const row = btn.closest('.message-row');
+    function startEdit(row) {
         const bubble = row.querySelector('.message-bubble');
         const textEl = row.querySelector('.message-text');
         const currentText = textEl.childNodes[0].textContent.trim();
@@ -689,7 +773,7 @@
             const newBody = box.querySelector('input').value.trim();
             if (!newBody) return;
 
-            fetch(`${UPDATE_BASE}/${btn.dataset.id}`, {
+            fetch(`${UPDATE_BASE}/${row.dataset.id}`, {
                 method: 'PATCH',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',

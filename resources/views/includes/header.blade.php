@@ -91,7 +91,7 @@
                 <a class="nav-link" data-bs-toggle="dropdown" href="#" style="position: relative;" title="الرسائل الواردة">
                     <i class="bi bi-envelope-fill" style="font-size: 1.1rem;"></i>
                     @if($globalUnreadMessages > 0)
-                        <span class="badge bg-danger rounded-circle"
+                        <span class="badge bg-danger rounded-circle unread-total-badge"
                             style="position: absolute; top: 5px; right: 2px; padding: 3px 5px; font-size: 0.6rem; border: 1px solid white;">
                             {{ $globalUnreadMessages }}
                         </span>

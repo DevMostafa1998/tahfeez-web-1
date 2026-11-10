@@ -1,5 +1,6 @@
 <a href="{{ route('messages.chat', $teacher->id) }}"
    data-user-id="{{ $teacher->id }}"
+   data-unread="{{ $teacher->unread_count ?? 0 }}"
    data-search="{{ $teacher->full_name }} {{ $teacher->phone_number }}"
    class="contact-item list-group-item d-flex align-items-center {{ isset($activeTeacher) && $activeTeacher->id == $teacher->id ? 'active-contact' : '' }}">
     <div class="avatar-circle {{ $teacher->is_admin ? 'avatar-admin' : 'avatar-keeper' }} me-3">

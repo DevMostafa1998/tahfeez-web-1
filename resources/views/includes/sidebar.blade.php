@@ -329,7 +329,7 @@
                             <p>
                                 الرسائل والمحادثات
                                 @if($sidebarUnreadCount > 0)
-                                    <span class="badge bg-danger float-start">{{ $sidebarUnreadCount }}</span>
+                                    <span class="badge bg-danger float-start unread-total-badge">{{ $sidebarUnreadCount }}</span>
                                 @endif
                             </p>
                         </a>
