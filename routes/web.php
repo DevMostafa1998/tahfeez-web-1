@@ -93,6 +93,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/{teacherId}/data', [MessageController::class, 'chatData'])->name('data');
         Route::post('/send', [MessageController::class, 'store'])->name('send');
         Route::patch('/message/{id}', [MessageController::class, 'update'])->name('update');
+        Route::delete('/message/{id}', [MessageController::class, 'destroy'])->name('destroy');
     });
     Route::controller(AttendanceController::class)->group(function () {
         Route::get('/attendance', 'index')->name('attendance.index');

@@ -10,6 +10,7 @@
         $showSeparator = $day !== $prevDay;
         $prevDay = $day;
         $canEdit = $isMe && now()->lessThanOrEqualTo($msg->created_at->copy()->addMinutes(10));
+        $canDelete = $isMe && now()->lessThanOrEqualTo($msg->created_at->copy()->addMinutes(15));
         $senderName = $isMe ? 'أنت' : $otherUser->full_name;
         $dayLabel = \Carbon\Carbon::parse($day)->isToday()
             ? 'اليوم'
@@ -38,6 +39,11 @@
                 @if($canEdit)
                     <button type="button" class="btn btn-link btn-sm edit-message-btn p-0 ms-1" title="تعديل الرسالة" data-id="{{ $msg->id }}">
                         <i class="bi bi-pencil-square"></i>
+                    </button>
+                @endif
+                @if($canDelete)
+                    <button type="button" class="btn btn-link btn-sm delete-message-btn p-0 ms-1" title="حذف الرسالة" data-id="{{ $msg->id }}">
+                        <i class="bi bi-trash"></i>
                     </button>
                 @endif
             </div>

@@ -167,6 +167,10 @@
         text-decoration: none !important;
     }
     .edit-message-btn:hover { opacity: 1; }
+    .delete-message-btn {
+        color: #f87171;
+    }
+    .delete-message-btn:hover { color: #ef4444; }
     .message-edit-box {
         display: flex;
         gap: 6px;
@@ -591,10 +595,69 @@
     }
 
     chatMessages.addEventListener('click', function (e) {
-        const btn = e.target.closest('.edit-message-btn');
-        if (!btn) return;
-        startEdit(btn);
+        const editBtn = e.target.closest('.edit-message-btn');
+        if (editBtn) {
+            startEdit(editBtn);
+            return;
+        }
+        const delBtn = e.target.closest('.delete-message-btn');
+        if (delBtn) {
+            confirmDeleteMessage(delBtn);
+        }
     });
+
+    function cleanupDateSeparators() {
+        chatMessages.querySelectorAll('.chat-date-separator').forEach(sep => {
+            let next = sep.nextElementSibling;
+            while (next && next.classList.contains('chat-unread-divider')) {
+                next = next.nextElementSibling;
+            }
+            if (!next || !next.classList.contains('message-row')) {
+                sep.remove();
+            }
+        });
+    }
+
+    // حذف رسالة (للمرسل خلال 15 دقيقة)
+    function confirmDeleteMessage(btn) {
+        const doDelete = () => {
+            fetch(`${UPDATE_BASE}/${btn.dataset.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': CSRF,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    const row = btn.closest('.message-row');
+                    row.remove();
+                    cleanupDateSeparators();
+                    refreshOldestId();
+                    refreshNewestId();
+                } else {
+                    alert(data.message || 'تعذر حذف الرسالة');
+                }
+            })
+            .catch(err => console.error('delete error:', err));
+        };
+
+        if (window.Swal) {
+            Swal.fire({
+                title: 'حذف الرسالة؟',
+                text: 'لا يمكن التراجع عن هذا الإجراء',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، احذف',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#ef4444'
+            }).then(result => { if (result.isConfirmed) doDelete(); });
+        } else if (confirm('هل أنت متأكد من حذف الرسالة؟')) {
+            doDelete();
+        }
+    }
 
     function startEdit(btn) {
         const row = btn.closest('.message-row');

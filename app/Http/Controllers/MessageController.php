@@ -12,6 +12,7 @@ class MessageController extends Controller
     const PAGE_SIZE = 100;
     const OLDER_PAGE_SIZE = 50;
     const EDIT_WINDOW_MINUTES = 10;
+    const DELETE_WINDOW_MINUTES = 15;
 
     public function index($teacherId = null)
     {
@@ -75,17 +76,6 @@ class MessageController extends Controller
             }
             return strcmp((string) $a->full_name, (string) $b->full_name);
         })->values();
-
-        if (!$teacherId) {
-            $latestUnreadMessage = Message::where('receiver_id', $currentUser->id)
-                ->where('is_read', false)
-                ->latest()
-                ->first();
-
-            if ($latestUnreadMessage) {
-                return redirect()->route('messages.chat', $latestUnreadMessage->sender_id);
-            }
-        }
 
         $activeTeacher = null;
         $messages = collect();
@@ -260,6 +250,23 @@ class MessageController extends Controller
             'body' => $message->body,
             'time' => $message->created_at->format('h:i A'),
         ]);
+    }
+
+    public function destroy($id)
+    {
+        $message = Message::findOrFail($id);
+
+        if ($message->sender_id !== Auth::id()) {
+            return response()->json(['success' => false, 'message' => 'غير مسموح بحذف هذه الرسالة'], 403);
+        }
+
+        if (now()->greaterThan($message->created_at->copy()->addMinutes(self::DELETE_WINDOW_MINUTES))) {
+            return response()->json(['success' => false, 'message' => 'انتهت مهلة الحذف (15 دقيقة)'], 422);
+        }
+
+        $message->delete();
+
+        return response()->json(['success' => true, 'message' => 'تم حذف الرسالة']);
     }
 
     private function conversationQuery($userId, $otherId)
