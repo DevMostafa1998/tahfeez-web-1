@@ -203,6 +203,64 @@
         </script>
     @endif
 
+    @if(auth()->check())
+    <script>
+    // تحديث فوري لعدّادات الرسائل والإشعارات في الهيدر/السايدبار (كل 10 ثوانٍ)
+    (function () {
+        const POLL_URL = "{{ url('admin/messages/poll') }}";
+        function pollBadges() {
+            if (document.hidden) return;
+            fetch(POLL_URL, { headers: { 'Accept': 'application/json' } })
+                .then(r => r.ok ? r.json() : null)
+                .then(res => {
+                    if (!res) return;
+                    const msgTotal = (res.contacts || []).reduce((s, t) => s + (t.unread || 0), 0);
+                    const msgText = msgTotal > 99 ? '99+' : String(msgTotal);
+                    document.querySelectorAll('.unread-total-badge').forEach(b => {
+                        const shouldShow = msgTotal > 0;
+                        const isShown = b.style.display !== 'none';
+                        if (shouldShow !== isShown || (shouldShow && b.textContent !== msgText)) {
+                            b.textContent = msgText;
+                            b.style.display = shouldShow ? '' : 'none';
+                        }
+                    });
+                    const notif = res.notifications || 0;
+                    const notifText = notif > 99 ? '99+' : String(notif);
+                    document.querySelectorAll('.notification-count-badge').forEach(b => {
+                        const shouldShow = notif > 0;
+                        const isShown = b.style.display !== 'none';
+                        if (shouldShow !== isShown || (shouldShow && b.textContent !== notifText)) {
+                            b.textContent = notifText;
+                            b.style.display = shouldShow ? '' : 'none';
+                        }
+                    });
+                })
+                .catch(() => {});
+        }
+        pollBadges();
+        setInterval(pollBadges, 5000);
+        // متاح للاستدعاء الفوري من الصفحات (مثلاً بعد حفظ تسميع)
+        window.pollHeaderBadges = pollBadges;
+
+        // جلب محتوى القوائم المنسدلة طازجاً عند فتحها (رسائل + تنبيهات)
+        function bindFreshDropdown(toggleSelector, menuSelector, url) {
+            const toggle = document.querySelector(toggleSelector);
+            if (!toggle) return;
+            toggle.addEventListener('click', function () {
+                const menu = document.querySelector(menuSelector);
+                if (!menu) return;
+                fetch(url, { headers: { 'Accept': 'application/json' } })
+                    .then(r => r.ok ? r.json() : null)
+                    .then(res => { if (res && res.html) menu.innerHTML = res.html; })
+                    .catch(() => {});
+            });
+        }
+        bindFreshDropdown('.js-mail-dropdown', '.js-mail-menu', POLL_URL.replace('/poll', '/dropdown'));
+        bindFreshDropdown('.js-notif-dropdown', '.js-notif-menu', "{{ url('notifications/dropdown') }}");
+    })();
+    </script>
+    @endif
+
     @stack('scripts')
 
 </body>

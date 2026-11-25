@@ -254,6 +254,16 @@ class MemorizationController extends Controller
 
             DB::commit();
 
+            // فحص تلقائي: حساب الأجزاء وإنشاء طلبات المراجعة + إشعار المحفظ
+            try {
+                $memoStudent = \App\Models\Student::find($validated['student_id']);
+                if ($memoStudent) {
+                    app(\App\BusinessLogic\PartReviewLogic::class)->syncStudent($memoStudent, $request->user()?->id);
+                }
+            } catch (\Exception $e) {
+                Log::error('PartReview sync error: ' . $e->getMessage());
+            }
+
             $responseSuraText = '';
             $responseVerseText = '';
 
@@ -277,13 +287,26 @@ class MemorizationController extends Controller
                 $responseVerseText = '---';
             }
 
+            $partsStudent = \App\Models\Student::find($validated['student_id']);
+            $pendingReviews = \App\Models\PartReviewRequest::where('student_id', $validated['student_id'])
+                ->where('status', 'pending')
+                ->orderBy('milestone')
+                ->get(['id', 'milestone']);
+
             return response()->json([
                 'success'      => true,
                 'message'      => 'تم تسجيل العملية بنجاح منعاً للتكرار',
                 'sura_text'    => $responseSuraText,
                 'verse_text'   => $responseVerseText,
                 'is_memorized' => $validated['is_memorized'],
-                'verses_to'    => $request->input('verses_to')
+                'verses_to'    => $request->input('verses_to'),
+                'student_id'   => (int) $validated['student_id'],
+                'parts'        => (int) ($partsStudent->parts_memorized ?? 0),
+                'pending_reviews' => $pendingReviews->map(fn ($r) => [
+                    'id'       => $r->id,
+                    'milestone'=> $r->milestone,
+                    'range'    => $r->range_label,
+                ]),
             ]);
 
         } catch (\Exception $e) {
@@ -342,6 +365,21 @@ class MemorizationController extends Controller
             }
 
             DB::commit();
+
+            // فحص تلقائي لطلاب المزامنة: حساب الأجزاء + طلبات المراجعة
+            try {
+                $studentIds = collect($data)->pluck('student_id')->unique();
+                $reviewLogic = app(\App\BusinessLogic\PartReviewLogic::class);
+                foreach ($studentIds as $sid) {
+                    $st = \App\Models\Student::find($sid);
+                    if ($st) {
+                        $reviewLogic->syncStudent($st, $teacherId);
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error('PartReview syncBulk error: ' . $e->getMessage());
+            }
+
             return response()->json(['success' => true, 'message' => 'تم الحفظ والمزامنة بنجاح']);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -492,6 +530,16 @@ class MemorizationController extends Controller
                 'examType_id' => $examTypeId ?? $currentRecord->examType_id,
                 'updated_at'  => now(),
             ]);
+
+        // فحص تلقائي: إعادة حساب الأجزاء بعد تعديل السجل
+        try {
+            $editedStudent = \App\Models\Student::find($studentId);
+            if ($editedStudent) {
+                app(\App\BusinessLogic\PartReviewLogic::class)->syncStudent($editedStudent, $request->user()?->id);
+            }
+        } catch (\Exception $e) {
+            Log::error('PartReview updateRecord error: ' . $e->getMessage());
+        }
 
         return response()->json([
             'success' => true,

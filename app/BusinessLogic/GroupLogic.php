@@ -133,6 +133,12 @@ class GroupLogic
             ->with(['latestMemorization', 'memorizations'])
             ->get();
 
+        // حساب عدد الأجزاء المكتملة لكل طالب تلقائياً (للعرض في الجدول)
+        $partsMap = app(PartReviewLogic::class)->computePartsMap($students->pluck('id')->all());
+        foreach ($students as $s) {
+            $s->computed_parts = $partsMap[$s->id] ?? 0;
+        }
+
         $surahs = DB::table('surahs')->orderBy('number')->get();
 
         $examTypes = DB::table('lov')

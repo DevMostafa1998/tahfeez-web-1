@@ -2,6 +2,7 @@
    data-user-id="{{ $teacher->id }}"
    data-unread="{{ $teacher->unread_count ?? 0 }}"
    data-search="{{ $teacher->full_name }} {{ $teacher->phone_number }}"
+   data-role="{{ $teacher->is_admin ? 'admin' : 'keeper' }}"
    class="contact-item list-group-item d-flex align-items-center {{ isset($activeTeacher) && $activeTeacher->id == $teacher->id ? 'active-contact' : '' }}">
     <div class="avatar-circle {{ $teacher->is_admin ? 'avatar-admin' : 'avatar-keeper' }} me-3">
         {{ mb_substr($teacher->full_name, 0, 2) }}

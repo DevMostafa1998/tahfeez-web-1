@@ -122,6 +122,13 @@ class NotificationController extends Controller
         }
     }
 
+    public function dropdown()
+    {
+        return response()->json([
+            'html' => view('includes._notifications_dropdown_body')->render(),
+        ]);
+    }
+
     public function markAsRead($id)
     {
         $user = \Auth::user();

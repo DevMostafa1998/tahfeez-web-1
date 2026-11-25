@@ -88,97 +88,28 @@
                     ->keyBy('id');
             @endphp
             <li class="nav-item dropdown">
-                <a class="nav-link" data-bs-toggle="dropdown" href="#" style="position: relative;" title="الرسائل الواردة">
+                <a class="nav-link js-mail-dropdown" data-bs-toggle="dropdown" href="#" style="position: relative;" title="الرسائل الواردة">
                     <i class="bi bi-envelope-fill" style="font-size: 1.1rem;"></i>
-                    @if($globalUnreadMessages > 0)
-                        <span class="badge bg-danger rounded-circle unread-total-badge"
-                            style="position: absolute; top: 5px; right: 2px; padding: 3px 5px; font-size: 0.6rem; border: 1px solid white;">
-                            {{ $globalUnreadMessages }}
-                        </span>
-                    @endif
-                </a>
-                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end" style="min-width: 320px;">
-                    <span class="dropdown-item dropdown-header fw-bold">
-                        <i class="bi bi-envelope-fill me-1"></i> الرسائل الواردة
-                        @if($globalUnreadMessages > 0)
-                            <span class="badge bg-danger rounded-pill">{{ $globalUnreadMessages }} غير مقروءة</span>
-                        @endif
+                    <span class="badge bg-danger rounded-circle unread-total-badge"
+                        style="position: absolute; top: 5px; right: 2px; padding: 3px 5px; font-size: 0.6rem; border: 1px solid white; {{ $globalUnreadMessages > 0 ? '' : 'display: none;' }}">
+                        {{ $globalUnreadMessages }}
                     </span>
-                    <div class="dropdown-divider"></div>
-
-                    @forelse($unreadConversations as $conv)
-                        @php $sender = $unreadSenders->get($conv->sender_id); @endphp
-                        @if($sender)
-                            <a href="{{ route('messages.chat', $sender->id) }}" class="dropdown-item d-flex align-items-center">
-                                <span class="rounded-circle d-inline-flex align-items-center justify-content-center fw-bold me-2 flex-shrink-0 {{ $sender->is_admin ? 'bg-warning text-dark' : 'bg-primary text-white' }}" style="width: 38px; height: 38px; font-size: 0.85rem;">
-                                    {{ mb_substr($sender->full_name, 0, 2) }}
-                                </span>
-                                <div class="flex-grow-1 overflow-hidden">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span class="fw-bold text-truncate" style="font-size: 0.88rem;">{{ $sender->full_name }}</span>
-                                        <span class="badge bg-danger rounded-pill" style="font-size: 0.65rem;">{{ $conv->total }}</span>
-                                    </div>
-                                    <small class="text-muted text-truncate d-block" style="font-size: 0.75rem;">
-                                        {{ $sender->is_admin ? 'مسؤول' : 'مُحفظ' }} ·
-                                        {{ $conv->total }} رسالة غير مقروءة ·
-                                        {{ \Carbon\Carbon::parse($conv->last_at)->diffForHumans() }}
-                                    </small>
-                                </div>
-                            </a>
-                        @endif
-                    @empty
-                        <div class="dropdown-item text-center text-muted small py-3">
-                            <i class="bi bi-check2-circle text-success fs-4 d-block mb-1"></i>
-                            لا توجد رسائل غير مقروءة
-                        </div>
-                    @endforelse
-
-                    <div class="dropdown-divider"></div>
-                    <a href="{{ route('messages.index') }}" class="dropdown-item dropdown-footer text-primary fw-bold text-center">
-                        <i class="bi bi-chat-dots me-1"></i> عرض كل المحادثات
-                    </a>
+                </a>
+                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end js-mail-menu" style="min-width: 320px;">
+                    @include('includes._mail_dropdown_body')
                 </div>
             </li>
             <!-- التنبيهات -->
             <li class="nav-item dropdown">
-                <a class="nav-link" data-bs-toggle="dropdown" href="#" style="position: relative;">
+                <a class="nav-link js-notif-dropdown" data-bs-toggle="dropdown" href="#" style="position: relative;">
                     <i class="bi bi-bell-fill"></i>
-                    @if (auth()->user()->unreadNotifications->count() > 0)
-                        <span class="badge bg-danger rounded-circle"
-                            style="position: absolute; top: 5px; right: 5px; padding: 3px 5px; font-size: 0.6rem; border: 1px solid white;">
-                            {{ auth()->user()->unreadNotifications->count() }}
-                        </span>
-                    @endif
-                </a>
-                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
-                    <span class="dropdown-item dropdown-header fw-bold">
-                        {{ auth()->user()->unreadNotifications->count() }} تنبيهات غير مقروءة
+                    <span class="badge bg-danger rounded-circle notification-count-badge"
+                        style="position: absolute; top: 5px; right: 5px; padding: 3px 5px; font-size: 0.6rem; border: 1px solid white; {{ auth()->user()->unreadNotifications->count() > 0 ? '' : 'display: none;' }}">
+                        {{ auth()->user()->unreadNotifications->count() }}
                     </span>
-                    <div class="dropdown-divider"></div>
-
-                    @forelse(auth()->user()->unreadNotifications->take(5) as $notification)
-                        <a href="{{ route('notifications.read', $notification->id) }}" class="dropdown-item">
-                            <i class="bi bi-info-circle-fill me-2 text-primary"></i>
-                            <span class="text-truncate" style="max-width: 150px; display: inline-block;">
-                                {{ $notification->data['title'] ?? 'تنبيه جديد' }}
-                            </span>
-                            <span
-                                class="float-end text-muted text-sm">{{ $notification->created_at->diffForHumans() }}</span>
-                        </a>
-                    @empty
-                        <div class="dropdown-item text-center text-muted small">لا توجد تنبيهات جديدة</div>
-                    @endforelse
-
-                    <div class="dropdown-divider"></div>
-
-                    @if (auth()->user()->unreadNotifications->count() > 0)
-                        <a href="{{ route('notifications.markAllAsRead') }}"
-                            class="dropdown-item dropdown-footer text-primary fw-bold">
-                            تحديد الكل كمقروء
-                        </a>
-                    @else
-                        <span class="dropdown-item dropdown-footer text-muted">صندوق الوارد فارغ</span>
-                    @endif
+                </a>
+                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end js-notif-menu">
+                    @include('includes._notifications_dropdown_body')
                 </div>
             </li>
 

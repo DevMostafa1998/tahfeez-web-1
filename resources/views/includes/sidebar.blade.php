@@ -246,6 +246,7 @@
                             request()->routeIs('courses.*') ||
                             request()->routeIs('category.*') ||
                             request()->routeIs('settings.grades.edit') ||
+                            request()->routeIs('settings.part_milestones.edit') ||
                             request()->routeIs('lov.*');
                     @endphp
                     <li class="nav-item {{ $isAdminSettingsActive ? 'menu-open' : '' }}">
@@ -281,6 +282,16 @@
                                     <i
                                         class="nav-icon bi {{ request()->routeIs('settings.grades.edit') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
                                     <p>إعدادات نسب الاختبارات</p>
+                                </a>
+                            </li>
+
+                            {{-- مراحل مراجعة الأجزاء --}}
+                            <li class="nav-item">
+                                <a href="{{ route('settings.part_milestones.edit') }}"
+                                    class="nav-link {{ request()->routeIs('settings.part_milestones.*') ? 'active' : '' }}">
+                                    <i
+                                        class="nav-icon bi {{ request()->routeIs('settings.part_milestones.*') ? 'bi-circle-fill' : 'bi-circle' }}"></i>
+                                    <p>مراحل مراجعة الأجزاء</p>
                                 </a>
                             </li>
 
@@ -328,9 +339,7 @@
                             <i class="nav-icon bi {{ request()->routeIs('messages.*') ? 'bi-chat-dots-fill' : 'bi-chat-dots' }}"></i>
                             <p>
                                 الرسائل والمحادثات
-                                @if($sidebarUnreadCount > 0)
-                                    <span class="badge bg-danger float-start unread-total-badge">{{ $sidebarUnreadCount }}</span>
-                                @endif
+                                <span class="badge bg-danger float-start unread-total-badge" style="{{ $sidebarUnreadCount > 0 ? '' : 'display: none;' }}">{{ $sidebarUnreadCount }}</span>
                             </p>
                         </a>
                     </li>

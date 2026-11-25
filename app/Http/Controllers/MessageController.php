@@ -108,6 +108,92 @@ class MessageController extends Controller
         return view('messages.index', compact('teachers', 'activeTeacher', 'messages', 'hasMoreMessages', 'firstUnreadId'));
     }
 
+    // محتوى قائمة الرسائل المنسدلة في الهيدر — يُجلب طازجاً عند فتحها
+    public function dropdown()
+    {
+        $globalUnreadMessages = Message::where('receiver_id', auth()->id())
+            ->where('is_read', false)
+            ->count();
+
+        $unreadConversations = Message::where('receiver_id', auth()->id())
+            ->where('is_read', false)
+            ->selectRaw('sender_id, COUNT(*) as total, MAX(created_at) as last_at')
+            ->groupBy('sender_id')
+            ->orderByDesc('last_at')
+            ->limit(8)
+            ->get();
+
+        $unreadSenders = User::whereIn('id', $unreadConversations->pluck('sender_id'))
+            ->get()
+            ->keyBy('id');
+
+        return response()->json([
+            'html' => view('includes._mail_dropdown_body', compact(
+                'globalUnreadMessages', 'unreadConversations', 'unreadSenders'
+            ))->render(),
+        ]);
+    }
+
+    public function poll()
+    {
+        $currentUser = auth()->user();
+        $currentCenterId = session('selected_center_id');
+
+        $usersQuery = User::where('id', '!=', $currentUser->id);
+        if ($currentCenterId) {
+            $usersQuery->where(function ($query) use ($currentCenterId) {
+                $query->where('center_id', $currentCenterId)->orWhere('is_admin', 1);
+            });
+        }
+
+        $teachers = $usersQuery->get();
+
+        $unreadSenderIds = Message::where('receiver_id', $currentUser->id)
+            ->where('is_read', false)
+            ->pluck('sender_id');
+        if ($unreadSenderIds->isNotEmpty()) {
+            $teachers = $teachers->merge(User::whereIn('id', $unreadSenderIds)->get())->unique('id');
+        }
+
+        $unreadCounts = Message::where('receiver_id', $currentUser->id)
+            ->where('is_read', false)
+            ->selectRaw('sender_id, COUNT(*) as total')
+            ->groupBy('sender_id')
+            ->pluck('total', 'sender_id');
+
+        $lastMessageAt = Message::query()
+            ->where(function ($q) use ($currentUser) {
+                $q->where('sender_id', $currentUser->id)->orWhere('receiver_id', $currentUser->id);
+            })
+            ->selectRaw('CASE WHEN sender_id = ' . (int) $currentUser->id . ' THEN receiver_id ELSE sender_id END AS other_id')
+            ->selectRaw('MAX(created_at) AS last_at')
+            ->groupByRaw('CASE WHEN sender_id = ' . (int) $currentUser->id . ' THEN receiver_id ELSE sender_id END')
+            ->pluck('last_at', 'other_id');
+
+        $teachers = $teachers->sort(function ($a, $b) use ($lastMessageAt) {
+            $ta = $lastMessageAt[$a->id] ?? null;
+            $tb = $lastMessageAt[$b->id] ?? null;
+            if ($ta && $tb) return strcmp($tb, $ta);
+            if ($ta) return -1;
+            if ($tb) return 1;
+            if ((bool) $a->is_admin !== (bool) $b->is_admin) return $b->is_admin <=> $a->is_admin;
+            return strcmp((string) $a->full_name, (string) $b->full_name);
+        })->values();
+
+        return response()->json([
+            'contacts' => $teachers->map(fn ($t) => [
+                'id' => $t->id,
+                'name' => $t->full_name,
+                'phone' => $t->phone_number ?? 'لا يوجد هاتف',
+                'is_admin' => (bool) $t->is_admin,
+                'unread' => (int) ($unreadCounts[$t->id] ?? 0),
+                'has_messages' => isset($lastMessageAt[$t->id]),
+                'last_at' => $lastMessageAt[$t->id] ?? null,
+            ]),
+            'notifications' => $currentUser->unreadNotifications()->count(),
+        ]);
+    }
+
     public function chatData(Request $request, $teacherId)
     {
         $currentUser = auth()->user();
@@ -198,12 +284,14 @@ class MessageController extends Controller
         ]);
 
         if ($request->ajax()) {
+            $receiverId = (int) $request->receiver_id;
+            $myId = Auth::id();
             $prevMessage = Message::where('id', '<', $message->id)
-                ->where(function($q) use ($request) {
-                    $q->where(function($q2) {
-                        $q2->where('sender_id', Auth::id())->where('receiver_id', $request->receiver_id);
-                    })->orWhere(function($q2) {
-                        $q2->where('sender_id', $request->receiver_id)->where('receiver_id', Auth::id());
+                ->where(function($q) use ($myId, $receiverId) {
+                    $q->where(function($q2) use ($myId, $receiverId) {
+                        $q2->where('sender_id', $myId)->where('receiver_id', $receiverId);
+                    })->orWhere(function($q2) use ($myId, $receiverId) {
+                        $q2->where('sender_id', $receiverId)->where('receiver_id', $myId);
                     });
                 })->orderByDesc('id')->first();
 

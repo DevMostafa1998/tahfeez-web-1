@@ -28,7 +28,9 @@ use App\Http\Controllers\{
     CenterController,
     CenterSelectionController,
     GenderSelectionController,
+    PartMilestoneController,
     MessageController,
+    PartReviewController,
 };
 
 // --- الراوتات العامة ---
@@ -38,9 +40,12 @@ Route::post('/student_public', [StudentPublicController::class, 'store'])->name(
 Route::get('user/restore/{id}', [App\Http\Controllers\UserController::class, 'restore'])->name('user.restore');
 Route::get('/notifications/read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 Route::get('/settings/exam-grades', [QuranMemTestController::class, 'editGradeSettings'])->name('settings.grades.edit');
+Route::get('/settings/part-milestones', [PartMilestoneController::class, 'edit'])->name('settings.part_milestones.edit')->middleware('admin');
+Route::post('/settings/part-milestones/update', [PartMilestoneController::class, 'update'])->name('settings.part_milestones.update')->middleware('admin');
 Route::resource('lov', LovController::class)->except(['create', 'edit', 'show']);
 Route::post('/settings/exam-grades/update', [QuranMemTestController::class, 'updateGradeSettings'])->name('settings.grades.update');
 Route::get('/notifications/mark-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+Route::get('/notifications/dropdown', [NotificationController::class, 'dropdown'])->name('notifications.dropdown');
 Route::get('/centers', [CenterController::class, 'index'])->name('centers.index');
 Route::post('/centers/store', [CenterController::class, 'store'])->name('centers.store');
 Route::put('/centers/{id}', [CenterController::class, 'update'])->name('centers.update');
@@ -89,12 +94,19 @@ Route::middleware('auth')->group(function () {
     
     Route::prefix('admin/messages')->name('messages.')->group(function () {
         Route::get('/', [MessageController::class, 'index'])->name('index');
+        Route::get('/poll', [MessageController::class, 'poll'])->name('poll');
+        Route::get('/dropdown', [MessageController::class, 'dropdown'])->name('dropdown');
         Route::get('/{teacherId}', [MessageController::class, 'index'])->name('chat');
         Route::get('/{teacherId}/data', [MessageController::class, 'chatData'])->name('data');
         Route::post('/send', [MessageController::class, 'store'])->name('send');
         Route::patch('/message/{id}', [MessageController::class, 'update'])->name('update');
         Route::delete('/message/{id}', [MessageController::class, 'destroy'])->name('destroy');
     });
+
+    // تحديث عدد الأجزاء المحفوظة للطالب + طلبات مراجعة parts
+    Route::post('/students/{id}/parts', [StudentController::class, 'updateParts'])->name('students.parts.update');
+    Route::post('/part-reviews/{id}/complete', [PartReviewController::class, 'complete'])->name('part_reviews.complete');
+
     Route::controller(AttendanceController::class)->group(function () {
         Route::get('/attendance', 'index')->name('attendance.index');
         Route::post('/attendance', 'store')->name('attendance.store');

@@ -71,6 +71,20 @@ public function index(Request $request)
         return response()->json($courseIds);
     }
 
+    public function updateParts(Request $request, $id)
+    {
+        $student = Student::findOrFail($id);
+
+        $newRequests = app(\App\BusinessLogic\PartReviewLogic::class)
+            ->syncStudent($student, $request->user()?->id);
+
+        return response()->json([
+            'success'      => true,
+            'parts'        => $student->parts_memorized,
+            'new_requests' => $newRequests,
+        ]);
+    }
+
     /**
      * Show the form for creating a new resource.
      */

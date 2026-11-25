@@ -33,6 +33,7 @@ class Student extends Model
         'gender',
         'categorie_id',
         'center_id',
+        'parts_memorized',
     ];
     protected $casts = [
         'date_of_birth' => 'date',
@@ -95,5 +96,10 @@ class Student extends Model
         public function center()
     {
         return $this->belongsTo(\App\Models\Center::class, 'center_id');
+    }
+
+    public function partReviewRequests()
+    {
+        return $this->hasMany(PartReviewRequest::class, 'student_id');
     }
 }

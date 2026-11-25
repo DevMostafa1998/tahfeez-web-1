@@ -270,6 +270,24 @@
         transition: border-color 0.2s;
     }
     .send-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+    .role-filter-btn {
+        flex: 1;
+        border: none;
+        background: rgba(255,255,255,0.15);
+        color: #fff;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 4px 6px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+    .role-filter-btn:hover { background: rgba(255,255,255,0.28); }
+    .role-filter-btn.active {
+        background: #fff;
+        color: #4f46e5;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
     .unread-badge {
         background: linear-gradient(135deg, #ef4444, #f43f5e);
     }
@@ -288,6 +306,17 @@
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text border-0" style="background: rgba(255,255,255,0.2);"><i class="bi bi-search text-white"></i></span>
                                 <input type="text" id="searchTeacher" class="form-control border-0" placeholder="ابحث عن مسؤول أو محفظ...">
+                            </div>
+                            <div class="d-flex gap-1 mt-2" id="roleFilters">
+                                <button type="button" class="role-filter-btn active" data-role="all">
+                                    <i class="bi bi-people me-1"></i>الكل
+                                </button>
+                                <button type="button" class="role-filter-btn" data-role="keeper">
+                                    <i class="bi bi-person-badge me-1"></i>المحفظون
+                                </button>
+                                <button type="button" class="role-filter-btn" data-role="admin">
+                                    <i class="bi bi-shield-lock me-1"></i>المسؤولون
+                                </button>
                             </div>
                         </div>
                         <div class="overflow-auto flex-grow-1 py-2" id="teachersList">
@@ -448,7 +477,35 @@
             }
             chatMessages.appendChild(node);
         });
+        if (added) sortChatRows(); // لا إعادة ترتيب إذا لم يُضف شيء — يمنع الوميض
         return added;
+    }
+
+    // ضمان ترتيب الرسائل زمنياً: تعيد الترتيب فقط عند الحاجة (بدون إعادة رسم زائدة)
+    function sortChatRows() {
+        const groups = [];
+        let buffer = [];
+        let sorted = true;
+        let prevId = -1;
+        chatMessages.childNodes.forEach(node => {
+            if (node.nodeType !== 1) return;
+            if (node.classList.contains('message-row')) {
+                const id = parseInt(node.dataset.id, 10) || 0;
+                if (id < prevId) sorted = false;
+                prevId = id;
+                groups.push({ id, nodes: [...buffer, node] });
+                buffer = [];
+            } else {
+                buffer.push(node);
+            }
+        });
+        if (sorted) return; // الترتيب سليم — لا إعادة رسم
+        const tail = buffer;
+        groups.sort((a, b) => a.id - b.id);
+        const ordered = [];
+        groups.forEach(g => g.nodes.forEach(n => ordered.push(n)));
+        tail.forEach(n => ordered.push(n));
+        chatMessages.replaceChildren(...ordered);
     }
 
     function moveContactToTop(userId) {
@@ -464,20 +521,27 @@
 
     function setActiveContact(userId) {
         teachersList.querySelectorAll('.contact-item').forEach(el => {
-            el.classList.toggle('active-contact', parseInt(el.dataset.userId, 10) === userId);
+            const isActive = parseInt(el.dataset.userId, 10) === userId;
+            el.classList.toggle('active-contact', isActive);
+            // مزامنة ألوان النص مع حالة التحديد (تجنب الاسم الأبيض على خلفية بيضاء)
+            const nameEl = el.querySelector('h6');
+            const subEl = el.querySelector('.contact-sub');
+            if (nameEl) {
+                nameEl.classList.toggle('text-white', isActive);
+                nameEl.classList.toggle('text-dark', !isActive);
+            }
+            if (subEl) subEl.classList.toggle('text-white', isActive);
         });
     }
 
+    // إنقاص العدّادات العامة (أيقونة البريد في الهيدر + رابط السايدبار)
     function decrementGlobalUnread(n) {
         if (!n || n <= 0) return;
         document.querySelectorAll('.unread-total-badge').forEach(el => {
             const current = parseInt(el.textContent, 10) || 0;
-            const next = current - n;
-            if (next <= 0) {
-                el.remove();
-            } else {
-                el.textContent = next;
-            }
+            const next = Math.max(0, current - n);
+            el.textContent = next > 99 ? '99+' : String(next);
+            el.style.display = next > 0 ? '' : 'none';
         });
     }
 
@@ -508,14 +572,17 @@
         emptyPanel.classList.add('d-none');
     }
 
+    let chatLoading = false;
     function loadChat(userId, pushState = true) {
         if (currentTeacherId === userId && chatMessages.children.length) return;
 
+        chatLoading = true;
         fetch(`${BASE}/${userId}/data`, {
             headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
         })
         .then(r => r.json())
         .then(data => {
+            chatLoading = false;
             if (!data.success) return;
 
             currentTeacherId = userId;
@@ -527,6 +594,7 @@
             setActiveContact(userId);
             clearUnreadBadge(userId);
             chatMessages.innerHTML = data.html || emptyStateHtml(data.teacher.full_name);
+            sortChatRows();
             refreshNewestId();
             showChat();
             scrollToBottom();
@@ -535,7 +603,7 @@
                 history.pushState({ teacherId: userId }, '', `${BASE}/${userId}`);
             }
         })
-        .catch(err => console.error('loadChat error:', err));
+        .catch(err => { chatLoading = false; console.error('loadChat error:', err); });
     }
 
     function emptyStateHtml(name) {
@@ -581,6 +649,7 @@
         .then(data => {
             if (data.success && data.html) {
                 chatMessages.insertAdjacentHTML('afterbegin', data.html);
+                sortChatRows();
                 hasMore = data.has_more;
                 oldestId = data.oldest_id;
                 // الحفاظ على موضع التمرير بعد إضافة المحتوى بالأعلى
@@ -642,21 +711,25 @@
     // إعادة تحميل رسائل المحادثة الحالية بالكامل (fallback عند فشل الإرسال AJAX)
     function reloadCurrentChat() {
         if (!currentTeacherId) return;
+        chatLoading = true;
         fetch(`${BASE}/${currentTeacherId}/data`, {
             headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
         })
         .then(r => r.json())
         .then(data => {
+            chatLoading = false;
             if (data.success) {
                 chatMessages.innerHTML = data.html || emptyStateHtml(data.teacher.full_name);
+                sortChatRows();
                 refreshOldestId();
                 refreshNewestId();
                 scrollToBottom();
             }
         })
-        .catch(err => console.error('reloadChat error:', err));
+        .catch(err => { chatLoading = false; console.error('reloadChat error:', err); });
     }
 
+    // نقرات داخل صندوق الرسائل: فتح قائمة الخيارات ثم تعديل أو حذف
     chatMessages.addEventListener('click', function (e) {
         const actionsBtn = e.target.closest('.msg-actions-btn');
         if (actionsBtn) {
@@ -803,7 +876,7 @@
 
     let polling = false;
     function pollNewMessages() {
-        if (!currentTeacherId || polling || document.hidden) return;
+        if (!currentTeacherId || polling || chatLoading || document.hidden) return;
         if (!newestId) { refreshNewestId(); if (!newestId) return; }
 
         polling = true;
@@ -827,19 +900,149 @@
     }
     setInterval(pollNewMessages, 5000);
 
-    const searchInput = document.getElementById('searchTeacher');
-    searchInput.addEventListener('input', function () {
-        const filter = this.value.trim().toLowerCase();
+    // فلترة موحدة: دور (الكل/محفظ/مسؤول) + نص البحث
+    let activeRoleFilter = 'all';
+    function applyContactFilters() {
+        const filter = (searchInput.value || '').trim().toLowerCase();
         teachersList.querySelectorAll('.contact-item').forEach(item => {
+            const roleOk = activeRoleFilter === 'all' || item.dataset.role === activeRoleFilter;
             const haystack = (item.dataset.search || item.textContent || '').toLowerCase();
-            const hide = !!filter && !haystack.includes(filter);
+            const hide = !roleOk || (!!filter && !haystack.includes(filter));
             if (hide) {
                 item.style.setProperty('display', 'none', 'important');
             } else {
                 item.style.removeProperty('display');
             }
         });
+    }
+
+    const searchInput = document.getElementById('searchTeacher');
+    searchInput.addEventListener('input', applyContactFilters);
+
+    document.getElementById('roleFilters').addEventListener('click', function (e) {
+        const btn = e.target.closest('.role-filter-btn');
+        if (!btn) return;
+        activeRoleFilter = btn.dataset.role;
+        this.querySelectorAll('.role-filter-btn').forEach(b => b.classList.toggle('active', b === btn));
+        applyContactFilters();
     });
+
+    // تحديث فوري لقائمة جهات الاتصال (رسائل/إشعارات جديدة) كل 5 ثوانٍ
+    let contactsSignature = '';
+    function renderContactItem(t) {
+        const active = currentTeacherId && t.id === currentTeacherId;
+        const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        const initials = esc((t.name || '?').trim().slice(0, 2));
+        return `<a href="${BASE}/${t.id}" data-user-id="${t.id}" data-unread="${t.unread || 0}"
+            data-search="${esc(t.name)} ${esc(t.phone)}" data-role="${t.is_admin ? 'admin' : 'keeper'}"
+            class="contact-item list-group-item d-flex align-items-center ${active ? 'active-contact' : ''}">
+            <div class="avatar-circle ${t.is_admin ? 'avatar-admin' : 'avatar-keeper'} me-3">${initials}</div>
+            <div class="flex-grow-1 overflow-hidden">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-1 text-truncate fw-bold ${active ? 'text-white' : 'text-dark'}" style="font-size: 0.9rem;">${esc(t.name)}</h6>
+                    <span class="badge ${t.is_admin ? 'bg-warning text-dark' : 'bg-light text-secondary border'}" style="font-size: 0.62rem;">${t.is_admin ? 'مسؤول' : 'مُحفظ'}</span>
+                </div>
+                <p class="mb-0 small contact-sub text-muted text-truncate ${active ? 'text-white' : ''}" style="font-size: 0.78rem;">${esc(t.phone)}</p>
+            </div>
+            ${t.unread > 0 ? `<span class="badge unread-badge rounded-pill ms-2">${t.unread}</span>` : ''}
+        </a>`;
+    }
+    function pollContacts() {
+        if (document.hidden) return;
+        fetch(BASE + '/poll', { headers: { 'Accept': 'application/json' } })
+            .then(r => r.json())
+            .then(res => {
+                const list = res.contacts || [];
+                // تحديث عدّاد جرس الإشعارات في الهيدر — فقط عند تغيّر القيمة
+                const notifCount = res.notifications || 0;
+                const notifText = notifCount > 99 ? '99+' : String(notifCount);
+                document.querySelectorAll('.notification-count-badge').forEach(b => {
+                    const shouldShow = notifCount > 0;
+                    const isShown = b.style.display !== 'none';
+                    if (shouldShow !== isShown || (shouldShow && b.textContent !== notifText)) {
+                        b.textContent = notifText;
+                        b.style.display = shouldShow ? '' : 'none';
+                    }
+                });
+                const sig = JSON.stringify(list.map(t => [t.id, t.unread, t.has_messages, t.name, t.phone, t.last_at]));
+                if (sig === contactsSignature) return;
+                contactsSignature = sig;
+
+                // تحديث جراحي بدون إعادة بناء أو إعادة ترتيب — يمنع الوميظ والقفزات
+                const prevMap = window.__prevContacts || {};
+                const nextMap = {};
+                const bumped = [];
+
+                list.forEach(t => {
+                    const idStr = String(t.id);
+                    nextMap[idStr] = t;
+                    const prev = prevMap[idStr];
+                    // نشاط جديد فعلي (رسالة وصلت/أُرسلت) → ارفعه للأعلى فقط
+                    if (t.last_at && prev && prev.last_at !== t.last_at) {
+                        bumped.push(idStr);
+                    }
+
+                    let item = teachersList.querySelector(`.contact-item[data-user-id="${idStr}"]`);
+                    if (!item) {
+                        const tmp = document.createElement('div');
+                        tmp.innerHTML = renderContactItem(t);
+                        item = tmp.firstElementChild;
+                        // جهة جديدة تماماً ولها رسائل → في الأعلى
+                        if (t.has_messages) {
+                            const firstContact = teachersList.querySelector('.contact-item');
+                            teachersList.insertBefore(item, firstContact);
+                        } else {
+                            teachersList.appendChild(item);
+                        }
+                    } else {
+                        // تحديث الحقول فقط عند تغيّرها فعلياً — بلا DOM writes زائدة
+                        if (item.dataset.unread !== String(t.unread || 0)) item.dataset.unread = t.unread || 0;
+                        const searchStr = `${t.name} ${t.phone}`;
+                        if (item.dataset.search !== searchStr) item.dataset.search = searchStr;
+                        const nameEl = item.querySelector('h6');
+                        const phoneEl = item.querySelector('.contact-sub');
+                        if (nameEl && nameEl.textContent !== t.name) nameEl.textContent = t.name;
+                        if (phoneEl && phoneEl.textContent !== t.phone) phoneEl.textContent = t.phone;
+                        let badge = item.querySelector('.unread-badge');
+                        if (t.unread > 0) {
+                            if (!badge) {
+                                badge = document.createElement('span');
+                                badge.className = 'badge unread-badge rounded-pill ms-2';
+                                item.appendChild(badge);
+                            }
+                            if (badge.textContent !== String(t.unread)) badge.textContent = t.unread;
+                        } else if (badge) {
+                            badge.remove();
+                        }
+                    }
+                });
+
+                // رفع جهات النشاط الجديد فقط — الفتح/القراءة لا يحرّك الاسماء
+                bumped.forEach(idStr => moveContactToTop(parseInt(idStr, 10)));
+
+                // إزالة جهات اتصال لم تعد موجودة
+                teachersList.querySelectorAll('.contact-item').forEach(el => {
+                    if (!nextMap[el.dataset.userId]) el.remove();
+                });
+
+                window.__prevContacts = nextMap;
+
+                // إعادة تطبيق الفلتر فقط إذا كان هناك فلتر نشط فعلاً — وإلا لا شيء
+                if ((searchInput.value || '').trim() !== '' || activeRoleFilter !== 'all') {
+                    applyContactFilters();
+                }
+
+                // تحديث العدّادات العامة (هيدر + سايدبار)
+                const total = list.reduce((s, t) => s + (t.unread || 0), 0);
+                document.querySelectorAll('.unread-total-badge').forEach(b => {
+                    if (total > 0) { b.textContent = total > 99 ? '99+' : total; b.style.display = ''; }
+                    else b.style.display = 'none';
+                });
+            })
+            .catch(() => {});
+    }
+    pollContacts();
+    setInterval(pollContacts, 5000);
 
     if (currentTeacherId) {
         refreshOldestId();

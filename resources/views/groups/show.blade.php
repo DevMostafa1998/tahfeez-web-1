@@ -160,6 +160,20 @@
         .select2-results__options {
             direction: rtl !important;
         }
+        /* ضمان ظهور حقول Select2 ككتلة كاملة أسفل تسمياتها */
+        .single-surah-container .select2-container,
+        .multi-surah-container .select2-container {
+            display: block !important;
+            width: 100% !important;
+        }
+        /* الجدول بعرض الشاشة — التمرير الأفقي داخل الحاوية عند الحاجة فقط */
+        .table-responsive {
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch;
+        }
+        #studentsTable {
+            width: 100% !important;
+        }
         .btn-custom-warning {
             background-color: transparent !important;
             color: #ffc107 !important;
@@ -170,7 +184,7 @@
 
         .btn-custom-warning:hover {
             background-color: #ffc107 !important;
-            color: #fff !important;               
+            color: #fff !important;
         }
     </style>
 @endpush
@@ -230,6 +244,7 @@
                                     <th class="text-center py-3">آخر آية</th>
                                     <th class="text-center py-3">نوع التسميع</th>
                                     <th class="text-center py-3">رقم الهوية</th>
+                                    <th class="text-center py-3">الأجزاء</th>
                                     <th class="text-center py-3">الإجراءات</th>
                                 </tr>
                             </thead>
@@ -269,17 +284,52 @@
                                         <td class="text-center text-muted">
                                             {{ $student->id_number }}
                                         </td>
+                                        @php
+                                            $pendingList = $pendingReviews[$student->id] ?? collect();
+                                            $pendingCount = $pendingList->count();
+                                            $nextReview = $pendingList->first();
+                                        @endphp
                                         <td class="text-center">
-                                            <button
-                                                class="btn btn-success btn-sm px-3 rounded-pill d-inline-flex align-items-center gap-1 shadow-sm"
-                                                data-bs-toggle="modal" data-bs-target="#memorizeModal{{ $student->id }}">
-                                                <i class="bi bi-journal-plus"></i> تسجيل حفظ
-                                            </button>
-                                           <a href="{{ route('memorization.edit_student_surahs', $student->id) }}"
-                                            class="btn btn-custom-warning btn-sm px-3 rounded-pill d-inline-flex align-items-center gap-1 shadow-sm"
-                                            title="تعديل السور">
-                                                <i class="bi bi-pencil-square"></i> تعديل السور
-                                            </a>
+                                            <div class="d-flex flex-column align-items-center gap-1">
+                                                <span id="partsBadge{{ $student->id }}" class="badge bg-primary-subtle text-primary border px-3 py-2" title="عدد الأجزاء المكتملة (تلقائي)">
+                                                    <i class="bi bi-book me-1"></i>{{ $student->computed_parts ?? ($student->parts_memorized ?? 0) }} / 30
+                                                </span>
+                                                @if($pendingCount)
+                                                    <span id="pendingBadge{{ $student->id }}" class="badge bg-warning text-dark" style="font-size: 0.6rem; padding: 0.1rem 0.4rem; white-space: nowrap;">
+                                                        مراجعة ({{ $pendingCount }})
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </td>
+                                        <td class="text-center" style="white-space: nowrap;">
+                                            <div class="d-flex flex-nowrap align-items-center justify-content-center gap-1">
+                                                <button
+                                                    class="btn btn-success btn-sm px-2 py-1 rounded-pill d-inline-flex align-items-center justify-content-center gap-1 shadow-sm text-nowrap"
+                                                    style="min-width: 78px; font-size: 0.78rem;"
+                                                    data-bs-toggle="modal" data-bs-target="#memorizeModal{{ $student->id }}"
+                                                    title="تسجيل حفظ">
+                                                    <i class="bi bi-journal-plus"></i> حفظ
+                                                </button>
+                                                <a href="{{ route('memorization.edit_student_surahs', $student->id) }}"
+                                                    class="btn btn-custom-warning btn-sm px-2 py-1 rounded-pill d-inline-flex align-items-center justify-content-center gap-1 shadow-sm text-nowrap"
+                                                    style="min-width: 78px; font-size: 0.78rem;"
+                                                    title="تعديل السور">
+                                                    <i class="bi bi-pencil-square"></i> تعديل السور
+                                                </a>
+                                                <button type="button"
+                                                        id="reviewBtn{{ $student->id }}"
+                                                        class="btn {{ $nextReview ? 'btn-primary' : 'btn-outline-primary' }} btn-sm px-2 py-1 rounded-pill d-inline-flex align-items-center justify-content-center gap-1 shadow-sm text-nowrap review-complete-btn"
+                                                        style="min-width: 78px; font-size: 0.78rem; {{ $nextReview ? '' : 'opacity: 0.55;' }}"
+                                                        data-student-id="{{ $student->id }}"
+                                                        data-request-id="{{ $nextReview->id ?? '' }}"
+                                                        data-milestone="{{ $nextReview->milestone ?? '' }}"
+                                                        data-range="{{ $nextReview->range_label ?? '' }}"
+                                                        data-remaining="{{ $pendingCount }}"
+                                                        {{ $nextReview ? '' : 'disabled' }}
+                                                        title="{{ $nextReview ? 'تأكيد انتهاء المراجعة وإشعار مسؤول المركز' : 'يُفعَّل عند بلوغ الطالب 3 أجزاء' }}">
+                                                    <i class="bi bi-check2-circle"></i> جاهز للاختبار
+                                                </button>
+                                            </div>
 
                                     {{-- المودال الخاص بكل طالب --}}
                                     <div class="modal fade" id="memorizeModal{{ $student->id }}" tabindex="-1" aria-hidden="true" dir="rtl">
@@ -351,10 +401,10 @@
 
                                                                 <div class="col-12 p-0 row m-0 g-3 single-surah-container">
                                                                     <div class="col-12 text-right">
-                                                                        <label class="form-label fw-bold text-secondary mb-1 small">
+                                                                        <label class="form-label fw-bold text-secondary mb-1 small d-block">
                                                                             <i class="bi bi-book ms-1 text-primary"></i> اسم السورة
                                                                         </label>
-                                                                        <select name="sura_name" class="form-select surah-select" style="width: 100%;">
+                                                                        <select name="sura_name" class="form-select surah-select d-block" style="width: 100%;">
                                                                             <option value="">ابحث عن اسم السورة...</option>
                                                                             @foreach ($surahs as $surah)
                                                                                 <option value="{{ $surah->name_ar }}" data-verses="{{ $surah->verses_count }}" {{ isset($student->latestMemorization->sura_name) && $student->latestMemorization->sura_name == $surah->name_ar ? 'selected' : '' }}>
@@ -505,10 +555,14 @@
                 "<'row mt-3 align-items-center'<'col-md-6 text-right'i><'col-md-6 d-flex justify-content-end'p>>",
             "columnDefs": [{
                     "orderable": false,
-                    "targets": 6
+                    "targets": 7
                 },
                 {
                     "searchable": false,
+                    "targets": 7
+                },
+                {
+                    "orderable": false,
                     "targets": 6
                 },
                 {
@@ -807,6 +861,25 @@
                             row.find('td').eq(4).html('<span class="badge bg-danger-subtle text-danger border px-2">لَمْ يُسَمِّعْ</span>');
                         }
 
+                        // تحديث فوري لعمود الأجزاء وطلبات المراجعة دون إعادة تحميل
+                        if (response.student_id !== undefined) {
+                            const wasPending = (response.pending_reviews || []).length > 0
+                                && document.getElementById('reviewBtn' + response.student_id)?.dataset.requestId;
+                            refreshPartsReviewUI(response.student_id, response.parts || 0, response.pending_reviews || []);
+                            // تحديث فوري لعدّادات الرسائل/الإشعارات في الهيدر
+                            if (typeof window.pollHeaderBadges === 'function') window.pollHeaderBadges();
+                            // تنبيه فوري عند فتح مراجعة جديدة (مثلاً بلوغ 3 أجزاء)
+                            if (!wasPending && (response.pending_reviews || []).length > 0) {
+                                Swal.fire({
+                                    icon: 'info',
+                                    title: 'مراجعة الأجزاء مطلوبة',
+                                    text: 'بلغ الطالب مرحلة جديدة — تم إرسال الإشعار للمحفظ وأصبح زر "جاهز للاختبار" متاحاً.',
+                                    timer: 3500,
+                                    showConfirmButton: false
+                                });
+                            }
+                        }
+
                         // إخطار الـ DataTable بالتحديث وإعادة الرسم الفورية
                         if (typeof table !== 'undefined' && table) {
                             table.row(row).invalidate().draw(false);
@@ -843,6 +916,123 @@
             // إرجاع وضع "سمع" كوضع افتراضي
             modal.find('.status-radio[value="1"]').prop('checked', true).trigger('change');
             modal.find('.status-radio[value="1"]').closest('label').addClass('active').siblings().removeClass('active');
+        });
+
+        // تحديث فوري لخلية parts/المراجعة بعد حفظ التسميع (بدون reload)
+        function refreshPartsReviewUI(studentId, parts, pending) {
+            const partsBadge = document.getElementById('partsBadge' + studentId);
+            if (partsBadge) {
+                partsBadge.innerHTML = '<i class="bi bi-book me-1"></i>' + parts + ' / 30 ';
+            }
+
+            let pendingBadge = document.getElementById('pendingBadge' + studentId);
+            if (pending.length > 0) {
+                if (!pendingBadge && partsBadge) {
+                    pendingBadge = document.createElement('span');
+                    pendingBadge.id = 'pendingBadge' + studentId;
+                    pendingBadge.className = 'badge bg-warning text-dark';
+                    pendingBadge.style.fontSize = '0.65rem';
+                    partsBadge.parentElement.appendChild(pendingBadge);
+                }
+                if (pendingBadge) {
+                    pendingBadge.textContent = 'مراجعة (' + pending.length + ')';
+                }
+            } else if (pendingBadge) {
+                pendingBadge.remove();
+            }
+
+            const btn = document.getElementById('reviewBtn' + studentId);
+            if (btn) {
+                if (pending.length > 0) {
+                    const next = pending[0];
+                    btn.dataset.requestId = next.id;
+                    btn.dataset.milestone = next.milestone ?? '';
+                    btn.dataset.range = next.range ?? '';
+                    btn.dataset.remaining = pending.length;
+                    btn.disabled = false;
+                    btn.classList.remove('btn-outline-primary');
+                    btn.classList.add('btn-primary');
+                    btn.style.opacity = '';
+                    btn.title = 'تأكيد انتهاء المراجعة وإشعار مسؤول المركز';
+                } else {
+                    btn.dataset.requestId = '';
+                    btn.dataset.milestone = '';
+                    btn.dataset.range = '';
+                    btn.dataset.remaining = '0';
+                    btn.disabled = true;
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-outline-primary');
+                    btn.style.opacity = '0.55';
+                    btn.title = 'يُفعَّل عند بلوغ الطالب 3 أجزاء';
+                }
+            }
+        }
+
+        // ===== تأكيد انتهاء المراجعة → إشعار مسؤول المركز (تسلسلي بدون reload) =====
+        $(document).on('click', '.review-complete-btn', function () {
+            const btn = $(this);
+            const requestId = btn.data('request-id');
+            const range = btn.data('range');
+
+            Swal.fire({
+                title: 'تأكيد انتهاء المراجعة' + (range ? ' — المرحلة: ' + range : '') + '؟',
+                html: range
+                    ? 'سيتم إشعار مسؤول المركز بأن الطالب أنهى مراجعة <b>' + range + '</b> وهو جاهز للاختبار الرسمي.'
+                    : 'سيتم إشعار مسؤول المركز بأن الطالب جاهز للاختبار الرسمي.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، تأكيد',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#0d6efd'
+            }).then(result => {
+                if (!result.isConfirmed) return;
+                btn.prop('disabled', true);
+
+                $.ajax({
+                    url: `/part-reviews/${requestId}/complete`,
+                    method: 'POST',
+                    data: { _token: $('meta[name="csrf-token"]').attr('content') },
+                    dataType: 'json',
+                    success: function (res) {
+                        if (res.success) {
+                            const studentId = btn.data('student-id');
+                            const remaining = res.remaining || 0;
+                            const pendingBadge = document.getElementById('pendingBadge' + studentId);
+
+                            if (remaining > 0 && res.next_review) {
+                                // مرحلة تالية معلّقة → حدّث الزر والعدّاد فقط
+                                btn.data('request-id', res.next_review.id);
+                                btn.data('milestone', res.next_review.milestone || '');
+                                btn.data('range', res.next_review.range || '');
+                                btn.data('remaining', remaining);
+                                btn.prop('disabled', false);
+                                if (pendingBadge) {
+                                    pendingBadge.textContent = 'مراجعة (' + remaining + ')';
+                                }
+                            } else {
+                                // لا مراحل متبقية → عطّل الزر بشكل فاتح وأزل الشارة
+                                btn.data('request-id', '');
+                                btn.data('milestone', '');
+                                btn.data('range', '');
+                                btn.data('remaining', '0');
+                                btn.prop('disabled', true);
+                                btn.removeClass('btn-primary').addClass('btn-outline-primary');
+                                btn.css('opacity', '0.55');
+                                btn.attr('title', 'يُفعَّل عند بلوغ الطالب 3 أجزاء');
+                                if (pendingBadge) pendingBadge.remove();
+                            }
+                            Swal.fire({ icon: 'success', title: 'تم', text: res.message, timer: 2000, showConfirmButton: false });
+                        } else {
+                            btn.prop('disabled', false);
+                            Swal.fire({ icon: 'error', title: 'خطأ', text: res.message });
+                        }
+                    },
+                    error: function (xhr) {
+                        btn.prop('disabled', false);
+                        Swal.fire({ icon: 'error', title: 'خطأ', text: (xhr.responseJSON && xhr.responseJSON.message) || 'تعذر تنفيذ العملية' });
+                    }
+                });
+            });
         });
     });
 </script>

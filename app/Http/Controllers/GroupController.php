@@ -67,6 +67,14 @@ class GroupController extends Controller
     public function show(string $id)
     {
         $data = $this->groupLogic->getGroupDetails($id);
+
+        // طلبات المراجعة المعلّقة لطلاب هذه المجموعة (مجمّعة حسب الطالب، مرتبة بالمرحلة)
+        $data['pendingReviews'] = \App\Models\PartReviewRequest::where('status', 'pending')
+            ->whereIn('student_id', $data['students']->pluck('id'))
+            ->orderBy('milestone')
+            ->get()
+            ->groupBy('student_id');
+
         return view('groups.show', $data);
     }
 
